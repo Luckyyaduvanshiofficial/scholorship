@@ -40,6 +40,9 @@ $router->post('/applications/scholarship', 'ApplicationController@storeScholarsh
 $router->get('/applications/pratibha', 'ApplicationController@pratibha');
 $router->post('/applications/pratibha', 'ApplicationController@storePratibha');
 $router->get('/applications/{id}', 'ApplicationController@show');
+$router->get('/applications/{id}/edit', 'ApplicationController@edit');
+$router->post('/applications/{id}/edit', 'ApplicationController@update');
+$router->get('/uploads/applications/{id}/{filename}', 'ApplicationController@viewUpload');
 
 // ─── Admin Application Routes ─────────────────────────────
 $router->get('/admin/applications', 'AdminApplicationController@index');

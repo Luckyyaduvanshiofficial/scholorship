@@ -334,6 +334,22 @@ class ApplicationController
             Response::redirect('/applications');
         }
 
+        // Retrieve and update student profile information if changed in form
+        $studentModel = new \App\Models\Student();
+        $studentModel->update((int) Auth::id(), [
+            'first_name'  => Input::post('first_name', ''),
+            'last_name'   => Input::post('last_name', ''),
+            'father_name' => Input::post('father_name', ''),
+            'mother_name' => Input::post('mother_name', ''),
+            'dob'         => Input::post('dob', null) ?: null,
+            'gender'      => Input::post('gender', ''),
+            'address'     => Input::post('address', ''),
+            'city'        => Input::post('city', ''),
+            'district'    => Input::post('district', ''),
+            'state'       => Input::post('state', ''),
+            'pincode'     => Input::post('pincode', ''),
+        ]);
+
         $data = [
             'class_year'            => Input::post('class_year', ''),
             'college_name'          => Input::post('college_name', ''),
@@ -369,6 +385,8 @@ class ApplicationController
         $validatedUploads = $this->validateUploads([
             'marksheet'   => 'Marksheet',
             'certificate' => 'Certificate',
+            'photo'       => 'Photo',
+            'signature'   => 'Signature',
         ], '/applications/pratibha', $data);
 
         $appModel = new Application();
@@ -405,7 +423,11 @@ class ApplicationController
                 $data['percentage'] ?: null,
             ]);
 
-            $this->storeUploads($appModel, $appId, $validatedUploads);
+            $storedFiles = $this->storeUploads($appModel, $appId, $validatedUploads);
+            if (isset($storedFiles['photo'])) {
+                $profilePhotoPath = '/uploads/applications/' . $appId . '/' . $storedFiles['photo'];
+                $studentModel->update((int) Auth::id(), ['profile_photo' => $profilePhotoPath]);
+            }
 
             Flash::set('success', 'Pratibha Samman application submitted! Your application number is TSVS-' . date('Y') . '-' . str_pad((string) $appId, 6, '0', STR_PAD_LEFT));
             Response::redirect('/applications');
@@ -570,9 +592,386 @@ class ApplicationController
 
         // Reset application status to Pending (status_id = 1) and clear dispute remarks
         $stmt = $db->prepare("UPDATE applications SET status_id = 1, dispute_message = NULL WHERE id = ?");
-        $stmt->execute([$id]);
-
         Flash::set('success', 'Application has been successfully resubmitted. It will be reviewed again.');
+        Response::redirect('/applications/' . $id);
+    }
+
+    /**
+     * View and stream an uploaded file inline.
+     */
+    public function viewUpload(string $id, string $filename): void
+    {
+        if (!Auth::check()) {
+            Response::redirect('/login');
+        }
+
+        $appModel = new Application();
+        $app = $appModel->find((int) $id);
+
+        if (!$app) {
+            Response::abort(404, 'Application not found');
+        }
+
+        // Students can only view their own uploads, admins/representatives can view all
+        if (!Auth::isAdmin() && !Auth::isRepresentative() && (int) $app['student_id'] !== (int) Auth::id()) {
+            Response::abort(403, 'Unauthorized access to this document');
+        }
+
+        $filename = basename($filename);
+        $filePath = UPLOAD_PATH . '/applications/' . $id . '/' . $filename;
+
+        if (!file_exists($filePath) || !is_file($filePath)) {
+            Response::abort(404, 'File not found');
+        }
+
+        $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
+        
+        // Clear output buffer
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: inline; filename="' . basename($filePath) . '"');
+        header('Content-Length: ' . filesize($filePath));
+        header('Cache-Control: private, max-age=604800');
+        readfile($filePath);
+        exit;
+    }
+
+    /**
+     * Show the application edit form.
+     */
+    public function edit(string $id): void
+    {
+        if (!Auth::isStudent()) {
+            Response::redirect('/login');
+        }
+
+        $appModel = new Application();
+        $app = $appModel->find((int) $id);
+
+        if (!$app || (int) $app['student_id'] !== (int) Auth::id()) {
+            Flash::set('error', 'Application not found.');
+            Response::redirect('/applications');
+        }
+
+        $statusName = $app['status_name'] ?? '';
+        if (!in_array($statusName, ['Pending', 'Disputed'], true)) {
+            Flash::set('error', 'You can only edit applications in Pending or Disputed status.');
+            Response::redirect('/applications/' . $id);
+        }
+
+        $sessionModel = new AcademicSession();
+        $session = $sessionModel->find((int) $app['session_id']);
+
+        $studentModel = new \App\Models\Student();
+        $student = $studentModel->find((int) Auth::id());
+
+        if ($app['type'] === 'scholarship') {
+            Response::view('applications/scholarship', [
+                'title'         => 'Edit Scholarship Application — Tamboli Samaj Portal',
+                'activeSession' => $session ?: [],
+                'student'       => $student ?: [],
+                'application'   => $app,
+                'isEdit'        => true
+            ]);
+        } else {
+            Response::view('applications/pratibha', [
+                'title'         => 'Edit Pratibha Samman Application — Tamboli Samaj Portal',
+                'activeSession' => $session ?: [],
+                'student'       => $student ?: [],
+                'application'   => $app,
+                'isEdit'        => true
+            ]);
+        }
+    }
+
+    /**
+     * Process application details update.
+     */
+    public function update(string $id): void
+    {
+        if (!Auth::isStudent()) {
+            Response::redirect('/login');
+        }
+
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/applications/' . $id . '/edit');
+        }
+
+        $appModel = new Application();
+        $app = $appModel->find((int) $id);
+
+        if (!$app || (int) $app['student_id'] !== (int) Auth::id()) {
+            Flash::set('error', 'Application not found.');
+            Response::redirect('/applications');
+        }
+
+        $statusName = $app['status_name'] ?? '';
+        if (!in_array($statusName, ['Pending', 'Disputed'], true)) {
+            Flash::set('error', 'You can only update applications in Pending or Disputed status.');
+            Response::redirect('/applications/' . $id);
+        }
+
+        // Retrieve and update student profile information if changed in form
+        $studentModel = new \App\Models\Student();
+        $studentModel->update((int) Auth::id(), [
+            'first_name'  => Input::post('first_name', ''),
+            'last_name'   => Input::post('last_name', ''),
+            'father_name' => Input::post('father_name', ''),
+            'mother_name' => Input::post('mother_name', ''),
+            'dob'         => Input::post('dob', null) ?: null,
+            'gender'      => Input::post('gender', ''),
+            'address'     => Input::post('address', ''),
+            'city'        => Input::post('city', ''),
+            'district'    => Input::post('district', ''),
+            'state'       => Input::post('state', ''),
+            'pincode'     => Input::post('pincode', ''),
+        ]);
+
+        if ($app['type'] === 'scholarship') {
+            $data = [
+                'class_year'       => Input::post('class_year', ''),
+                'college_name'     => Input::post('college_name', ''),
+                'board_university' => Input::post('board_university', ''),
+                'marks_obtained'   => Input::post('marks_obtained', ''),
+                'max_marks'        => Input::post('max_marks', ''),
+                'percentage'       => Input::post('percentage', ''),
+                'family_income'    => Input::post('family_income', ''),
+                'bank_name'        => Input::post('bank_name', ''),
+                'account_number'   => Input::post('account_number', ''),
+                'ifsc_code'        => Input::post('ifsc_code', ''),
+            ];
+
+            $v = Validator::make($data);
+            $v->required('class_year', 'Class/Year')
+              ->required('percentage', 'Percentage')
+              ->numeric('percentage', 'Percentage')
+              ->required('bank_name', 'Bank name')
+              ->required('account_number', 'Account number')
+              ->required('ifsc_code', 'IFSC code');
+
+            if ($v->fails()) {
+                Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name'));
+                Response::redirect('/applications/' . $id . '/edit');
+            }
+
+            $pct = (float) $data['percentage'];
+            if ($pct < 0 || $pct > 100) {
+                Flash::set('error', 'Percentage must be between 0 and 100.');
+                Response::redirect('/applications/' . $id . '/edit');
+            }
+
+            // Update application fields
+            $appModel->update((int) $id, [
+                'family_income'  => $data['family_income'] ?: null,
+                'bank_name'      => $data['bank_name'],
+                'account_number' => $data['account_number'],
+                'ifsc_code'      => $data['ifsc_code'],
+                'status_id'      => 1, // reset to pending
+                'dispute_message'=> null, // clear dispute message
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ]);
+
+            // Update academics
+            $db = \App\Core\Database::getInstance();
+            $stmt = $db->prepare(
+                "INSERT INTO student_academics (student_id, session_id, course_name, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                 ON DUPLICATE KEY UPDATE class_year=VALUES(class_year), college_name=VALUES(college_name), board_university=VALUES(board_university), marks_obtained=VALUES(marks_obtained), max_marks=VALUES(max_marks), percentage=VALUES(percentage)"
+            );
+            $stmt->execute([
+                (int) Auth::id(),
+                (int) $app['session_id'],
+                $data['class_year'],
+                $data['class_year'],
+                $data['college_name'],
+                $data['board_university'],
+                $data['marks_obtained'] ?: null,
+                $data['max_marks'] ?: null,
+                $data['percentage'] ?: null,
+            ]);
+
+            // Check files and update
+            $uploader = new FileUploader();
+            $possibleUploads = [
+                'marksheet' => 'Marksheet',
+                'passbook'  => 'Passbook',
+                'photo'     => 'Photo',
+                'signature' => 'Signature',
+            ];
+            $validatedUploads = [];
+            foreach ($possibleUploads as $field => $documentType) {
+                $file = $_FILES[$field] ?? null;
+                if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                    if (!$uploader->validate($file)) {
+                        Flash::set('error', $documentType . ': ' . $uploader->firstError());
+                        Response::redirect('/applications/' . $id . '/edit');
+                    }
+                    $validatedUploads[$field] = [
+                        'type' => $documentType,
+                        'file' => $file,
+                    ];
+                }
+            }
+
+            if (!empty($validatedUploads)) {
+                $directory = UPLOAD_PATH . '/applications/' . $id;
+                foreach ($validatedUploads as $field => $upload) {
+                    $documentTypeId = $appModel->documentTypeId($upload['type']);
+                    if ($documentTypeId !== null) {
+                        // Find and delete existing physical files for this document type
+                        $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+                        $stmt->execute([$id, $documentTypeId]);
+                        $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($existing as $doc) {
+                            $oldPath = $directory . '/' . $doc['stored_name'];
+                            if (file_exists($oldPath)) {
+                                @unlink($oldPath);
+                            }
+                        }
+
+                        // Delete records from database
+                        $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+                        $stmt->execute([$id, $documentTypeId]);
+                    }
+
+                    // Upload and insert the new document
+                    $storedName = $uploader->upload($upload['file'], $directory);
+                    $appModel->addDocument((int) $id, $upload['type'], $upload['file'], $storedName);
+
+                    // Update student profile photo if updated photo
+                    if ($upload['type'] === 'Photo') {
+                        $profilePhotoPath = '/uploads/applications/' . $id . '/' . $storedName;
+                        $studentModel->update((int) Auth::id(), ['profile_photo' => $profilePhotoPath]);
+                    }
+                }
+            }
+
+        } else {
+            // Pratibha update
+            $data = [
+                'class_year'            => Input::post('class_year', ''),
+                'college_name'          => Input::post('college_name', ''),
+                'board_university'      => Input::post('board_university', ''),
+                'marks_obtained'        => Input::post('marks_obtained', ''),
+                'max_marks'             => Input::post('max_marks', ''),
+                'percentage'            => Input::post('percentage', ''),
+                'achievement_title'     => Input::post('achievement_title', ''),
+                'achievement_category'  => Input::post('achievement_category', ''),
+                'achievement_level'     => Input::post('achievement_level', ''),
+                'rank_position'         => Input::post('rank_position', ''),
+            ];
+
+            $v = Validator::make($data);
+            $v->required('class_year', 'Class/Year')
+              ->required('percentage', 'Percentage')
+              ->numeric('percentage', 'Percentage')
+              ->required('achievement_title', 'Achievement title');
+
+            if ($v->fails()) {
+                Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('achievement_title'));
+                Response::redirect('/applications/' . $id . '/edit');
+            }
+
+            $pct = (float) $data['percentage'];
+            if ($pct < 0 || $pct > 100) {
+                Flash::set('error', 'Percentage must be between 0 and 100.');
+                Response::redirect('/applications/' . $id . '/edit');
+            }
+
+            // Update application fields
+            $appModel->update((int) $id, [
+                'achievement_title'   => $data['achievement_title'],
+                'achievement_category'=> $data['achievement_category'] ?: null,
+                'achievement_level'   => $data['achievement_level'] ?: null,
+                'rank_position'       => $data['rank_position'] ?: null,
+                'status_id'           => 1, // reset to pending
+                'dispute_message'     => null, // clear dispute message
+                'updated_at'          => date('Y-m-d H:i:s'),
+            ]);
+
+            // Update academics
+            $db = \App\Core\Database::getInstance();
+            $stmt = $db->prepare(
+                "INSERT INTO student_academics (student_id, session_id, course_name, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                 ON DUPLICATE KEY UPDATE class_year=VALUES(class_year), college_name=VALUES(college_name), board_university=VALUES(board_university), marks_obtained=VALUES(marks_obtained), max_marks=VALUES(max_marks), percentage=VALUES(percentage)"
+            );
+            $stmt->execute([
+                (int) Auth::id(),
+                (int) $app['session_id'],
+                $data['class_year'],
+                $data['class_year'],
+                $data['college_name'],
+                $data['board_university'],
+                $data['marks_obtained'] ?: null,
+                $data['max_marks'] ?: null,
+                $data['percentage'] ?: null,
+            ]);
+
+            // Check files and update
+            $uploader = new FileUploader();
+            $possibleUploads = [
+                'marksheet'   => 'Marksheet',
+                'certificate' => 'Certificate',
+                'photo'       => 'Photo',
+                'signature'   => 'Signature',
+            ];
+            $validatedUploads = [];
+            foreach ($possibleUploads as $field => $documentType) {
+                $file = $_FILES[$field] ?? null;
+                if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                    if (!$uploader->validate($file)) {
+                        Flash::set('error', $documentType . ': ' . $uploader->firstError());
+                        Response::redirect('/applications/' . $id . '/edit');
+                    }
+                    $validatedUploads[$field] = [
+                        'type' => $documentType,
+                        'file' => $file,
+                    ];
+                }
+            }
+
+            if (!empty($validatedUploads)) {
+                $directory = UPLOAD_PATH . '/applications/' . $id;
+                foreach ($validatedUploads as $field => $upload) {
+                    $documentTypeId = $appModel->documentTypeId($upload['type']);
+                    if ($documentTypeId !== null) {
+                        // Find and delete existing physical files for this document type
+                        $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+                        $stmt->execute([$id, $documentTypeId]);
+                        $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($existing as $doc) {
+                            $oldPath = $directory . '/' . $doc['stored_name'];
+                            if (file_exists($oldPath)) {
+                                @unlink($oldPath);
+                            }
+                        }
+
+                        // Delete records from database
+                        $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+                        $stmt->execute([$id, $documentTypeId]);
+                    }
+
+                    // Upload and insert the new document
+                    $storedName = $uploader->upload($upload['file'], $directory);
+                    $appModel->addDocument((int) $id, $upload['type'], $upload['file'], $storedName);
+
+                    // Update student profile photo if updated photo
+                    if ($upload['type'] === 'Photo') {
+                        $profilePhotoPath = '/uploads/applications/' . $id . '/' . $storedName;
+                        $studentModel->update((int) Auth::id(), ['profile_photo' => $profilePhotoPath]);
+                    }
+                }
+            }
+        }
+
+        Flash::set('success', 'Application details updated successfully.');
         Response::redirect('/applications/' . $id);
     }
 }

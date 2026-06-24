@@ -9,6 +9,21 @@ $student = $student ?? [];
 $old = Flash::get('old');
 $old = $old[0] ?? [];
 
+$isEdit = $isEdit ?? false;
+$application = $application ?? [];
+$marksheetDoc = null;
+$passbookDoc = null;
+$photoDoc = null;
+$signatureDoc = null;
+if ($isEdit && !empty($application['documents'])) {
+    foreach ($application['documents'] as $doc) {
+        if ($doc['document_type'] === 'Marksheet') $marksheetDoc = $doc;
+        if ($doc['document_type'] === 'Passbook') $passbookDoc = $doc;
+        if ($doc['document_type'] === 'Photo') $photoDoc = $doc;
+        if ($doc['document_type'] === 'Signature') $signatureDoc = $doc;
+    }
+}
+
 require VIEW_PATH . '/layouts/header.php';
 require VIEW_PATH . '/layouts/flash-message.php';
 ?>
@@ -116,7 +131,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
             <!-- Interactive Form Wizard Wrapper -->
             <div class="card border-0 shadow-sm" style="border-radius: 1.25rem;">
                 <div class="card-body p-4 p-md-5">
-                    <form action="/applications/scholarship" method="POST" enctype="multipart/form-data" id="scholarshipWizardForm">
+                    <form action="<?= $isEdit ? '/applications/' . $application['id'] . '/edit' : '/applications/scholarship' ?>" method="POST" enctype="multipart/form-data" id="scholarshipWizardForm">
                         <?= Csrf::field() ?>
 
                         <!-- STEP 1: Personal & Family Information -->
@@ -205,34 +220,34 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <select name="class_year" id="field_class_year" class="form-select border-2 py-2" style="border-radius: 0.5rem;" required>
                                         <option value="">कक्षा चुनें / Select</option>
                                         <?php foreach (['10th', '12th', 'Graduation', 'Post Graduation'] as $cy): ?>
-                                            <option value="<?= $cy ?>" <?= ($old['class_year'] ?? '') === $cy ? 'selected' : '' ?>><?= $cy ?></option>
+                                            <option value="<?= $cy ?>" <?= ($old['class_year'] ?? $application['class_year'] ?? '') === $cy ? 'selected' : '' ?>><?= $cy ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्राप्त प्रतिशत (Percentage) <span class="text-danger">*</span></label>
                                     <input type="number" name="percentage" id="field_percentage" class="form-control border-2 py-2" style="border-radius: 0.5rem;" step="0.01" min="0" max="100" placeholder="उदा. 75.00" required
-                                           value="<?= Helpers::esc($old['percentage'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['percentage'] ?? $application['percentage'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्राप्त अंक (Marks Obtained)</label>
                                     <input type="number" name="marks_obtained" id="field_marks_obtained" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="प्राप्त अंक"
-                                           value="<?= Helpers::esc($old['marks_obtained'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['marks_obtained'] ?? $application['marks_obtained'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">कुल पूर्णांक (Max Marks)</label>
                                     <input type="number" name="max_marks" id="field_max_marks" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="कुल पूर्णांक"
-                                           value="<?= Helpers::esc($old['max_marks'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['max_marks'] ?? $application['max_marks'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">विद्यालय / महाविद्यालय (College/School Name)</label>
                                     <input type="text" name="college_name" id="field_college_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="विद्यालय/महाविद्यालय"
-                                           value="<?= Helpers::esc($old['college_name'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['college_name'] ?? $application['college_name'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">बोर्ड / विश्वविद्यालय (Board/University)</label>
                                     <input type="text" name="board_university" id="field_board_university" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. RBSE, CBSE"
-                                           value="<?= Helpers::esc($old['board_university'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['board_university'] ?? $application['board_university'] ?? '') ?>">
                                 </div>
                             </div>
 
@@ -243,22 +258,22 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">बैंक का नाम (Bank Name) <span class="text-danger">*</span></label>
                                     <input type="text" name="bank_name" id="field_bank_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="बैंक का नाम" required
-                                           value="<?= Helpers::esc($old['bank_name'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['bank_name'] ?? $application['bank_name'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">खाता संख्या (Account Number) <span class="text-danger">*</span></label>
                                     <input type="text" name="account_number" id="field_account_number" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="खाता नंबर" required
-                                           value="<?= Helpers::esc($old['account_number'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['account_number'] ?? $application['account_number'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">IFSC कोड (IFSC Code) <span class="text-danger">*</span></label>
                                     <input type="text" name="ifsc_code" id="field_ifsc_code" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="IFSC कोड" required
-                                           value="<?= Helpers::esc($old['ifsc_code'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['ifsc_code'] ?? $application['ifsc_code'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">वार्षिक पारिवारिक आय (Annual Family Income)</label>
                                     <input type="number" name="family_income" id="field_family_income" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. 180000"
-                                           value="<?= Helpers::esc($old['family_income'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['family_income'] ?? $application['family_income'] ?? '') ?>">
                                 </div>
                             </div>
                         </div>
@@ -273,32 +288,56 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <div class="col-sm-6">
                                     <div class="p-3 border rounded shadow-sm">
                                         <label class="form-label small fw-semibold text-muted d-block mb-2">अंकतालिका अपलोड करें (Marksheet) <span class="text-danger">*</span></label>
-                                        <input type="file" name="marksheet" id="file_marksheet" class="form-control" accept=".jpg,.jpeg,.png,.pdf" required>
+                                        <input type="file" name="marksheet" id="file_marksheet" class="form-control" accept=".jpg,.jpeg,.png,.pdf" <?= $isEdit ? '' : 'required' ?>>
                                         <div class="form-text text-muted small mt-1">पिछले वर्ष की अंकतालिका (JPG, PNG, PDF | अधिकतम: 2MB)</div>
+                                        <?php if ($marksheetDoc): ?>
+                                            <div class="mt-2 text-success small">
+                                                <i class="bi bi-check-circle-fill"></i> वर्तमान फ़ाइल: 
+                                                <a href="/uploads/applications/<?= $application['id'] ?>/<?= $marksheetDoc['stored_name'] ?>" target="_blank" class="text-decoration-underline fw-semibold"><?= Helpers::esc($marksheetDoc['original_name']) ?></a>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="p-3 border rounded shadow-sm">
                                         <label class="form-label small fw-semibold text-muted d-block mb-2">बैंक पासबुक अपलोड करें (Bank Passbook) <span class="text-danger">*</span></label>
-                                        <input type="file" name="passbook" id="file_passbook" class="form-control" accept=".jpg,.jpeg,.png,.pdf" required>
+                                        <input type="file" name="passbook" id="file_passbook" class="form-control" accept=".jpg,.jpeg,.png,.pdf" <?= $isEdit ? '' : 'required' ?>>
                                         <div class="form-text text-muted small mt-1">खाता संख्या एवं IFSC दर्शाने वाला पृष्ठ (JPG, PNG, PDF | अधिकतम: 2MB)</div>
+                                        <?php if ($passbookDoc): ?>
+                                            <div class="mt-2 text-success small">
+                                                <i class="bi bi-check-circle-fill"></i> वर्तमान फ़ाइल: 
+                                                <a href="/uploads/applications/<?= $application['id'] ?>/<?= $passbookDoc['stored_name'] ?>" target="_blank" class="text-decoration-underline fw-semibold"><?= Helpers::esc($passbookDoc['original_name']) ?></a>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="p-3 border rounded shadow-sm">
                                         <label class="form-label small fw-semibold text-muted d-block mb-2">पासपोर्ट साइज फोटो (Student Photo) <span class="text-danger">*</span></label>
-                                        <input type="file" name="photo" id="file_photo" class="form-control" accept=".jpg,.jpeg,.png" required>
+                                        <input type="file" name="photo" id="file_photo" class="form-control" accept=".jpg,.jpeg,.png" <?= $isEdit ? '' : 'required' ?>>
                                         <div class="form-text text-muted small mt-1">हाल ही की रंगीन पासपोर्ट फोटो (केवल JPG, PNG | अधिकतम: 1MB)</div>
+                                        <?php if ($photoDoc): ?>
+                                            <div class="mt-2 text-success small">
+                                                <i class="bi bi-check-circle-fill"></i> वर्तमान फ़ाइल: 
+                                                <a href="/uploads/applications/<?= $application['id'] ?>/<?= $photoDoc['stored_name'] ?>" target="_blank" class="text-decoration-underline fw-semibold"><?= Helpers::esc($photoDoc['original_name']) ?></a>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="p-3 border rounded shadow-sm">
                                         <label class="form-label small fw-semibold text-muted d-block mb-2">विद्यार्थी के हस्ताक्षर (Student Signature) <span class="text-danger">*</span></label>
-                                        <input type="file" name="signature" id="file_signature" class="form-control" accept=".jpg,.jpeg,.png" required>
+                                        <input type="file" name="signature" id="file_signature" class="form-control" accept=".jpg,.jpeg,.png" <?= $isEdit ? '' : 'required' ?>>
                                         <div class="form-text text-muted small mt-1">सफ़ेद कागज पर काले/नीले पेन से हस्ताक्षर (केवल JPG, PNG | अधिकतम: 500KB)</div>
+                                        <?php if ($signatureDoc): ?>
+                                            <div class="mt-2 text-success small">
+                                                <i class="bi bi-check-circle-fill"></i> वर्तमान फ़ाइल: 
+                                                <a href="/uploads/applications/<?= $application['id'] ?>/<?= $signatureDoc['stored_name'] ?>" target="_blank" class="text-decoration-underline fw-semibold"><?= Helpers::esc($signatureDoc['original_name']) ?></a>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

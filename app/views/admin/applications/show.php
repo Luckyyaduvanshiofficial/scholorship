@@ -177,7 +177,9 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                 <?= Helpers::esc($document['document_type'] ?? 'Document') ?>
                                             </div>
                                             <div class="small text-muted">
-                                                <?= Helpers::esc($document['original_name'] ?? '') ?>
+                                                <a href="/uploads/applications/<?= $app['id'] ?>/<?= $document['stored_name'] ?>" target="_blank" class="text-decoration-underline text-primary fw-semibold">
+                                                    <?= Helpers::esc($document['original_name'] ?? '') ?>
+                                                </a>
                                             </div>
                                             <div class="small text-muted">
                                                 Verification: <?= Helpers::esc($document['verification_status'] ?? 'pending') ?>

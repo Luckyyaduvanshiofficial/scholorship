@@ -127,6 +127,12 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 </div>
                 
                 <div class="d-flex gap-2 align-items-center">
+                    <?php if (in_array($app['status_name'] ?? '', ['Pending', 'Disputed'], true)): ?>
+                        <a href="/applications/<?= (int) $app['id'] ?>/edit" class="btn btn-warning btn-sm rounded-pill d-inline-flex align-items-center gap-1 shadow-sm px-3 py-2 fw-semibold">
+                            <i class="bi bi-pencil-fill"></i>
+                            <span>संशोधन / Edit Application</span>
+                        </a>
+                    <?php endif; ?>
                     <?php if (($app['type'] ?? '') === 'scholarship'): ?>
                         <button type="button" class="btn btn-outline-dark btn-sm rounded-pill d-inline-flex align-items-center gap-1 shadow-sm px-3 py-2 fw-semibold" onclick="window.print();">
                             <i class="bi bi-printer-fill"></i>
@@ -352,7 +358,9 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                 </span>
                                             </div>
                                             <div class="text-muted small text-truncate mb-2" title="<?= Helpers::esc($document['original_name'] ?? '') ?>">
-                                                <?= Helpers::esc($document['original_name'] ?? '') ?>
+                                                <a href="/uploads/applications/<?= $app['id'] ?>/<?= $document['stored_name'] ?>" target="_blank" class="text-decoration-underline text-primary fw-semibold">
+                                                    <?= Helpers::esc($document['original_name'] ?? '') ?>
+                                                </a>
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center border-top pt-2">
                                                 <span class="small text-muted">स्थिति / Status:</span>
