@@ -113,9 +113,13 @@ class ApplicationController
             }
         }
 
+        $studentModel = new \App\Models\Student();
+        $student = $studentModel->find((int) Auth::id());
+
         Response::view('applications/scholarship', [
             'title'         => 'Scholarship Application — Tamboli Samaj Portal',
             'activeSession' => $activeSession,
+            'student'       => $student ?: [],
         ]);
     }
 
@@ -191,7 +195,23 @@ class ApplicationController
             Response::redirect('/applications');
         }
 
-        // Validate
+        // Retrieve and update student profile information if changed in form
+        $studentModel = new \App\Models\Student();
+        $studentModel->update((int) Auth::id(), [
+            'first_name'  => Input::post('first_name', ''),
+            'last_name'   => Input::post('last_name', ''),
+            'father_name' => Input::post('father_name', ''),
+            'mother_name' => Input::post('mother_name', ''),
+            'dob'         => Input::post('dob', null) ?: null,
+            'gender'      => Input::post('gender', ''),
+            'address'     => Input::post('address', ''),
+            'city'        => Input::post('city', ''),
+            'district'    => Input::post('district', ''),
+            'state'       => Input::post('state', ''),
+            'pincode'     => Input::post('pincode', ''),
+        ]);
+
+        // Validate application inputs
         $data = [
             'class_year'       => Input::post('class_year', ''),
             'college_name'     => Input::post('college_name', ''),
@@ -226,12 +246,15 @@ class ApplicationController
             Response::redirect('/applications/scholarship');
         }
 
+        // Validate four uploads (marksheet, passbook, photo, signature)
         $validatedUploads = $this->validateUploads([
             'marksheet' => 'Marksheet',
             'passbook'  => 'Passbook',
+            'photo'     => 'Photo',
+            'signature' => 'Signature',
         ], '/applications/scholarship', $data);
 
-        // Store application — we also store academic marks in student_academics
+        // Store application
         $appModel = new Application();
         $appId = $appModel->create([
             'student_id'          => (int) Auth::id(),
@@ -266,7 +289,12 @@ class ApplicationController
                 $data['percentage'] ?: null,
             ]);
 
-            $this->storeUploads($appModel, $appId, $validatedUploads);
+            // Store files and check if student profile photo should be updated
+            $storedFiles = $this->storeUploads($appModel, $appId, $validatedUploads);
+            if (isset($storedFiles['photo'])) {
+                $profilePhotoPath = '/uploads/applications/' . $appId . '/' . $storedFiles['photo'];
+                $studentModel->update((int) Auth::id(), ['profile_photo' => $profilePhotoPath]);
+            }
 
             Flash::set('success', 'Scholarship application submitted! Your application number is TSVS-' . date('Y') . '-' . str_pad((string) $appId, 6, '0', STR_PAD_LEFT));
             Response::redirect('/applications');
@@ -439,15 +467,19 @@ class ApplicationController
         return $validated;
     }
 
-    private function storeUploads(Application $appModel, int $applicationId, array $uploads): void
+    private function storeUploads(Application $appModel, int $applicationId, array $uploads): array
     {
         $uploader = new FileUploader();
         $directory = UPLOAD_PATH . '/applications/' . $applicationId;
+        $stored = [];
 
-        foreach ($uploads as $upload) {
+        foreach ($uploads as $field => $upload) {
             $storedName = $uploader->upload($upload['file'], $directory);
             $appModel->addDocument($applicationId, $upload['type'], $upload['file'], $storedName);
+            $stored[$field] = $storedName;
         }
+
+        return $stored;
     }
 
     /**

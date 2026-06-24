@@ -175,6 +175,7 @@ INSERT IGNORE INTO document_types (name) VALUES
 ('Passbook'),
 ('Certificate'),
 ('Aadhaar'),
+('Signature'),
 ('Other');
 
 -- ────────────────────────────────────────────────────────────────────

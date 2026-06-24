@@ -2183,3 +2183,288 @@ a {
     margin: 0 auto 1.6rem;
   }
 }
+
+/* ====================================================================
+   11. Online Form Wizard Stepper & Print / PDF Styles
+   ==================================================================== */
+
+/* Stepper Indicator */
+.tsp-stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.tsp-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  text-align: center;
+}
+
+.tsp-step-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background: #cbd5e1;
+  z-index: 1;
+  transition: background var(--t-fast);
+}
+
+.tsp-step-item.completed:not(:last-child)::after {
+  background: #7c0b2b;
+}
+
+.tsp-step-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #cbd5e1;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.4rem;
+  position: relative;
+  z-index: 2;
+  transition: all var(--t-fast);
+}
+
+.tsp-step-item.active .tsp-step-circle {
+  border-color: #7c0b2b;
+  color: #7c0b2b;
+  box-shadow: 0 0 0 4px rgba(124, 11, 43, 0.15);
+}
+
+.tsp-step-item.completed .tsp-step-circle {
+  border-color: #7c0b2b;
+  background: #7c0b2b;
+  color: #ffffff;
+}
+
+.tsp-step-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 0.8rem;
+  transition: color var(--t-fast);
+}
+
+.tsp-step-item.active .tsp-step-label {
+  color: #7c0b2b;
+}
+
+.tsp-step-item.completed .tsp-step-label {
+  color: #475569;
+}
+
+/* Wizard Steps Visibility */
+.tsp-form-step {
+  display: none;
+}
+
+.tsp-form-step.active {
+  display: block;
+  animation: fadeIn var(--t-fast) ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Offline-Style Application Preview */
+#printableScholarshipForm {
+  background: #ffffff;
+  color: #000000;
+  padding: 3rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.8rem;
+  box-shadow: var(--sh-sm);
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+}
+
+.print-header {
+  border-bottom: 2px solid #000000;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.print-org-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #000000;
+  text-align: center;
+  margin: 0;
+}
+
+.print-org-subtitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #334155;
+  text-align: center;
+  display: block;
+  margin-top: 0.3rem;
+}
+
+.print-form-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  background: #f1f5f9;
+  border: 1px solid #000000;
+  text-align: center;
+  padding: 0.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0.3rem;
+}
+
+.print-photo-box {
+  width: 120px;
+  height: 150px;
+  border: 2px dashed #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.print-photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.print-signature-box {
+  width: 180px;
+  height: 60px;
+  border: 2px dashed #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.print-signature-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.print-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.print-table th, .print-table td {
+  border: 1px solid #000000;
+  padding: 0.75rem 1rem;
+  font-size: 1.3rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.print-table th {
+  background: #f8fafc;
+  font-weight: 700;
+  width: 35%;
+}
+
+.print-section-heading {
+  font-size: 1.35rem;
+  font-weight: 800;
+  border-bottom: 1.5px solid #000000;
+  padding-bottom: 0.4rem;
+  margin-bottom: 1.2rem;
+  color: #000000;
+}
+
+.print-footer-declaration {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-top: 3rem;
+  text-align: justify;
+}
+
+/* Print CSS Media query */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  /* Hide sidebar, dashboard header, footer, buttons, alerts */
+  header.tsp-dash-header,
+  aside.tsp-dash-sidebar,
+  footer,
+  .btn,
+  .alert,
+  .mb-4,
+  .navbar,
+  .flash-msg-container,
+  .d-flex.justify-content-between.align-items-center {
+    display: none !important;
+  }
+  
+  /* Adjust main container to occupy full page */
+  .tsp-dash-container {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+  
+  .tsp-dash-content-area {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .card-body {
+    padding: 0 !important;
+  }
+  
+  #printableScholarshipForm {
+    display: block !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Force page breaks if necessary */
+  .page-break {
+    page-break-before: always;
+  }
+}
+

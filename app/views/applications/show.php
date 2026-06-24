@@ -22,6 +22,20 @@ $statusTranslate = function(string $statusName): string {
     };
 };
 
+// Find Photo and Signature document paths for printing
+$photoUrl = '';
+$signatureUrl = '';
+if (!empty($app['documents'])) {
+    foreach ($app['documents'] as $doc) {
+        if (($doc['document_type'] ?? '') === 'Photo') {
+            $photoUrl = '/uploads/applications/' . $app['id'] . '/' . $doc['stored_name'];
+        }
+        if (($doc['document_type'] ?? '') === 'Signature') {
+            $signatureUrl = '/uploads/applications/' . $app['id'] . '/' . $doc['stored_name'];
+        }
+    }
+}
+
 require VIEW_PATH . '/layouts/header.php';
 require VIEW_PATH . '/layouts/flash-message.php';
 ?>
@@ -111,9 +125,18 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         &middot; जमा तिथि: <strong class="text-dark"><?= !empty($app['submitted_at']) ? date('d M Y, h:i A', strtotime($app['submitted_at'])) : 'N/A' ?></strong>
                     </p>
                 </div>
-                <span class="badge py-2 px-3 rounded-pill fw-semibold fs-6 <?= $statusBadgeClass($app['status_name'] ?? 'Pending') ?>">
-                    <?= $statusTranslate($app['status_name'] ?? 'Pending') ?>
-                </span>
+                
+                <div class="d-flex gap-2 align-items-center">
+                    <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                        <button type="button" class="btn btn-outline-dark btn-sm rounded-pill d-inline-flex align-items-center gap-1 shadow-sm px-3 py-2 fw-semibold" onclick="window.print();">
+                            <i class="bi bi-printer-fill"></i>
+                            <span>रसीद प्रिंट / PDF सेव करें</span>
+                        </button>
+                    <?php endif; ?>
+                    <span class="badge py-2.5 px-3 rounded-pill fw-semibold fs-6 <?= $statusBadgeClass($app['status_name'] ?? 'Pending') ?>">
+                        <?= $statusTranslate($app['status_name'] ?? 'Pending') ?>
+                    </span>
+                </div>
             </div>
 
             <!-- Dispute Warning Notice -->
@@ -201,12 +224,58 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <span class="small text-muted d-block mb-1">विद्यार्थी कोड (Student Code)</span>
                                     <span class="fw-semibold text-dark"><?= Helpers::esc($app['student_code'] ?? '-') ?></span>
                                 </div>
+                                <?php if (!empty($app['father_name'])): ?>
+                                <div class="col-sm-6">
+                                    <span class="small text-muted d-block mb-1">पिता का नाम (Father's Name)</span>
+                                    <span class="fw-semibold text-dark"><?= Helpers::esc($app['father_name']) ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if (!empty($app['mother_name'])): ?>
+                                <div class="col-sm-6">
+                                    <span class="small text-muted d-block mb-1">माता का नाम (Mother's Name)</span>
+                                    <span class="fw-semibold text-dark"><?= Helpers::esc($app['mother_name']) ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if (!empty($app['address'])): ?>
+                                <div class="col-12">
+                                    <span class="small text-muted d-block mb-1">स्थाई पता (Address)</span>
+                                    <span class="fw-semibold text-dark"><?= Helpers::esc($app['address']) ?>, <?= Helpers::esc($app['city'] ?? '') ?>, <?= Helpers::esc($app['district'] ?? '') ?> - <?= Helpers::esc($app['pincode'] ?? '') ?></span>
+                                </div>
+                                <?php endif; ?>
                             </div>
 
                             <hr class="my-4" style="border-color: #e2e8f0;">
 
-                            <!-- Type-Specific Details -->
+                            <!-- Academic Section (for Scholarship) -->
                             <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded-circle" style="width: 30px; height: 30px;">
+                                        <i class="bi bi-mortarboard"></i>
+                                    </div>
+                                    <h4 class="h6 fw-bold mb-0 text-dark">शैक्षणिक योग्यता विवरण / Academic Details</h4>
+                                </div>
+
+                                <div class="row g-3 mb-4">
+                                    <div class="col-sm-6">
+                                        <span class="small text-muted d-block mb-1">कक्षा व वर्ष (Class & Year)</span>
+                                        <span class="fw-semibold text-dark"><?= Helpers::esc($app['class_year'] ?? '-') ?></span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="small text-muted d-block mb-1">प्रतिशत (Percentage)</span>
+                                        <span class="fw-bold text-primary"><?= Helpers::esc($app['percentage'] ?? '-') ?>%</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="small text-muted d-block mb-1">विद्यालय/महाविद्यालय (College/School)</span>
+                                        <span class="fw-semibold text-dark"><?= Helpers::esc($app['college_name'] ?? '-') ?></span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="small text-muted d-block mb-1">बोर्ड / विश्वविद्यालय (Board/University)</span>
+                                        <span class="fw-semibold text-dark"><?= Helpers::esc($app['board_university'] ?? '-') ?></span>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4" style="border-color: #e2e8f0;">
+
                                 <div class="d-flex align-items-center gap-2 mb-3">
                                     <div class="d-flex align-items-center justify-content-center bg-light text-muted rounded-circle" style="width: 30px; height: 30px;">
                                         <i class="bi bi-bank"></i>
@@ -275,7 +344,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <?php else: ?>
                                 <div class="d-flex flex-column gap-3">
                                     <?php foreach ($app['documents'] as $document): ?>
-                                        <div class="p-3 border rounded" style="background: #f8fafc; border-radius: 0.75rem !important;">
+                                        <div class="p-3 border rounded shadow-sm" style="background: #f8fafc; border-radius: 0.75rem !important;">
                                             <div class="d-flex align-items-center gap-2 mb-1">
                                                 <i class="bi bi-file-earmark-check fs-5 text-success"></i>
                                                 <span class="fw-bold text-dark small">
@@ -285,7 +354,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                             <div class="text-muted small text-truncate mb-2" title="<?= Helpers::esc($document['original_name'] ?? '') ?>">
                                                 <?= Helpers::esc($document['original_name'] ?? '') ?>
                                             </div>
-                                            <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex justify-content-between align-items-center border-top pt-2">
                                                 <span class="small text-muted">स्थिति / Status:</span>
                                                 <span class="badge rounded-pill fw-semibold bg-light text-dark border small">
                                                     <?= Helpers::esc($document['verification_status'] ?? 'pending') ?>
@@ -300,6 +369,145 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     </div>
                 </div>
             </div>
+
+            <!-- Hidden Print Container: Only rendered during browser printing (triggered by window.print()) -->
+            <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                <div id="printableScholarshipForm" class="d-none">
+                    <!-- Print Header -->
+                    <div class="print-header">
+                        <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
+                            <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj" width="50" height="50">
+                            <div>
+                                <h2 class="print-org-title">तम्बोली समाज विकास संस्था, राजस्थान</h2>
+                                <span class="print-org-subtitle">TAMBOLI SAMAJ VIKAS SANSTHA, RAJASTHAN</span>
+                            </div>
+                        </div>
+                        <div class="print-form-title">
+                            शिक्षा प्रोत्साहन छात्रवृत्ति आवेदन रसीद (सत्र: <?= Helpers::esc($app['session_name'] ?? 'N/A') ?>)
+                        </div>
+                    </div>
+
+                    <!-- Photo and Profile Info block -->
+                    <div class="d-flex justify-content-between align-items-start gap-4 mb-4">
+                        <div class="flex-grow-1">
+                            <div class="print-section-heading">1. व्यक्तिगत जानकारी (Personal Details)</div>
+                            <table class="print-table">
+                                <tr>
+                                    <th>आवेदन आईडी / App ID</th>
+                                    <td><strong>TSVS-<?= date('Y') ?>-<?= str_pad((string) ($app['id'] ?? 0), 6, '0', STR_PAD_LEFT) ?></strong></td>
+                                </tr>
+                                <tr>
+                                    <th>आवेदक का नाम / Name</th>
+                                    <td><?= Helpers::esc(($app['first_name'] ?? '') . ' ' . ($app['last_name'] ?? '')) ?></td>
+                                </tr>
+                                <tr>
+                                    <th>पिता का नाम / Father's Name</th>
+                                    <td><?= Helpers::esc($app['father_name'] ?? '-') ?></td>
+                                </tr>
+                                <tr>
+                                    <th>माता का नाम / Mother's Name</th>
+                                    <td><?= Helpers::esc($app['mother_name'] ?? '-') ?></td>
+                                </tr>
+                                <tr>
+                                    <th>जन्म तिथि व लिंग / DOB & Gender</th>
+                                    <td>
+                                        <?= !empty($app['dob']) ? date('d M Y', strtotime($app['dob'])) : '-' ?> 
+                                        &middot; 
+                                        <?= Helpers::esc($app['gender'] ?? '-') ?>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!-- Photo Display Box -->
+                        <div class="flex-shrink-0 d-flex flex-column align-items-center">
+                            <div class="print-photo-box">
+                                <?php if ($photoUrl): ?>
+                                    <img src="<?= Helpers::esc($photoUrl) ?>" alt="Photo">
+                                <?php else: ?>
+                                    फोटो<br>Photo
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details -->
+                    <div class="print-section-heading">2. संपर्क विवरण (Contact Details)</div>
+                    <table class="print-table">
+                        <tr>
+                            <th>मोबाइल / Mobile Number</th>
+                            <td><?= Helpers::esc($app['mobile'] ?? '-') ?></td>
+                            <th>ईमेल / Email ID</th>
+                            <td><?= Helpers::esc($app['email'] ?? '-') ?></td>
+                        </tr>
+                        <tr>
+                            <th>स्थाई पता / Address</th>
+                            <td colspan="3"><?= Helpers::esc($app['address'] ?? '-') ?>, <?= Helpers::esc($app['city'] ?? '') ?>, <?= Helpers::esc($app['district'] ?? '') ?> - <?= Helpers::esc($app['pincode'] ?? '') ?></td>
+                        </tr>
+                    </table>
+
+                    <!-- Academic Details -->
+                    <div class="print-section-heading">3. शैक्षणिक योग्यता (Academic Records)</div>
+                    <table class="print-table">
+                        <tr>
+                            <th>कक्षा व वर्ष / Class & Year</th>
+                            <td><?= Helpers::esc($app['class_year'] ?? '-') ?></td>
+                            <th>प्राप्त प्रतिशत / Percentage</th>
+                            <td><strong><?= Helpers::esc($app['percentage'] ?? '-') ?>%</strong></td>
+                        </tr>
+                        <tr>
+                            <th>प्राप्त / कुल अंक / Marks</th>
+                            <td><?= (!empty($app['marks_obtained']) && !empty($app['max_marks'])) ? $app['marks_obtained'] . ' / ' . $app['max_marks'] : '-' ?></td>
+                            <th>विद्यालय/महाविद्यालय / Institution</th>
+                            <td><?= Helpers::esc($app['college_name'] ?? '-') ?></td>
+                        </tr>
+                        <tr>
+                            <th>बोर्ड/विश्वविद्यालय / Board</th>
+                            <td colspan="3"><?= Helpers::esc($app['board_university'] ?? '-') ?></td>
+                        </tr>
+                    </table>
+
+                    <!-- Bank Details -->
+                    <div class="print-section-heading">4. बैंक खाता विवरण (Bank Details)</div>
+                    <table class="print-table">
+                        <tr>
+                            <th>बैंक का नाम / Bank Name</th>
+                            <td><?= Helpers::esc($app['bank_name'] ?? '-') ?></td>
+                            <th>खाता संख्या / Account Number</th>
+                            <td><?= Helpers::esc($app['account_number'] ?? '-') ?></td>
+                        </tr>
+                        <tr>
+                            <th>IFSC कोड / IFSC Code</th>
+                            <td><?= Helpers::esc($app['ifsc_code'] ?? '-') ?></td>
+                            <th>पारिवारिक आय / Family Income</th>
+                            <td><?= !empty($app['family_income']) ? '₹ ' . number_format((float) $app['family_income'], 2) : '-' ?></td>
+                        </tr>
+                    </table>
+
+                    <!-- Signature box and declarations -->
+                    <div class="print-footer-declaration border-top pt-4">
+                        <p class="mb-5 small text-dark">
+                            <strong>घोषणा (Declaration):</strong> मैं प्रमाणित करता हूँ कि इस आवेदन में दी गई सभी जानकारियाँ सत्य एवं सही हैं। यदि कोई भी जानकारी असत्य पाई जाती है, तो संस्था को मेरा आवेदन निरस्त करने का पूर्ण अधिकार है।
+                        </p>
+                        <div class="d-flex justify-content-between align-items-end mt-5 pt-3">
+                            <div>
+                                <div style="width: 150px; border-top: 1px solid #000; text-align: center;" class="pt-2 small fw-bold">
+                                    दिनांक: <?= date('d/m/Y') ?>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="print-signature-box mb-2">
+                                    <?php if ($signatureUrl): ?>
+                                        <img src="<?= Helpers::esc($signatureUrl) ?>" alt="Signature">
+                                    <?php else: ?>
+                                        हस्ताक्षर<br>Signature
+                                    <?php endif; ?>
+                                </div>
+                                <div style="width: 200px; border-top: 1px solid #000; text-align: center;" class="pt-2 small fw-bold">हस्ताक्षर / Signature</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
 
         </div>
     </main>
