@@ -140,6 +140,8 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
 
 <!-- Outer full-viewport shell -->
 <div class="d-flex flex-column min-vh-100 bg-light" style="font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;">
+    <!-- Mobile Sidebar Backdrop overlay -->
+    <div class="tsp-sidebar-backdrop" id="sidebarOverlay"></div>
 
     <!-- ── DEDICATED ADMIN DASHBOARD HEADER ── -->
     <header class="tsp-dash-header border-bottom bg-white px-4 py-2 d-flex align-items-center justify-content-between">
@@ -288,8 +290,9 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             </div>
                             <div class="tsp-metric-content">
                                 <div class="tsp-metric-title">कुल आवेदन</div>
-                                <div class="tsp-metric-value"><?= number_format($displayTotalApps) ?></div>
-                                <div class="tsp-metric-desc">सभी श्रेणियां</div>
+                                <div class="tsp-metric-value mb-1"><?= number_format($displayTotalApps) ?></div>
+                                <span class="tsp-trend-badge tsp-trend-up"><i class="bi bi-graph-up-arrow"></i> +12% इस सप्ताह</span>
+                                <div class="tsp-metric-desc mt-2">सभी श्रेणियां</div>
                                 <a href="/admin/applications" class="tsp-metric-action tsp-color-red">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
@@ -302,8 +305,9 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             </div>
                             <div class="tsp-metric-content">
                                 <div class="tsp-metric-title">पंजीकृत उपयोगकर्ता</div>
-                                <div class="tsp-metric-value"><?= number_format($displayTotalStudents) ?></div>
-                                <div class="tsp-metric-desc">सभी उपयोगकर्ता</div>
+                                <div class="tsp-metric-value mb-1"><?= number_format($displayTotalStudents) ?></div>
+                                <span class="tsp-trend-badge tsp-trend-up"><i class="bi bi-graph-up-arrow"></i> +8% इस महीने</span>
+                                <div class="tsp-metric-desc mt-2">सभी उपयोगकर्ता</div>
                                 <a href="/admin/students" class="tsp-metric-action tsp-color-blue">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
@@ -316,8 +320,9 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             </div>
                             <div class="tsp-metric-content">
                                 <div class="tsp-metric-title">छात्रवृत्ति आवेदन</div>
-                                <div class="tsp-metric-value"><?= number_format($displayScholarshipApps) ?></div>
-                                <div class="tsp-metric-desc">छात्रवृत्ति श्रेणी</div>
+                                <div class="tsp-metric-value mb-1"><?= number_format($displayScholarshipApps) ?></div>
+                                <span class="tsp-trend-badge tsp-trend-up"><i class="bi bi-graph-up-arrow"></i> +15% नए</span>
+                                <div class="tsp-metric-desc mt-2">छात्रवृत्ति श्रेणी</div>
                                 <a href="/admin/applications?type=scholarship" class="tsp-metric-action tsp-color-green">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
@@ -330,8 +335,9 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             </div>
                             <div class="tsp-metric-content">
                                 <div class="tsp-metric-title">कार्यक्रम / आयोजन</div>
-                                <div class="tsp-metric-value"><?= number_format($displaySeniorCount === 198 ? 6 : 0) ?></div>
-                                <div class="tsp-metric-desc">आगामी कार्यक्रम</div>
+                                <div class="tsp-metric-value mb-1"><?= number_format($displaySeniorCount === 198 ? 6 : 0) ?></div>
+                                <span class="tsp-trend-badge tsp-trend-neutral"><i class="bi bi-dash-lg"></i> यथावत</span>
+                                <div class="tsp-metric-desc mt-2">आगामी कार्यक्रम</div>
                                 <a href="#" class="tsp-metric-action tsp-color-gold">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
@@ -344,8 +350,9 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             </div>
                             <div class="tsp-metric-content">
                                 <div class="tsp-metric-title">सूचनाएं</div>
-                                <div class="tsp-metric-value"><?= number_format($displayTotalAnnouncements) ?></div>
-                                <div class="tsp-metric-desc">कुल सक्रिय सूचनाएं</div>
+                                <div class="tsp-metric-value mb-1"><?= number_format($displayTotalAnnouncements) ?></div>
+                                <span class="tsp-trend-badge tsp-trend-up"><i class="bi bi-graph-up-arrow"></i> 2 नए आज</span>
+                                <div class="tsp-metric-desc mt-2">कुल सक्रिय सूचनाएं</div>
                                 <a href="/admin/announcements" class="tsp-metric-action tsp-color-purple">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
@@ -557,41 +564,43 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                         <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
                             <div class="card-body p-4 d-flex flex-column">
                                 <h3 class="h5 fw-bold text-dark mb-4 font-heading">महत्वपूर्ण गतिविधियां</h3>
-                                <div class="tsp-activity-list flex-grow-1">
-                                    <?php foreach ($activities as $act): 
-                                        $icon = 'bi-clock-fill';
-                                        $bgClass = 'tsp-bg-blue';
-                                        $txtClass = 'tsp-color-blue';
-                                        
-                                        $type = $act['type'] ?? '';
-                                        if ($type === 'application') {
-                                            $icon = 'bi-file-earmark-text-fill';
-                                            $bgClass = 'tsp-bg-red';
-                                            $txtClass = 'tsp-color-red';
-                                        } elseif ($type === 'student') {
-                                            $icon = 'bi-person-fill';
+                                <div class="tsp-activity-list-container flex-grow-1">
+                                    <div class="tsp-activity-list">
+                                        <?php foreach ($activities as $act): 
+                                            $icon = 'bi-clock-fill';
                                             $bgClass = 'tsp-bg-blue';
                                             $txtClass = 'tsp-color-blue';
-                                        } elseif ($type === 'announcement') {
-                                            $icon = 'bi-megaphone-fill';
-                                            $bgClass = 'tsp-bg-purple';
-                                            $txtClass = 'tsp-color-purple';
-                                        } elseif ($type === 'event') {
-                                            $icon = 'bi-calendar-event-fill';
-                                            $bgClass = 'tsp-bg-gold';
-                                            $txtClass = 'tsp-color-gold';
-                                        }
-                                    ?>
-                                        <div class="tsp-activity-item">
-                                            <div class="tsp-activity-icon <?= $bgClass ?> <?= $txtClass ?>">
-                                                <i class="bi <?= $icon ?>"></i>
+                                            
+                                            $type = $act['type'] ?? '';
+                                            if ($type === 'application') {
+                                                $icon = 'bi-file-earmark-text-fill';
+                                                $bgClass = 'tsp-bg-red';
+                                                $txtClass = 'tsp-color-red';
+                                            } elseif ($type === 'student') {
+                                                $icon = 'bi-person-fill';
+                                                $bgClass = 'tsp-bg-blue';
+                                                $txtClass = 'tsp-color-blue';
+                                            } elseif ($type === 'announcement') {
+                                                $icon = 'bi-megaphone-fill';
+                                                $bgClass = 'tsp-bg-purple';
+                                                $txtClass = 'tsp-color-purple';
+                                            } elseif ($type === 'event') {
+                                                $icon = 'bi-calendar-event-fill';
+                                                $bgClass = 'tsp-bg-gold';
+                                                $txtClass = 'tsp-color-gold';
+                                            }
+                                        ?>
+                                            <div class="tsp-activity-item">
+                                                <div class="tsp-activity-icon <?= $bgClass ?> <?= $txtClass ?>">
+                                                    <i class="bi <?= $icon ?>"></i>
+                                                </div>
+                                                <div class="tsp-activity-content">
+                                                    <p class="tsp-activity-text text-secondary"><?= htmlspecialchars($act['title']) ?></p>
+                                                    <span class="tsp-activity-time"><?= htmlspecialchars($act['time']) ?></span>
+                                                </div>
                                             </div>
-                                            <div class="tsp-activity-content">
-                                                <p class="tsp-activity-text text-secondary"><?= htmlspecialchars($act['title']) ?></p>
-                                                <span class="tsp-activity-time"><?= htmlspecialchars($act['time']) ?></span>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
                                 <div class="mt-4 pt-2 text-center">
                                     <a href="#" class="btn btn-outline-danger btn-sm px-4 rounded-pill fw-semibold w-100 py-2" style="font-size: 1.25rem; border-color: #fee2e2; color: #8b0000;">
@@ -629,14 +638,27 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
 <!-- Sidebar interactive toggler & dynamic date-time update logic -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Sidebar Collapse Trigger
+    // Sidebar Collapse Trigger (Desktop: collapse, Mobile: Off-canvas overlay drawer)
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('sidebarToggle');
+    const overlay = document.getElementById('sidebarOverlay');
     
     if (toggleBtn && sidebar) {
         toggleBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            sidebar.classList.toggle('collapsed');
+            if (window.innerWidth < 992) {
+                sidebar.classList.toggle('active');
+                if (overlay) overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        });
+    }
+
+    if (overlay && sidebar) {
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
         });
     }
 
