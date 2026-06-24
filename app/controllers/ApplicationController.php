@@ -449,4 +449,98 @@ class ApplicationController
             $appModel->addDocument($applicationId, $upload['type'], $upload['file'], $storedName);
         }
     }
+
+    /**
+     * Resubmit a disputed application with corrected documents.
+     */
+    public function resubmit(int $id): void
+    {
+        if (!Auth::isStudent()) {
+            Response::redirect('/login');
+        }
+
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/applications/' . $id);
+        }
+
+        $appModel = new Application();
+        $app = $appModel->find($id);
+
+        if (!$app || (int) $app['student_id'] !== (int) Auth::id()) {
+            Flash::set('error', 'Application not found.');
+            Response::redirect('/applications');
+        }
+
+        if (($app['status_name'] ?? '') !== 'Disputed') {
+            Flash::set('error', 'Only disputed applications can be resubmitted.');
+            Response::redirect('/applications/' . $id);
+        }
+
+        $uploader = new FileUploader();
+        $uploadedSomething = false;
+        $validatedUploads = [];
+
+        // Check for Marksheet, Passbook, Certificate files
+        $possibleUploads = [
+            'marksheet'   => 'Marksheet',
+            'passbook'    => 'Passbook',
+            'certificate' => 'Certificate',
+        ];
+
+        foreach ($possibleUploads as $field => $documentType) {
+            $file = $_FILES[$field] ?? null;
+            if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                if (!$uploader->validate($file)) {
+                    Flash::set('error', $documentType . ': ' . $uploader->firstError());
+                    Response::redirect('/applications/' . $id);
+                }
+                $validatedUploads[$field] = [
+                    'type' => $documentType,
+                    'file' => $file,
+                ];
+                $uploadedSomething = true;
+            }
+        }
+
+        if (!$uploadedSomething) {
+            Flash::set('error', 'Please select at least one document to re-upload / resubmit.');
+            Response::redirect('/applications/' . $id);
+        }
+
+        $directory = UPLOAD_PATH . '/applications/' . $id;
+        $db = \App\Core\Database::getInstance();
+
+        foreach ($validatedUploads as $upload) {
+            $documentTypeId = $appModel->documentTypeId($upload['type']);
+            if ($documentTypeId !== null) {
+                // Find and delete existing physical files for this document type
+                $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+                $stmt->execute([$id, $documentTypeId]);
+                $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($existing as $doc) {
+                    $oldPath = $directory . '/' . $doc['stored_name'];
+                    if (file_exists($oldPath)) {
+                        @unlink($oldPath);
+                    }
+                }
+
+                // Delete records from database
+                $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+                $stmt->execute([$id, $documentTypeId]);
+            }
+
+            // Upload and insert the new document
+            $storedName = $uploader->upload($upload['file'], $directory);
+            $appModel->addDocument($id, $upload['type'], $upload['file'], $storedName);
+        }
+
+        // Reset application status to Pending (status_id = 1) and clear dispute remarks
+        $stmt = $db->prepare("UPDATE applications SET status_id = 1, dispute_message = NULL WHERE id = ?");
+        $stmt->execute([$id]);
+
+        Flash::set('success', 'Application has been successfully resubmitted. It will be reviewed again.');
+        Response::redirect('/applications/' . $id);
+    }
 }

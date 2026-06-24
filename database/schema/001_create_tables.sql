@@ -10,22 +10,24 @@
 -- ────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    role ENUM('super_admin', 'admin', 'representative') NOT NULL DEFAULT 'admin',
-    status TINYINT DEFAULT 1,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_email (email),
-    INDEX idx_role (role)
+    email VARCHAR(249) NOT NULL UNIQUE,
+    password VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+    username VARCHAR(100) DEFAULT NULL,
+    status TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    verified TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    resettable TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    roles_mask INT UNSIGNED NOT NULL DEFAULT 0,
+    registered INT UNSIGNED NOT NULL,
+    last_login INT UNSIGNED DEFAULT NULL,
+    force_logout MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
+    INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────────────
 -- 2. STUDENTS (Student profiles + authentication)
 -- ────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS students (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    id BIGINT UNSIGNED PRIMARY KEY,
     student_code VARCHAR(30) NOT NULL UNIQUE,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
@@ -41,10 +43,10 @@ CREATE TABLE IF NOT EXISTS students (
     state VARCHAR(100) DEFAULT NULL,
     pincode VARCHAR(10) DEFAULT NULL,
     profile_photo VARCHAR(255) DEFAULT NULL,
-    password_hash VARCHAR(255) NOT NULL,
     status TINYINT DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_mobile (mobile),
     INDEX idx_email (email),
     INDEX idx_student_code (student_code)
@@ -238,7 +240,95 @@ INSERT IGNORE INTO settings (`key`, value) VALUES
 ('pratibha_open', '1'),
 ('current_session_id', '1');
 
+-- ────────────────────────────────────────────────────────────────────
+-- 12. DELIGHT-IM/PHP-AUTH TABLES
+-- ────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS users_2fa (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  mechanism TINYINT UNSIGNED NOT NULL,
+  seed VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  created_at INT UNSIGNED NOT NULL,
+  expires_at INT UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY user_id_mechanism (user_id, mechanism),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users_audit_log (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED DEFAULT NULL,
+  event_at INT UNSIGNED NOT NULL,
+  event_type VARCHAR(128) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  admin_id BIGINT UNSIGNED DEFAULT NULL,
+  ip_address VARCHAR(49) CHARACTER SET ascii COLLATE ascii_general_ci DEFAULT NULL,
+  user_agent TEXT COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  details_json TEXT COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY event_at (event_at),
+  KEY user_id_event_at (user_id, event_at),
+  KEY user_id_event_type_event_at (user_id, event_type, event_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users_confirmations (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    email VARCHAR(249) NOT NULL,
+    selector VARCHAR(16) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+    token VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+    expires INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY selector (selector),
+    KEY email_expires (email, expires),
+    KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users_otps (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  mechanism TINYINT UNSIGNED NOT NULL,
+  single_factor TINYINT UNSIGNED NOT NULL DEFAULT '0',
+  selector VARCHAR(24) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  token VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  expires_at INT UNSIGNED DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY user_id_mechanism (user_id, mechanism),
+  KEY selector_user_id (selector, user_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users_remembered (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user BIGINT UNSIGNED NOT NULL,
+    selector VARCHAR(24) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+    token VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+    expires INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY selector (selector),
+    KEY user (user)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users_resets (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user BIGINT UNSIGNED NOT NULL,
+    selector VARCHAR(20) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+    token VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+    expires INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY selector (selector),
+    KEY user_expires (user, expires)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS users_throttling (
+    bucket VARCHAR(44) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+    tokens FLOAT UNSIGNED NOT NULL,
+    replenished_at INT UNSIGNED NOT NULL,
+    expires_at INT UNSIGNED NOT NULL,
+    PRIMARY KEY (bucket),
+    KEY expires_at (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ====================================================================
 -- Database setup complete
--- Total tables: 11 (simplified schema for MVP)
+-- Total tables: 18 (including delight-im/auth)
 -- ====================================================================

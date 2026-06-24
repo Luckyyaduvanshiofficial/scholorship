@@ -10,50 +10,56 @@ require VIEW_PATH . '/layouts/navbar.php';
 require VIEW_PATH . '/layouts/flash-message.php';
 ?>
 
-<main class="min-vh-100 d-flex align-items-center py-5" style="background: var(--bg);">
+<main class="tsp-auth-wrapper d-flex align-items-center py-5">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
                 <div class="text-center mb-4">
-                    <img src="/assets/images/logo/logo-placeholder.svg" alt="logo" class="tsp-top-logo mb-3" style="width:6rem;height:6rem;">
-                    <h1 class="h4 fw-bold" style="color:var(--g);">Tamboli Samaj Portal</h1>
-                    <p class="small text-muted">Sign in to your account</p>
+                    <div class="tsp-auth-logo-wrapper mb-3">
+                        <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
+                    </div>
+                    <h1 class="h3 fw-bold mb-1" style="color:var(--g);">तम्बोली समाज विकास संस्था</h1>
+                    <p class="small text-muted mb-0">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</p>
                 </div>
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-3 p-md-4">
+                <div class="card border-0 tsp-auth-card">
+                    <div class="card-body p-4 p-md-5">
                         <form action="/login" method="post">
                             <?= Csrf::field() ?>
-                            <div class="mb-3">
-                                <label class="form-label small fw-semibold text-muted text-uppercase">Login As</label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" class="btn-check" name="role" id="roleStudent" value="student" checked>
-                                    <label class="btn btn-outline-success flex-fill" for="roleStudent"><i class="bi bi-mortarboard me-1"></i> Student</label>
-                                    <input type="radio" class="btn-check" name="role" id="roleAdmin" value="admin">
-                                    <label class="btn btn-outline-success flex-fill" for="roleAdmin"><i class="bi bi-shield-lock me-1"></i> Admin</label>
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold text-muted text-uppercase mb-2">लॉगिन प्रकार / Login As</label>
+                                <div class="tsp-role-selector">
+                                    <input type="radio" name="role" id="roleStudent" value="student" checked>
+                                    <label for="roleStudent"><i class="bi bi-mortarboard"></i> छात्र / Student</label>
+                                    
+                                    <input type="radio" name="role" id="roleAdmin" value="admin">
+                                    <label for="roleAdmin"><i class="bi bi-shield-lock"></i> एडमिन / Admin</label>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="email" class="form-label small fw-semibold">Email</label>
-                                <div class="input-group">
+                                <label for="email" class="form-label small fw-semibold">ईमेल / Email</label>
+                                <div class="tsp-auth-input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                     <input type="email" name="email" id="email" class="form-control" placeholder="you@example.com" value="<?= Helpers::esc($emailVal) ?>" required autofocus>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label small fw-semibold">Password</label>
-                                <div class="input-group">
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="password" class="form-label small fw-semibold mb-0">पासवर्ड / Password</label>
+                                    <a href="/forgot-password" class="small text-decoration-none fw-semibold" style="color:var(--g); font-size: 1.2rem;">पासवर्ड भूल गए? / Forgot?</a>
+                                </div>
+                                <div class="tsp-auth-input-group">
                                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                     <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
                                 </div>
                             </div>
-                            <button type="submit" class="tsp-btn w-100 mt-2 mb-2"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In</button>
+                            <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center"><i class="bi bi-box-arrow-in-right me-1"></i> लॉगिन करें / Sign In</button>
                         </form>
                         <div class="text-center mt-3">
                             <small class="text-muted">Don't have an account? <a href="/register" class="fw-semibold" style="color:var(--g);">Register here</a></small>
                         </div>
                     </div>
                 </div>
-                <p class="text-center small text-muted mt-3"><i class="bi bi-shield-check me-1"></i> Secure login · Tamboli Samaj Vikas Sanstha, Rajasthan</p>
+                <p class="text-center small text-muted mt-4"><i class="bi bi-shield-check me-1"></i> Secure login · Tamboli Samaj Vikas Sanstha, Rajasthan</p>
             </div>
         </div>
     </div>

@@ -22,16 +22,17 @@ class Student
     {
         $stmt = $this->db->prepare(
             "INSERT INTO students
-             (student_code, first_name, last_name, gender, dob, mobile, email,
+             (id, student_code, first_name, last_name, gender, dob, mobile, email,
               father_name, mother_name, address, city, district, state, pincode,
-              profile_photo, password_hash, status, created_at)
+              profile_photo, status, created_at)
              VALUES
-             (:student_code, :first_name, :last_name, :gender, :dob, :mobile, :email,
+             (:id, :student_code, :first_name, :last_name, :gender, :dob, :mobile, :email,
               :father_name, :mother_name, :address, :city, :district, :state, :pincode,
-              :profile_photo, :password_hash, :status, NOW())"
+              :profile_photo, :status, NOW())"
         );
 
         $result = $stmt->execute([
+            ':id'            => $data['id'],
             ':student_code'  => $data['student_code'] ?? null,
             ':first_name'    => $data['first_name'] ?? null,
             ':last_name'     => $data['last_name'] ?? null,
@@ -47,11 +48,10 @@ class Student
             ':state'         => $data['state'] ?? null,
             ':pincode'       => $data['pincode'] ?? null,
             ':profile_photo' => $data['profile_photo'] ?? null,
-            ':password_hash' => $data['password_hash'],
             ':status'        => $data['status'] ?? 1,
         ]);
 
-        return $result ? (int) $this->db->lastInsertId() : false;
+        return $result ? (int) $data['id'] : false;
     }
 
     public function find(int $id): array|false

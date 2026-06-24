@@ -4,35 +4,44 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Models\User;
 use App\Models\Student;
+use Delight\Auth\Auth as DelightAuth;
+use Delight\Auth\Role;
 
 class Auth
 {
+    private static ?DelightAuth $authInstance = null;
+
     /**
-     * Attempt login for a user (admin/representative).
+     * Get the single instance of Delight\Auth\Auth.
+     */
+    public static function getAuth(): DelightAuth
+    {
+        if (self::$authInstance === null) {
+            self::$authInstance = new DelightAuth(Database::getInstance());
+        }
+        return self::$authInstance;
+    }
+
+    /**
+     * Attempt login for an admin or representative.
      * Returns true on success, false on failure.
      */
     public static function login(string $email, string $password): bool
     {
-        $userModel = new User();
-        $user = $userModel->findByEmail($email);
+        try {
+            self::getAuth()->login($email, $password);
 
-        if (!$user || !password_verify($password, $user['password_hash'])) {
+            // Access control check: must not be a student role (SUBSCRIBER)
+            if (self::isStudent()) {
+                self::logout();
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
             return false;
         }
-
-        if (empty($user['status'])) {
-            return false;
-        }
-
-        Session::regenerate();
-        Session::set('user_id', $user['id']);
-        Session::set('user_type', $user['role']);
-        Session::set('user_name', $user['name']);
-        Session::set('user_email', $user['email']);
-
-        return true;
     }
 
     /**
@@ -41,61 +50,84 @@ class Auth
      */
     public static function studentLogin(string $email, string $password): bool
     {
-        $studentModel = new Student();
-        $student = $studentModel->findByEmail($email);
+        try {
+            self::getAuth()->login($email, $password);
 
-        if (!$student || !password_verify($password, $student['password_hash'])) {
+            // Access control check: must be a student role (SUBSCRIBER)
+            if (!self::isStudent()) {
+                self::logout();
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
             return false;
         }
-
-        if (empty($student['status'])) {
-            return false;
-        }
-
-        Session::regenerate();
-        Session::set('user_id', $student['id']);
-        Session::set('user_type', 'student');
-        Session::set('user_name', $student['first_name'] . ' ' . $student['last_name']);
-        Session::set('user_email', $student['email']);
-        Session::set('student_code', $student['student_code']);
-
-        return true;
     }
 
     /**
      * Register a new student and log them in.
      */
-    public static function registerStudent(array $data): int|false
+    public static function registerStudent(array $data, string $rawPassword): int|false
     {
-        $studentModel = new Student();
-        $studentId = $studentModel->create($data);
+        try {
+            $auth = self::getAuth();
 
-        if ($studentId) {
-            Session::regenerate();
-            Session::set('user_id', $studentId);
-            Session::set('user_type', 'student');
-            Session::set('user_name', ($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
-            Session::set('user_email', $data['email']);
-            Session::set('student_code', $data['student_code'] ?? '');
+            // 1. Register user with Delight Auth
+            $userId = $auth->register(
+                $data['email'],
+                $rawPassword,
+                $data['first_name'] . ' ' . $data['last_name']
+            );
+
+            // 2. Set role as SUBSCRIBER (Student)
+            $auth->admin()->addRoleForUserById($userId, Role::SUBSCRIBER);
+
+            // 3. Mark user verified and normal status
+            $db = Database::getInstance();
+            $stmt = $db->prepare("UPDATE users SET verified = 1, status = 0 WHERE id = ?");
+            $stmt->execute([$userId]);
+
+            // 4. Create profile in students table under same ID
+            $studentModel = new Student();
+            $profileData = $data;
+            $profileData['id'] = $userId;
+
+            $studentId = $studentModel->create($profileData);
+
+            if ($studentId) {
+                // 5. Automatically log the student in
+                $auth->login($data['email'], $rawPassword);
+                return $studentId;
+            }
+
+            return false;
+        } catch (\Throwable $e) {
+            Logger::error('Student registration error: ' . $e->getMessage());
+            return false;
         }
-
-        return $studentId;
     }
 
     /**
-     * Destroy session — log out current user.
+     * Log out current user.
      */
     public static function logout(): void
     {
-        Session::destroy();
+        try {
+            self::getAuth()->logOut();
+            // Also clear cached student code
+            Session::remove('student_code');
+        } catch (\Throwable $e) {
+            // Safe fallback
+        }
     }
 
     /**
-     * Check if any user (student or admin/rep) is logged in.
+     * Check if user is logged in.
      */
     public static function check(): bool
     {
-        return Session::has('user_id');
+        return self::getAuth()->isLoggedIn();
     }
 
     /**
@@ -111,15 +143,34 @@ class Auth
      */
     public static function id(): ?int
     {
-        return Session::get('user_id');
+        return self::getAuth()->getUserId();
     }
 
     /**
-     * Get the authenticated user's type (student, admin, super_admin, representative).
+     * Get the authenticated user's type.
      */
     public static function userType(): ?string
     {
-        return Session::get('user_type');
+        if (!self::check()) {
+            return null;
+        }
+
+        $auth = self::getAuth();
+
+        if ($auth->hasRole(Role::SUPER_ADMIN)) {
+            return 'super_admin';
+        }
+        if ($auth->hasRole(Role::ADMIN)) {
+            return 'admin';
+        }
+        if ($auth->hasRole(Role::MODERATOR)) {
+            return 'representative';
+        }
+        if ($auth->hasRole(Role::SUBSCRIBER)) {
+            return 'student';
+        }
+
+        return null;
     }
 
     /**
@@ -127,7 +178,7 @@ class Auth
      */
     public static function userName(): string
     {
-        return Session::get('user_name', '');
+        return self::getAuth()->getUsername() ?? '';
     }
 
     /**
@@ -159,6 +210,18 @@ class Auth
      */
     public static function studentCode(): ?string
     {
+        if (!self::isStudent()) {
+            return null;
+        }
+
+        if (!Session::has('student_code')) {
+            $studentModel = new Student();
+            $student = $studentModel->find((int) self::id());
+            if ($student) {
+                Session::set('student_code', $student['student_code']);
+            }
+        }
+
         return Session::get('student_code');
     }
 
@@ -167,6 +230,10 @@ class Auth
      */
     public static function updateSessionName(string $name): void
     {
-        Session::set('user_name', $name);
+        try {
+            self::getAuth()->changeUsername($name);
+        } catch (\Throwable $e) {
+            Logger::error('Error updating username: ' . $e->getMessage());
+        }
     }
 }

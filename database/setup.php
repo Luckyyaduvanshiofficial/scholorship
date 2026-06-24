@@ -55,9 +55,10 @@ try {
     
     echo "✅ Connected to MySQL server\n\n";
     
-    // Step 1: Create database
+    // Step 1: Create database (fresh start)
     echo "📚 Creating database...\n";
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    $pdo->exec("DROP DATABASE IF EXISTS `$dbName`");
+    $pdo->exec("CREATE DATABASE `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $pdo->exec("USE `$dbName`");
     echo "✅ Database created\n\n";
     
@@ -74,7 +75,7 @@ try {
     // Split by semicolon and execute each statement
     $statements = array_filter(
         array_map('trim', explode(';', $schema)),
-        fn($stmt) => !empty($stmt) && !str_starts_with($stmt, '--')
+        fn($stmt) => !empty($stmt)
     );
     
     foreach ($statements as $stmt) {
@@ -83,21 +84,23 @@ try {
         }
     }
     
-    echo "✅ All 11 tables created\n\n";
+    echo "✅ All tables created\n\n";
     
     // Step 3: Insert test admin user
     echo "👤 Inserting test admin user...\n";
     
     // Use a simple test password hash (bcrypt: password123)
-    $passwordHash = '$2y$10$s5j3K.mV7x2v8Z1q9p0w.uB7C5D3E2F1G0H9I8J7K6L5M4N3O2P1';
+    $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
     
-    $stmt = $pdo->prepare("INSERT IGNORE INTO users (name, email, password_hash, role, status) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT IGNORE INTO users (email, password, username, status, verified, roles_mask, registered) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
-        'Admin User',
         'admin@tamoli.org',
         $passwordHash,
-        'super_admin',
-        1
+        'Admin User',
+        0, // Status::NORMAL
+        1, // verified
+        262144, // Role::SUPER_ADMIN
+        time()
     ]);
     
     echo "✅ Test admin created (email: admin@tamoli.org, password: password123)\n\n";

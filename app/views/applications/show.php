@@ -66,6 +66,50 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 </div>
                 <?php endif; ?>
 
+                <?php if (($app['status_name'] ?? '') === 'Disputed'): ?>
+                <div class="card border-0 shadow-sm border-start border-warning border-4 mb-4">
+                    <div class="card-body p-3 p-md-4">
+                        <h5 class="fw-bold text-warning mb-2">
+                            <i class="bi bi-arrow-counterclockwise"></i> विवाद समाधान एवं पुनः प्रस्तुति / Resolve & Resubmit
+                        </h5>
+                        <p class="text-muted small mb-3">
+                            कृपया त्रुटि निवारण के लिए आवश्यक संशोधित दस्तावेज़ यहाँ अपलोड करें। आप एक या अधिक दस्तावेज़ अपडेट कर सकते हैं।
+                            <br><span class="fst-italic">Please upload the corrected documents below to resolve the dispute and resubmit your application.</span>
+                        </p>
+
+                        <form action="/applications/<?= (int) $app['id'] ?>/resubmit" method="POST" enctype="multipart/form-data">
+                            <?= \App\Core\Csrf::field() ?>
+                            
+                            <div class="row g-3 mb-3">
+                                <!-- Marksheet (applicable to both types) -->
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">संशोधित अंकतालिका अपलोड करें / Upload Corrected Marksheet (JPG/PNG/PDF)</label>
+                                    <input type="file" name="marksheet" class="form-control">
+                                </div>
+
+                                <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                                    <!-- Passbook (scholarship only) -->
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">बैंक पासबुक अपलोड करें / Upload Corrected Bank Passbook (JPG/PNG/PDF)</label>
+                                        <input type="file" name="passbook" class="form-control">
+                                    </div>
+                                <?php else: ?>
+                                    <!-- Certificate (pratibha only) -->
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">योग्यता प्रमाणपत्र अपलोड करें / Upload Corrected Certificate (JPG/PNG/PDF)</label>
+                                        <input type="file" name="certificate" class="form-control">
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning fw-bold text-dark">
+                                <i class="bi bi-send-fill me-1"></i> दस्तावेज़ सबमिट करें / Submit Documents & Resubmit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-3 p-md-4">
                         <h5 class="fw-bold mb-3">Student Details</h5>

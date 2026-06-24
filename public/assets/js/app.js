@@ -18,4 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (closeBtn) closeBtn.click();
         }, 5000);
     });
+
+    // Active navbar links highlighting
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.tsp-site-header .tsp-nav-links .nav-link');
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath || (href !== '/' && href !== '#' && currentPath.startsWith(href))) {
+            link.classList.add('active');
+        }
+    });
 });

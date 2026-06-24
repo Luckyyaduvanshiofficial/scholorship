@@ -1,49 +1,76 @@
 <?php
 /**
- * Sidebar — rendered differently based on user role.
- *
- * Phase 1: Empty shell. Populated in later phases.
- *
- * Variables available:
- *   $role — 'student' | 'admin' | 'representative', or null for guest
+ * Sidebar — role-based rendering.
+ * $role: 'student' | 'admin' | 'representative' | null
  */
 $role = $role ?? null;
+
+$currentUri = $_SERVER['REQUEST_URI'] ?? '';
+
+$menus = [
+    'admin' => [
+        'label' => 'Admin Panel',
+        'links' => [
+            ['href' => '/admin',                    'icon' => 'bi-speedometer2',       'label' => 'Dashboard'],
+            ['href' => '/admin/students',           'icon' => 'bi-people',             'label' => 'Students'],
+            ['href' => '/admin/applications',       'icon' => 'bi-file-earmark-text',  'label' => 'Applications'],
+            ['href' => '/admin/representatives',    'icon' => 'bi-person-badge',       'label' => 'Representatives'],
+            ['href' => '/admin/announcements',      'icon' => 'bi-megaphone',          'label' => 'Announcements'],
+            ['href' => '/admin/settings',           'icon' => 'bi-gear',               'label' => 'Settings'],
+        ],
+    ],
+    'representative' => [
+        'label' => 'Representative Panel',
+        'links' => [
+            ['href' => '/representative',               'icon' => 'bi-speedometer2',      'label' => 'Dashboard'],
+            ['href' => '/representative/applications',  'icon' => 'bi-file-earmark-text', 'label' => 'Applications'],
+        ],
+    ],
+    'student' => [
+        'label' => 'Student Portal',
+        'links' => [
+            ['href' => '/dashboard',     'icon' => 'bi-speedometer2',      'label' => 'Dashboard'],
+            ['href' => '/profile',       'icon' => 'bi-person',            'label' => 'My Profile'],
+            ['href' => '/academics',     'icon' => 'bi-book',              'label' => 'Academics'],
+            ['href' => '/applications',  'icon' => 'bi-file-earmark-text', 'label' => 'Applications'],
+            ['href' => '/announcements', 'icon' => 'bi-megaphone',         'label' => 'Announcements'],
+        ],
+    ],
+];
+
+if (!$role || !isset($menus[$role])) return;
+
+$menu = $menus[$role];
 ?>
-<?php if ($role === 'admin'): ?>
-    <aside class="d-none d-lg-block bg-dark text-white" style="width: 250px; min-height: 100vh;">
-        <div class="p-3">
-            <h6 class="text-uppercase text-muted small fw-bold">Admin Panel</h6>
-            <nav class="nav flex-column">
-                <a class="nav-link text-white" href="/admin"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
-                <a class="nav-link text-white" href="/admin/students"><i class="bi bi-people me-2"></i> Students</a>
-                <a class="nav-link text-white" href="/admin/applications"><i class="bi bi-file-earmark-text me-2"></i> Applications</a>
-                <a class="nav-link text-white" href="/admin/representatives"><i class="bi bi-person-badge me-2"></i> Representatives</a>
-                <a class="nav-link text-white" href="/admin/announcements"><i class="bi bi-megaphone me-2"></i> Announcements</a>
-                <a class="nav-link text-white" href="/admin/settings"><i class="bi bi-gear me-2"></i> Settings</a>
-            </nav>
-        </div>
-    </aside>
-<?php elseif ($role === 'representative'): ?>
-    <aside class="d-none d-lg-block bg-dark text-white" style="width: 250px; min-height: 100vh;">
-        <div class="p-3">
-            <h6 class="text-uppercase text-muted small fw-bold">Representative Panel</h6>
-            <nav class="nav flex-column">
-                <a class="nav-link text-white" href="/representative"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
-                <a class="nav-link text-white" href="/representative/applications"><i class="bi bi-file-earmark-text me-2"></i> Applications</a>
-            </nav>
-        </div>
-    </aside>
-<?php elseif ($role === 'student'): ?>
-    <aside class="d-none d-lg-block bg-dark text-white" style="width: 250px; min-height: 100vh;">
-        <div class="p-3">
-            <h6 class="text-uppercase text-muted small fw-bold">Student Portal</h6>
-            <nav class="nav flex-column">
-                <a class="nav-link text-white" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
-                <a class="nav-link text-white" href="/profile"><i class="bi bi-person me-2"></i> My Profile</a>
-                <a class="nav-link text-white" href="/academics"><i class="bi bi-book me-2"></i> Academics</a>
-                <a class="nav-link text-white" href="/applications"><i class="bi bi-file-earmark-text me-2"></i> Applications</a>
-                <a class="nav-link text-white" href="/announcements"><i class="bi bi-megaphone me-2"></i> Announcements</a>
-            </nav>
-        </div>
-    </aside>
-<?php endif; ?>
+
+<aside class="tsp-sidebar d-none d-lg-flex flex-column" aria-label="<?= htmlspecialchars($menu['label']) ?>">
+
+    <div class="tsp-sidebar-header">
+        <span class="tsp-sidebar-role-label"><?= htmlspecialchars($menu['label']) ?></span>
+    </div>
+
+    <nav class="tsp-sidebar-nav flex-grow-1">
+        <?php foreach ($menu['links'] as $link):
+            $isActive = ($currentUri === $link['href'])
+                     || (str_starts_with($currentUri, $link['href'] . '/') && $link['href'] !== '/');
+        ?>
+            <a href="<?= htmlspecialchars($link['href']) ?>"
+               class="tsp-sidebar-link <?= $isActive ? 'active' : '' ?>"
+               <?= $isActive ? 'aria-current="page"' : '' ?>>
+                <i class="bi <?= htmlspecialchars($link['icon']) ?>" aria-hidden="true"></i>
+                <span><?= htmlspecialchars($link['label']) ?></span>
+            </a>
+        <?php endforeach; ?>
+    </nav>
+
+    <div class="tsp-sidebar-footer">
+        <form action="/logout" method="post" class="m-0">
+            <?= \App\Core\Csrf::field() ?>
+            <button type="submit" class="tsp-sidebar-link w-100 border-0 bg-transparent text-start">
+                <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
+                <span>Logout</span>
+            </button>
+        </form>
+    </div>
+
+</aside>
