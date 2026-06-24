@@ -9,45 +9,12 @@ require VIEW_PATH . '/layouts/header.php';
 require VIEW_PATH . '/layouts/flash-message.php';
 ?>
 
-<!-- Dashboard Top Header -->
-<header class="tsp-dash-header">
-    <!-- Left: Menu Toggle Button -->
-    <button class="tsp-dash-menu-toggle" id="tspSidebarToggle" aria-label="Toggle sidebar">
-        <i class="bi bi-list"></i>
-    </button>
-
-    <!-- Center: Logo & Bilingual Title -->
-    <div class="tsp-dash-logo-title-group d-flex flex-column align-items-center">
-        <div class="d-flex align-items-center gap-2 mb-1">
-            <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj Logo" width="36" height="36">
-            <h1 class="tsp-dash-title-hi">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</h1>
-        </div>
-        <span class="tsp-dash-title-en">TAMBOLI SAMAJ VIKAS SANSTHA, RAJASTHAN</span>
-    </div>
-
-    <!-- Right: Student Profile Block & Logout -->
-    <div class="tsp-dash-profile-block">
-        <div class="tsp-dash-profile-info d-none d-md-flex align-items-end me-1">
-            <span class="tsp-dash-profile-name"><?= Helpers::esc(Auth::userName()) ?></span>
-            <span class="tsp-dash-profile-code"><?= Helpers::esc(Auth::studentCode()) ?></span>
-        </div>
-        <div class="tsp-dash-avatar me-2">
-            <i class="bi bi-person-fill fs-5"></i>
-        </div>
-        <form action="/logout" method="post" class="m-0">
-            <?= Csrf::field() ?>
-            <button type="submit" class="tsp-dash-logout-btn shadow-sm">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>लॉगआउट</span>
-            </button>
-        </form>
-    </div>
-</header>
+<?php require VIEW_PATH . '/layouts/admin-header.php'; ?>
 
 <!-- Dashboard Main Container -->
 <div class="tsp-dash-container">
     <!-- Sidebar -->
-    <aside class="tsp-dash-sidebar" id="tspSidebar">
+    <aside class="tsp-dash-sidebar" id="sidebar">
         <a href="/dashboard" class="tsp-dash-sidebar-link active">
             <i class="bi bi-house-door-fill"></i>
             <span>डैशबोर्ड</span>
@@ -206,43 +173,28 @@ require VIEW_PATH . '/layouts/flash-message.php';
     </main>
 </div>
 
-<!-- Inline Sidebar Toggle Script -->
+<!-- Sidebar toggle -->
+<?php require VIEW_PATH . '/layouts/admin-sidebar-script.php'; ?>
+
+<!-- Help scroll behavior for student sidebar -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('tspSidebarToggle');
-    const sidebar = document.getElementById('tspSidebar');
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            sidebar.classList.toggle('collapsed');
-        });
-    }
-    
-    // Auto collapse sidebar on small screens when clicking outside
-    document.addEventListener('click', function(e) {
-        if (window.innerWidth <= 991.98) {
-            if (sidebar && !sidebar.classList.contains('collapsed') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
-                sidebar.classList.add('collapsed');
-            }
+(function () {
+    'use strict';
+    var helpLink = document.getElementById('helpSidebarLink');
+    if (!helpLink) return;
+    helpLink.addEventListener('click', function (e) {
+        var helpCard = document.getElementById('help');
+        if (helpCard) {
+            e.preventDefault();
+            helpCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            helpCard.style.outline = '2px solid var(--maroon-dash)';
+            setTimeout(function () { helpCard.style.outline = 'none'; }, 2000);
         }
     });
-    
-    // Sidebar help navigation link scroll behavior
-    const helpLink = document.getElementById('helpSidebarLink');
-    if (helpLink) {
-        helpLink.addEventListener('click', function(e) {
-            const helpCard = document.getElementById('help');
-            if (helpCard) {
-                e.preventDefault();
-                helpCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                helpCard.style.outline = '2px solid var(--maroon-dash)';
-                setTimeout(() => {
-                    helpCard.style.outline = 'none';
-                }, 2000);
-            }
-        });
-    }
-});
+})();
 </script>
 
-<?php require VIEW_PATH . '/layouts/footer.php'; ?>
+<?php require VIEW_PATH . '/layouts/dash-footer.php'; ?>
+
+</body>
+</html>

@@ -34,13 +34,14 @@ class Mailer
         $logContent = "[" . date('Y-m-d H:i:s') . "] TO: {$toEmail}\nSUBJECT: {$subject}\nBODY: {$htmlBody}\n----------------------------------------\n";
         file_put_contents($resetLogFile, $logContent, FILE_APPEND);
 
-        // If no SMTP user or host is set, or if they are placeholders, don't try to send SMTP
-        if (empty($host) || empty($user) || empty($pass) || $user === 'no-reply@yourdomain.com') {
+        // If no SMTP credentials configured at all, log only and return mock success
+        if (empty($host) || empty($user) || empty($pass)) {
             Logger::info("SMTP credentials not configured. Email logged to local file: {$resetLogFile}");
             return true; // Return true as mock success for development
         }
 
         $mail = new PHPMailer(true);
+        $mail->CharSet = 'UTF-8';
 
         try {
             // Server settings

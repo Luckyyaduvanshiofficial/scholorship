@@ -140,122 +140,16 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
 
 <!-- Outer full-viewport shell -->
 <div class="d-flex flex-column min-vh-100 bg-light" style="font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;">
-    <!-- Mobile Sidebar Backdrop overlay -->
-    <div class="tsp-sidebar-backdrop" id="sidebarOverlay"></div>
 
-    <!-- ── DEDICATED ADMIN DASHBOARD HEADER ── -->
-    <header class="tsp-dash-header border-bottom bg-white px-4 py-2 d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-light border-0 p-2" id="sidebarToggle" style="border-radius: 8px;" aria-label="Toggle Navigation Sidebar">
-                <i class="bi bi-list fs-4 text-dark"></i>
-            </button>
-        </div>
-
-        <!-- Centered Logo & Bilingual Titles -->
-        <div class="text-center d-flex flex-column align-items-center py-1">
-            <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj Logo" style="height: 52px; width: 52px;" class="mb-1">
-            <h1 class="h5 mb-0 fw-bold" style="color: #8b0000; font-family: 'Noto Sans Devanagari', sans-serif; letter-spacing: 0.02em;">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</h1>
-            <p class="mb-0 text-secondary" style="font-size: 1.15rem; font-weight: 600; font-family: 'Manrope', sans-serif; letter-spacing: 0.04em; text-transform: uppercase;">Tamboli Samaj Vikas Sanstha, Rajasthan</p>
-        </div>
-
-        <!-- Right: Admin Dropdown Account Block -->
-        <div class="dropdown">
-            <div class="d-flex align-items-center gap-3 cursor-pointer" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
-                <div class="tsp-admin-avatar-circle" style="width: 42px; height: 42px; border-radius: 50%; background: #be123c; display: flex; align-items: center; justify-content: center; color: white;">
-                    <i class="bi bi-person-fill fs-5"></i>
-                </div>
-                <div class="d-none d-md-block text-start" style="line-height: 1.2;">
-                    <div class="fw-bold text-dark" style="font-size: 1.35rem;"><?= htmlspecialchars($adminName) ?></div>
-                    <div class="text-muted" style="font-size: 1.1rem;"><?= htmlspecialchars($adminEmail) ?></div>
-                </div>
-                <i class="bi bi-chevron-down text-muted small ms-1"></i>
-            </div>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" style="border-radius: 12px; font-size: 1.3rem; min-width: 180px;">
-                <li>
-                    <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2" href="/profile">
-                        <i class="bi bi-person text-muted fs-5"></i> प्रोफाइल (Profile)
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider my-1"></li>
-                <li>
-                    <form action="/logout" method="post" class="m-0">
-                        <?= Csrf::field() ?>
-                        <button type="submit" class="dropdown-item py-2 px-3 text-danger d-flex align-items-center gap-2 border-0 bg-transparent w-100 text-start">
-                            <i class="bi bi-box-arrow-right fs-5"></i> लॉग आउट (Logout)
-                        </button>
-                    </form>
-                </li>
-            </ul>
-        </div>
-    </header>
+    <?php require VIEW_PATH . '/layouts/admin-header.php'; ?>
 
     <!-- Sidebar and Main Panel Workspace Container -->
     <div class="d-flex flex-grow-1 position-relative">
 
-        <!-- ── LEFT NAVIGATION SIDEBAR ── -->
-        <aside class="tsp-dash-sidebar bg-white border-end d-flex flex-column py-4 px-3" id="sidebar">
-            <nav class="nav flex-column gap-2 flex-grow-1">
-                <a class="tsp-dash-sidebar-link active" href="/admin">
-                    <i class="bi bi-house-door-fill"></i>
-                    <span>डैशबोर्ड</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="/admin/students">
-                    <i class="bi bi-people"></i>
-                    <span>उपयोगकर्ता प्रबंधन</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="/admin/applications">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span>आवेदन प्रबंधन</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="/admin/applications?type=scholarship">
-                    <i class="bi bi-mortarboard"></i>
-                    <span>छात्रवृत्ति प्रबंधन</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="#">
-                    <i class="bi bi-calendar-event"></i>
-                    <span>कार्यक्रम प्रबंधन</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="#">
-                    <i class="bi bi-person-heart"></i>
-                    <span>वरिष्ठ नागरिक / सेवानिवृत्त</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="#">
-                    <i class="bi bi-megaphone"></i>
-                    <span>सूचनाएं प्रबंधन</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="#">
-                    <i class="bi bi-journal-text"></i>
-                    <span>सामग्री प्रबंधन</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="#">
-                    <i class="bi bi-bar-chart-line"></i>
-                    <span>रिपोर्ट एवं विश्लेषण</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="#">
-                    <i class="bi bi-gear"></i>
-                    <span>सिस्टम सेटिंग्स</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="#">
-                    <i class="bi bi-fingerprint"></i>
-                    <span>OTR प्रबंधन</span>
-                </a>
-                <a class="tsp-dash-sidebar-link" href="#">
-                    <i class="bi bi-question-circle"></i>
-                    <span>सहायता एवं संपर्क</span>
-                </a>
-            </nav>
-
-            <!-- Sidebar Footer Log out trigger -->
-            <div class="mt-auto pt-3 border-top">
-                <form action="/logout" method="post" class="m-0">
-                    <?= Csrf::field() ?>
-                    <button type="submit" class="tsp-dash-sidebar-link w-100 border-0 bg-transparent text-danger fw-semibold px-3" style="gap: 1.2rem;">
-                        <i class="bi bi-box-arrow-right fs-4"></i>
-                        <span>लॉग आउट</span>
-                    </button>
-                </form>
-            </div>
-        </aside>
+        <?php
+        $activeSidebarLink = '/admin';
+        require VIEW_PATH . '/layouts/admin-sidebar.php';
+        ?>
 
         <!-- ── MAIN WORKSPACE CONTENT AREA ── -->
         <main class="tsp-dash-content-area flex-grow-1 p-4 bg-light">
@@ -617,91 +511,39 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
         </main>
     </div>
 
-    <!-- ── DEDICATED MAROON PORTAL FOOTER ── -->
-    <footer class="py-3 px-4 border-top text-white" style="background-color: #8b0000; font-size: 1.35rem; font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;">
-        <div class="container-fluid p-0">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-                <div>
-                    &copy; 2025 तम्बोली समाज विकास संस्था, राजस्थान | सर्वाधिकार सुरक्षित
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <span>संपर्क: 0141-XXXXXXX</span>
-                    <span>|</span>
-                    <span>contact@tambolisamaj.org</span>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <?php require VIEW_PATH . '/layouts/dash-footer.php'; ?>
 
 </div>
 
-<!-- Sidebar interactive toggler & dynamic date-time update logic -->
+<!-- Sidebar toggle (shared partial) -->
+<?php require VIEW_PATH . '/layouts/admin-sidebar-script.php'; ?>
+
+<!-- Dynamic date/time updater for admin dashboard -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Sidebar Collapse Trigger (Desktop: collapse, Mobile: Off-canvas overlay drawer)
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('sidebarToggle');
-    const overlay = document.getElementById('sidebarOverlay');
-    
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (window.innerWidth < 992) {
-                sidebar.classList.toggle('active');
-                if (overlay) overlay.classList.toggle('active');
-            } else {
-                sidebar.classList.toggle('collapsed');
-            }
-        });
-    }
-
-    if (overlay && sidebar) {
-        overlay.addEventListener('click', function() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
-    }
-
-    // Dynamic Time & Date Formatter (Hindi local formats)
+(function () {
+    'use strict';
     const dateEl = document.getElementById('hindi-date');
     const timeEl = document.getElementById('hindi-time');
-    
-    const hindiMonths = [
-        'जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 
-        'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'
-    ];
-    const hindiDays = [
-        'रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'
-    ];
+    if (!dateEl && !timeEl) return;
+
+    const hindiMonths = ['जनवरी','फरवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर'];
+    const hindiDays   = ['रविवार','सोमवार','मंगलवार','बुधवार','गुरुवार','शुक्रवार','शनिवार'];
 
     function updateDateTime() {
-        const now = new Date();
-        
-        // Build Hindi Date String
-        const day = now.getDate();
-        const monthIndex = now.getMonth();
-        const year = now.getFullYear();
-        const dayOfWeekIndex = now.getDay();
-        
-        const dateStr = `${day.toString().padStart(2, '0')} ${hindiMonths[monthIndex]} ${year}, ${hindiDays[dayOfWeekIndex]}`;
-        
-        // Format Time
-        let hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12; // the hour '0' should be '12'
-        const timeStr = `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-        
-        // Update Viewport elements
+        const now  = new Date();
+        const day  = now.getDate().toString().padStart(2, '0');
+        const dateStr = `${day} ${hindiMonths[now.getMonth()]} ${now.getFullYear()}, ${hindiDays[now.getDay()]}`;
+        let h = now.getHours();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        const timeStr = `${h.toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} ${ampm}`;
         if (dateEl) dateEl.textContent = dateStr;
         if (timeEl) timeEl.textContent = timeStr;
     }
 
-    // Initialize and run interval every 15 seconds
     updateDateTime();
     setInterval(updateDateTime, 15000);
-});
+})();
 </script>
 
 </body>
