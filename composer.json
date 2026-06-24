@@ -1,0 +1,21 @@
+{
+    "name": "tambolisamaj/portal",
+    "description": "Tamboli Samaj Portal — Scholarship & Pratibha Samman Management",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "ext-pdo": "*",
+        "ext-mbstring": "*",
+        "ext-json": "*",
+        "ext-fileinfo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "scripts": {
+        "start": "php -S localhost:8000 -t public",
+        "start-laragon": "php -S localhost:8000 -t public"
+    }
+}

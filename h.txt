@@ -1,0 +1,12 @@
+HTTP/1.1 302 Found
+Host: localhost:8000
+Date: Wed, 24 Jun 2026 04:35:10 GMT
+Connection: close
+X-Powered-By: PHP/8.3.30
+Set-Cookie: TSP_SESSION=70dmcao7sesjvvuhjf5rgdk0el; expires=Thu, 25 Jun 2026 04:35:10 GMT; Max-Age=86400; path=/; HttpOnly; SameSite=Lax
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Location: /login
+Content-type: text/html; charset=UTF-8
+
