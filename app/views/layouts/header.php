@@ -11,8 +11,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Google Fonts: Noto Sans Devanagari + Saira Stencil -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@100..900&family=Saira+Stencil:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter + Manrope + Noto Sans Devanagari -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Manrope:wght@300..800&family=Noto+Sans+Devanagari:wght@100..900&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 5 -->
     <link href="/assets/css/bootstrap.min.css" rel="stylesheet">

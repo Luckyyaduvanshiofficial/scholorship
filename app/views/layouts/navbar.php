@@ -3,27 +3,21 @@ use App\Core\Auth;
 use App\Core\Csrf;
 ?>
 
-<header class="tsp-site-header">
+<header class="tsp-navbar-wrapper">
     <div class="container">
-
-        <!-- Masthead -->
-        <section class="tsp-masthead d-flex justify-content-center" aria-label="Portal masthead">
-            <a href="/" class="tsp-brand d-inline-flex align-items-center text-decoration-none" aria-label="Tamboli Samaj Portal home">
+        <nav class="navbar navbar-expand-lg navbar-light tsp-navbar-main px-0">
+            <a href="/" class="navbar-brand d-flex align-items-center gap-2">
                 <img src="/assets/images/logo/logo-placeholder.svg"
                      alt="Tamboli Samaj Logo"
-                     class="tsp-brand-logo"
-                     width="76" height="76"
+                     width="42" height="42"
                      loading="eager">
-                <span class="tsp-brand-copy">
-                    <span class="tsp-brand-hi">तम्बोली समाज विकास संस्था, राजस्थान</span>
-                    <span class="tsp-brand-en">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</span>
+                <span class="d-flex flex-column text-start" style="line-height: 1.2;">
+                    <span class="fw-bold text-dark font-heading" style="font-size: 1.6rem; letter-spacing: -0.01em;">तम्बोली समाज विकास संस्था</span>
+                    <span class="text-muted" style="font-size: 1.05rem; font-weight: 500;">राजस्थान · छात्रवृत्ति एवं प्रतिभा सम्मान</span>
                 </span>
             </a>
-        </section>
 
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg tsp-nav" id="mainNavbar" aria-label="Primary navigation">
-            <button class="navbar-toggler tsp-navbar-toggler ms-auto" type="button"
+            <button class="navbar-toggler border-0 shadow-none px-0" type="button"
                     data-bs-toggle="collapse" data-bs-target="#tspNavCollapse"
                     aria-expanded="false" aria-controls="tspNavCollapse"
                     aria-label="Open menu">
@@ -31,48 +25,41 @@ use App\Core\Csrf;
             </button>
 
             <div class="collapse navbar-collapse" id="tspNavCollapse">
-                <ul class="navbar-nav tsp-nav-links mx-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav mx-auto gap-1 gap-lg-2">
                     <li class="nav-item">
                         <a class="nav-link <?= ($_SERVER['REQUEST_URI'] === '/') ? 'active' : '' ?>" href="/">
-                            <i class="bi bi-house-door-fill" aria-hidden="true"></i>
                             <span>मुख्य पृष्ठ</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?= str_starts_with($_SERVER['REQUEST_URI'], '/applications/create') ? 'active' : '' ?>" href="/applications/create">
-                            <i class="bi bi-file-earmark-plus-fill" aria-hidden="true"></i>
                             <span>आवेदन करें</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?= ($_SERVER['REQUEST_URI'] === '/applications') ? 'active' : '' ?>" href="/applications">
-                            <i class="bi bi-list-ul" aria-hidden="true"></i>
                             <span>मेरे आवेदन</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/#announcements">
-                            <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
                             <span>सूचनाएं</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/#help">
-                            <i class="bi bi-question-circle-fill" aria-hidden="true"></i>
                             <span>सहायता</span>
                         </a>
                     </li>
                 </ul>
 
-                <div class="tsp-nav-auth d-flex flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
                     <?php if (Auth::guest()): ?>
-                        <a href="/login" class="btn tsp-nav-btn">
-                            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
-                            <span>लॉगिन</span>
+                        <a href="/login" class="btn btn-link text-decoration-none text-dark fw-semibold px-3" style="font-size: 1.35rem;">
+                            लॉगिन / Sign In
                         </a>
-                        <a href="/register" class="btn tsp-nav-btn-outline">
-                            <i class="bi bi-person-plus-fill" aria-hidden="true"></i>
-                            <span>पंजीकरण</span>
+                        <a href="/applications/create" class="btn tsp-navbar-cta fw-bold px-4 py-2 rounded-pill" style="font-size: 1.3rem; border-radius: 20px !important;">
+                            आवेदन / Apply Now
                         </a>
                     <?php else: ?>
                         <?php
@@ -80,22 +67,19 @@ use App\Core\Csrf;
                             ? '/admin'
                             : (Auth::isRepresentative() ? '/representative' : '/dashboard');
                         ?>
-                        <a href="<?= $dashHref ?>" class="btn tsp-nav-btn">
-                            <i class="bi bi-speedometer2" aria-hidden="true"></i>
-                            <span>डैशबोर्ड</span>
+                        <a href="<?= $dashHref ?>" class="btn btn-outline-dark fw-bold px-4 py-2 rounded-pill" style="font-size: 1.3rem; border-radius: 20px !important;">
+                            डैशबोर्ड / Dashboard
                         </a>
-                        <form action="/logout" method="post" class="tsp-nav-logout m-0">
+                        <form action="/logout" method="post" class="m-0">
                             <?= Csrf::field() ?>
-                            <button type="submit" class="btn">
-                                <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
-                                <span>लॉगआउट</span>
+                            <button type="submit" class="btn btn-link text-decoration-none text-muted fw-semibold px-3" style="font-size: 1.35rem;">
+                                लॉगआउट
                             </button>
                         </form>
                     <?php endif; ?>
                 </div>
             </div>
         </nav>
-
     </div>
 </header>
 
