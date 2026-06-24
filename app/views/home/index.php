@@ -34,7 +34,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
     <div class="container">
         <div class="tsp-hero-cream">
             <div class="row align-items-center g-4">
-                <div class="col-12">
+                <div class="col-md-7 col-lg-8">
                     <span class="tsp-hero-cream-badge">
                         <i class="bi bi-award-fill"></i> प्रतिभा सम्मान समारोह 2026
                     </span>
@@ -62,6 +62,9 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             </a>
                         <?php endif; ?>
                     </div>
+                </div>
+                <div class="col-md-5 col-lg-4 text-center">
+                    <img src="/assets/images/hero_student.jpg" alt="Scholarship Illustration" class="tsp-hero-cream-illustration img-fluid">
                 </div>
             </div>
         </div>
