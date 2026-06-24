@@ -13,6 +13,7 @@
  */
 
 // Load environment
+require_once __DIR__ . '/../vendor/autoload.php';
 $envFile = __DIR__ . '/../.env';
 if (!file_exists($envFile)) {
     die("❌ .env file not found. Create it first.\n");
@@ -89,8 +90,8 @@ try {
     // Step 3: Insert test admin user
     echo "👤 Inserting test admin user...\n";
     
-    // Use a simple test password hash (bcrypt: password123)
-    $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
+    // Use Delight Auth compliant password hash
+    $passwordHash = \Delight\Auth\PasswordHash::from('password123');
     
     $stmt = $pdo->prepare("INSERT IGNORE INTO users (email, password, username, status, verified, roles_mask, registered) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
