@@ -14,7 +14,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <div class="tsp-auth-logo-wrapper mb-3">
                         <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
                     </div>
-                    <h1 class="h3 fw-bold mb-1" style="color:var(--g);">नया पासवर्ड बनाएं</h1>
+                    <h1 class="h3 fw-bold mb-1" style="color:var(--nav-red);">नया पासवर्ड बनाएं</h1>
                     <p class="small text-muted mb-0">Reset Account Password</p>
                 </div>
                 <div class="card border-0 tsp-auth-card">
@@ -38,7 +38,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="••••••••" minlength="6" required>
                                 </div>
                             </div>
-                            <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center"><i class="bi bi-check-circle-fill me-1"></i> पासवर्ड अपडेट करें / Update Password</button>
+                            <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center" style="background:var(--nav-red); border-color:var(--nav-red);"><i class="bi bi-check-circle-fill me-1"></i> पासवर्ड अपडेट करें / Update Password</button>
                         </form>
                     </div>
                 </div>

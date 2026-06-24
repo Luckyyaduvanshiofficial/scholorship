@@ -29,124 +29,164 @@ require VIEW_PATH . '/layouts/navbar.php';
 require VIEW_PATH . '/layouts/flash-message.php';
 ?>
 
-<!-- ── HERO SECTION ── -->
-<section class="tsp-hero-section py-5 py-lg-6">
+<!-- ── SECTION 1: CREAM HERO CARD ── -->
+<section class="py-4 py-lg-5">
     <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6 text-start">
-                <div class="tsp-hero-badge mb-3 d-inline-flex align-items-center gap-2">
-                    <span class="badge-dot"></span>
-                    <span>वार्षिक प्रतिभा सम्मान एवं छात्रवृत्ति 2026 / Annual Scholarship 2026</span>
-                </div>
-                <h1 class="display-4 fw-extrabold mb-3 text-dark font-heading lh-sm" style="font-size: clamp(3.2rem, 5vw, 4.8rem); letter-spacing: -0.02em; font-weight: 800;">
-                    तम्बोली समाज विकास संस्था, राजस्थान
-                </h1>
-                <p class="text-secondary mb-4 fs-5 font-subheading" style="line-height: 1.7; max-width: 520px; font-weight: 400;">
-                    मेधावी छात्र-छात्राओं को सम्मानित करने एवं उच्च शिक्षा हेतु छात्रवृत्ति प्रदान करने का एकीकृत डिजिटल मंच।
-                </p>
-                <div class="d-flex flex-wrap gap-3">
-                    <?php if (Auth::guest()): ?>
-                        <a href="/applications/create" class="btn btn-success btn-lg px-4 py-3 rounded-pill fw-bold tsp-btn-primary shadow-sm" style="font-size: 1.45rem;">
-                            आवेदन करें / Apply Now
-                        </a>
-                        <a href="#status-tracker" class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm" style="font-size: 1.45rem;">
-                            स्थिति जांचें / Track Status
-                        </a>
-                    <?php else: ?>
-                        <a href="<?= Auth::isAdmin() ? '/admin' : (Auth::isRepresentative() ? '/representative' : '/dashboard') ?>" class="btn btn-success btn-lg px-4 py-3 rounded-pill fw-bold tsp-btn-primary shadow-sm" style="font-size: 1.45rem;">
-                            डैशबोर्ड / Go to Dashboard
-                        </a>
-                        <a href="/applications/create" class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm" style="font-size: 1.45rem;">
-                            नया आवेदन / New Apply
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <div class="col-lg-6 text-center text-lg-end">
-                <div class="tsp-hero-illustration-wrapper">
-                    <img src="/assets/images/student_scholarship_hero.png" alt="Student Celebration" class="img-fluid tsp-hero-image" style="max-height: 400px; object-fit: contain;">
+        <div class="tsp-hero-cream">
+            <div class="row align-items-center g-4">
+                <div class="col-12">
+                    <span class="tsp-hero-cream-badge">
+                        <i class="bi bi-award-fill"></i> प्रतिभा सम्मान समारोह 2026
+                    </span>
+                    <h1 class="tsp-hero-cream-title">
+                        प्रतिभा को सम्मान,<br>शिक्षा को प्रोत्साहन
+                    </h1>
+                    <p class="tsp-hero-cream-subtitle">
+                        तम्बोली समाज के विद्यार्थियों की प्रतिभा, उच्च शिक्षा और<br>
+                        उज्ज्वल भविष्य के लिए हमारा संकल्प।
+                    </p>
+                    <div class="tsp-hero-btn-group">
+                        <?php if (Auth::guest()): ?>
+                            <a href="/applications/create" class="tsp-hero-btn tsp-hero-btn-primary">
+                                <i class="bi bi-pencil-square"></i> आवेदन करें
+                            </a>
+                            <a href="#status-tracker" class="tsp-hero-btn tsp-hero-btn-outline">
+                                <i class="bi bi-search"></i> स्थिति देखें
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= Auth::isAdmin() ? '/admin' : (Auth::isRepresentative() ? '/representative' : '/dashboard') ?>" class="tsp-hero-btn tsp-hero-btn-primary">
+                                <i class="bi bi-speedometer2"></i> डैशबोर्ड
+                            </a>
+                            <a href="/applications/create" class="tsp-hero-btn tsp-hero-btn-outline">
+                                <i class="bi bi-file-earmark-plus-fill"></i> नया आवेदन
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ── STATISTICS SECTION ── -->
-<section class="tsp-stats-section py-4 border-top border-bottom bg-white">
+<!-- ── SECTION 2: EVENT INFO BAR (3 cells) ── -->
+<section class="pb-4 pb-lg-5">
     <div class="container">
-        <div class="row text-center g-4">
-            <div class="col-md-4">
-                <div class="py-3">
-                    <div class="display-5 fw-bold text-dark font-heading" style="color: var(--accent) !important;">50,000+</div>
-                    <div class="text-muted small fw-medium mt-1 uppercase" style="letter-spacing: 0.05em;">छात्र सम्मानित / Students Honored</div>
+        <div class="tsp-event-bar">
+            <div class="tsp-event-bar-cell">
+                <span class="tsp-event-bar-label"><i class="bi bi-calendar-event-fill"></i> आयोजन दिनांक</span>
+                <span class="tsp-event-bar-value">9 अगस्त, 2026 (रविवार)</span>
+            </div>
+            <div class="tsp-event-bar-cell">
+                <span class="tsp-event-bar-label"><i class="bi bi-geo-alt-fill"></i> स्थान</span>
+                <span class="tsp-event-bar-value">कोटा, राजस्थान</span>
+            </div>
+            <div class="tsp-event-bar-cell">
+                <span class="tsp-event-bar-label"><i class="bi bi-people-fill"></i> आयोजक</span>
+                <span class="tsp-event-bar-value">तम्बोली समाज चेरिटेबल विकास समिति कोटा</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── SECTION 3: GENERAL INSTRUCTIONS + ELIGIBILITY CRITERIA (2-col) ── -->
+<section class="py-4 py-lg-5" id="instructions">
+    <div class="container">
+        <div class="row g-4">
+            <!-- General Instructions -->
+            <div class="col-lg-6">
+                <div class="tsp-info-card">
+                    <div class="tsp-info-card-head">
+                        <span class="tsp-info-card-icon"><i class="bi bi-clipboard-check-fill"></i></span>
+                        <h3 class="tsp-info-card-title">
+                            सामान्य निर्देश
+                            <small>General Instructions</small>
+                        </h3>
+                    </div>
+                    <ul class="tsp-info-card-list">
+                        <li><i class="bi bi-check2-circle"></i> आवेदन केवल ऑनलाइन माध्यम से ही स्वीकार किए जाएँगे।</li>
+                        <li><i class="bi bi-check2-circle"></i> सभी दस्तावेज़ साफ़ एवं स्पष्ट होने चाहिए।</li>
+                        <li><i class="bi bi-check2-circle"></i> भरे हुए आवेदन निर्धारित तिथि के पूर्व संबंधित प्रतिनिधि को भेजें।</li>
+                        <li><i class="bi bi-check2-circle"></i> अपूर्ण या अप्रमाणित आवेदन निरस्त कर दिए जाएँगे।</li>
+                        <li><i class="bi bi-check2-circle"></i> आवेदन की स्थिति पोर्टल पर लॉगिन करके देख सकते हैं।</li>
+                        <li><i class="bi bi-check2-circle"></i> किसी भी प्रकार की जानकारी के लिए संस्था से संपर्क करें।</li>
+                    </ul>
+                    <a href="/instructions" class="tsp-info-card-link">
+                        संपूर्ण निर्देश देखें <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="py-3">
-                    <div class="display-5 fw-bold text-dark font-heading" style="color: var(--accent) !important;">₹25L+</div>
-                    <div class="text-muted small fw-medium mt-1 uppercase" style="letter-spacing: 0.05em;">छात्रवृत्ति वितरित / Scholarships Distributed</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="py-3">
-                    <div class="display-5 fw-bold text-dark font-heading" style="color: var(--accent) !important;">20+</div>
-                    <div class="text-muted small fw-medium mt-1 uppercase" style="letter-spacing: 0.05em;">वर्षों का सामाजिक योगदान / Years of Community Support</div>
+
+            <!-- Eligibility Criteria -->
+            <div class="col-lg-6">
+                <div class="tsp-info-card">
+                    <div class="tsp-info-card-head">
+                        <span class="tsp-info-card-icon"><i class="bi bi-patch-check-fill"></i></span>
+                        <h3 class="tsp-info-card-title">
+                            पात्रता मानदंड
+                            <small>Eligibility Criteria</small>
+                        </h3>
+                    </div>
+                    <ul class="tsp-info-card-list">
+                        <li><i class="bi bi-check2-circle"></i> 10वीं, 12वीं, स्नातक, स्नातकोत्तर परीक्षा में 75% या अधिक अंक अनिवार्य।</li>
+                        <li><i class="bi bi-check2-circle"></i> छात्रवृत्ति हेतु 10वीं, 11वीं, 12वीं में 80% तथा स्नातक, स्नातकोत्तर के लिए 70% या अधिक अंक।</li>
+                        <li><i class="bi bi-check2-circle"></i> छात्र राजस्थान का स्थायी निवासी होना चाहिए।</li>
+                        <li><i class="bi bi-check2-circle"></i> परिवार की वार्षिक आय निर्धारित सीमा के अंतर्गत होनी चाहिए।</li>
+                        <li><i class="bi bi-check2-circle"></i> सभी अनिवार्य दस्तावेज़ स्वप्रमाणित (Self Attested) होने चाहिए।</li>
+                        <li><i class="bi bi-check2-circle"></i> एक छात्र एक ही स्तर (कक्षा/कोर्स) के लिए आवेदन कर सकता है।</li>
+                    </ul>
+                    <a href="/criteria" class="tsp-info-card-link">
+                        विस्तृत मानदंड देखें <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ── HOW IT WORKS SECTION ── -->
-<section class="tsp-how-section py-5 py-lg-6 bg-light" id="how-it-works">
+<!-- ── SECTION 4: ACTIVITIES STRIP (7 items) ── -->
+<section class="py-4 py-lg-5">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="h3 fw-bold text-dark font-heading">आवेदन प्रक्रिया / How It Works</h2>
-            <p class="text-muted">4 आसान चरणों में छात्रवृत्ति या प्रतिभा सम्मान के लिए आवेदन करें</p>
-        </div>
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-3">
-                <div class="tsp-step-card text-center p-4">
-                    <div class="tsp-step-number mb-3">1</div>
-                    <h3 class="h5 fw-bold font-heading mb-2">पंजीकरण / Register</h3>
-                    <p class="text-muted small mb-0">पोर्टल पर अपनी बुनियादी जानकारी के साथ नया खाता पंजीकृत करें।</p>
+        <div class="tsp-activities">
+            <h2 class="tsp-activities-title">प्रतिभा सम्मान समारोह में प्रमुख गतिविधियां</h2>
+            <p class="tsp-activities-subtitle">Key Activities of the Pratibha Samman Ceremony</p>
+            <div class="tsp-activities-grid">
+                <div class="tsp-activity-item">
+                    <span class="tsp-activity-icon"><i class="bi bi-trophy-fill"></i></span>
+                    <span class="tsp-activity-label">75%+ अंक वाले छात्रों का सम्मान</span>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="tsp-step-card text-center p-4">
-                    <div class="tsp-step-number mb-3">2</div>
-                    <h3 class="h5 fw-bold font-heading mb-2">आवेदन पत्र / Apply</h3>
-                    <p class="text-muted small mb-0">प्रतिभा सम्मान या छात्रवृत्ति में से अपना संबंधित फॉर्म भरें।</p>
+                <div class="tsp-activity-item">
+                    <span class="tsp-activity-icon"><i class="bi bi-briefcase-fill"></i></span>
+                    <span class="tsp-activity-label">कैरियर काउंसलिंग</span>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="tsp-step-card text-center p-4">
-                    <div class="tsp-step-number mb-3">3</div>
-                    <h3 class="h5 fw-bold font-heading mb-2">दस्तावेज़ / Upload Docs</h3>
-                    <p class="text-muted small mb-0">मार्कशीट, बैंक पासबुक और प्रमाण पत्र सही प्रारूप में अपलोड करें।</p>
+                <div class="tsp-activity-item">
+                    <span class="tsp-activity-icon"><i class="bi bi-mortarboard-fill"></i></span>
+                    <span class="tsp-activity-label">छात्रवृत्ति वितरण</span>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="tsp-step-card text-center p-4">
-                    <div class="tsp-step-number mb-3">4</div>
-                    <h3 class="h5 fw-bold font-heading mb-2">स्थिति / Track Status</h3>
-                    <p class="text-muted small mb-0">रेफरेंस कोड से अपने आवेदन के सत्यापन की स्थिति ट्रैक करें।</p>
+                <div class="tsp-activity-item">
+                    <span class="tsp-activity-icon"><i class="bi bi-person-heart-fill"></i></span>
+                    <span class="tsp-activity-label">वरिष्ठ नागरिकों का सम्मान</span>
+                </div>
+                <div class="tsp-activity-item">
+                    <span class="tsp-activity-icon"><i class="bi bi-person-badge-fill"></i></span>
+                    <span class="tsp-activity-label">सेवानिवृत्त सदस्यों का सम्मान</span>
+                </div>
+                <div class="tsp-activity-item">
+                    <span class="tsp-activity-icon"><i class="bi bi-award-fill"></i></span>
+                    <span class="tsp-activity-label">नवनियुक्त सदस्यों का सम्मान</span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ── LATEST NOTICES & TRACKER SECTION ── -->
-<section class="tsp-notices-section py-5 py-lg-6 bg-white" id="announcements">
+<!-- ── SECTION 5: LATEST NOTICES & TRACKER ── -->
+<section class="py-4 py-lg-5 bg-white" id="announcements">
     <div class="container">
         <div class="row g-5">
             <!-- Notices -->
             <div class="col-lg-7">
                 <div class="mb-4">
-                    <div class="d-flex align-items-center gap-2">
-                        <h2 class="h4 fw-bold text-dark font-heading mb-0">सूचना बोर्ड / Latest Notices</h2>
-                    </div>
+                    <h2 class="h4 fw-bold text-dark font-heading mb-0">सूचना बोर्ड / Latest Notices</h2>
                 </div>
                 <div class="tsp-announcements-wrapper">
                     <?php if (empty($announcements)): ?>
@@ -203,7 +243,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                    required
                                    autocomplete="off"
                                    aria-label="Reference number">
-                            <button type="submit" class="btn btn-success fw-semibold px-4">
+                            <button type="submit" class="btn tsp-btn-register-solid fw-semibold px-4" style="border-radius:0 12px 12px 0;">
                                 खोजें / Track
                             </button>
                         </div>
@@ -300,8 +340,8 @@ require VIEW_PATH . '/layouts/flash-message.php';
     </div>
 </section>
 
-<!-- ── STUDENT PORTAL ACTIONS ── -->
-<section class="tsp-actions-section py-5 py-lg-6 bg-light" id="student-actions">
+<!-- ── SECTION 6: STUDENT PORTAL ACTIONS ── -->
+<section class="py-4 py-lg-5 bg-light" id="student-actions">
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="h3 fw-bold text-dark font-heading">त्वरित पोर्टल सेवाएं / Student Portal</h2>

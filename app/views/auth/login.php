@@ -18,7 +18,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <div class="tsp-auth-logo-wrapper mb-3">
                         <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
                     </div>
-                    <h1 class="h3 fw-bold mb-1" style="color:var(--g);">तम्बोली समाज विकास संस्था</h1>
+                    <h1 class="h3 fw-bold mb-1" style="color:var(--nav-red);">तम्बोली समाज विकास संस्था</h1>
                     <p class="small text-muted mb-0">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</p>
                 </div>
                 <div class="card border-0 tsp-auth-card">
@@ -45,17 +45,17 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <label for="password" class="form-label small fw-semibold mb-0">पासवर्ड / Password</label>
-                                    <a href="/forgot-password" class="small text-decoration-none fw-semibold" style="color:var(--g); font-size: 1.2rem;">पासवर्ड भूल गए? / Forgot?</a>
+                                    <a href="/forgot-password" class="small text-decoration-none fw-semibold" style="color:var(--nav-red); font-size: 1.2rem;">पासवर्ड भूल गए? / Forgot?</a>
                                 </div>
                                 <div class="tsp-auth-input-group">
                                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                     <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
                                 </div>
                             </div>
-                            <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center"><i class="bi bi-box-arrow-in-right me-1"></i> लॉगिन करें / Sign In</button>
+                            <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center" style="background:var(--nav-red); border-color:var(--nav-red);"><i class="bi bi-box-arrow-in-right me-1"></i> लॉगिन करें / Sign In</button>
                         </form>
                         <div class="text-center mt-3">
-                            <small class="text-muted">Don't have an account? <a href="/register" class="fw-semibold" style="color:var(--g);">Register here</a></small>
+                            <small class="text-muted">Don't have an account? <a href="/register" class="fw-semibold" style="color:var(--nav-red);">Register here</a></small>
                         </div>
                     </div>
                 </div>

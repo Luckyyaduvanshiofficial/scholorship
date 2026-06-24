@@ -14,7 +14,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <div class="tsp-auth-logo-wrapper mb-3">
                         <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
                     </div>
-                    <h1 class="h3 fw-bold mb-1" style="color:var(--g);">पासवर्ड पुनः प्राप्त करें</h1>
+                    <h1 class="h3 fw-bold mb-1" style="color:var(--nav-red);">पासवर्ड पुनः प्राप्त करें</h1>
                     <p class="small text-muted mb-0">Forgot Password Recovery</p>
                 </div>
                 <div class="card border-0 tsp-auth-card">
@@ -29,10 +29,10 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <input type="email" name="email" id="email" class="form-control" placeholder="you@example.com" required autofocus>
                                 </div>
                             </div>
-                            <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center"><i class="bi bi-envelope-paper me-1"></i> रीसेट लिंक भेजें / Send Reset Link</button>
+                            <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center" style="background:var(--nav-red); border-color:var(--nav-red);"><i class="bi bi-envelope-paper me-1"></i> रीसेट लिंक भेजें / Send Reset Link</button>
                         </form>
                         <div class="text-center mt-3">
-                            <small class="text-muted">Remember your password? <a href="/login" class="fw-semibold" style="color:var(--g);">Sign in here</a></small>
+                            <small class="text-muted">Remember your password? <a href="/login" class="fw-semibold" style="color:var(--nav-red);">Sign in here</a></small>
                         </div>
                     </div>
                 </div>
