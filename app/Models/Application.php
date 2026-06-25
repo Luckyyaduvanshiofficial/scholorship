@@ -20,8 +20,7 @@ class Application
      */
     public function create(array $data): int|false
     {
-        $stmt = $this->db->prepare(
-            "INSERT INTO applications
+        $sql = "INSERT INTO applications
              (student_id, session_id, application_type_id, status_id, reviewed_by,
               dispute_message, submitted_at, type,
               family_income, bank_name, account_number, ifsc_code,
@@ -40,10 +39,9 @@ class Application
               :current_class, :current_college, :prev_scholarship_received,
               :scholarship_amt_2023_24, :scholarship_amt_2024_25, :scholarship_amt_2025_26,
               :account_holder_name, :career_goal,
-              NOW())"
-        );
+              NOW())";
 
-        $result = $stmt->execute([
+        $params = [
             ':student_id'          => $data['student_id'],
             ':session_id'          => $data['session_id'],
             ':application_type_id' => $data['application_type_id'],
@@ -71,7 +69,20 @@ class Application
             ':scholarship_amt_2025_26'   => $data['scholarship_amt_2025_26'] ?? null,
             ':account_holder_name'       => $data['account_holder_name'] ?? null,
             ':career_goal'               => $data['career_goal'] ?? null,
-        ]);
+        ];
+
+        try {
+            $stmt = $this->db->prepare($sql);
+            $result = $stmt->execute($params);
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '42S22' || str_contains($e->getMessage(), 'Unknown column')) {
+                $this->autoMigrateSchema();
+                $stmt = $this->db->prepare($sql);
+                $result = $stmt->execute($params);
+            } else {
+                throw $e;
+            }
+        }
 
         return $result ? (int) $this->db->lastInsertId() : false;
     }
@@ -236,8 +247,19 @@ class Application
 
         $values[] = $id;
         $sql = "UPDATE applications SET " . implode(', ', $sets) . " WHERE id = ?";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute($values);
+
+        try {
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute($values);
+        } catch (\PDOException $e) {
+            if ($e->getCode() === '42S22' || str_contains($e->getMessage(), 'Unknown column')) {
+                $this->autoMigrateSchema();
+                $stmt = $this->db->prepare($sql);
+                return $stmt->execute($values);
+            } else {
+                throw $e;
+            }
+        }
     }
 
     public function updateStatus(int $id, int $statusId, ?int $reviewedBy = null): bool
@@ -336,5 +358,39 @@ class Application
         $stmt->execute([$applicationId]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Auto-migrate schema to add missing applications table columns on the fly.
+     */
+    private function autoMigrateSchema(): void
+    {
+        try {
+            $columnsToAdd = [
+                'family_occupation'         => 'VARCHAR(150) DEFAULT NULL',
+                'family_members_count'      => 'INT DEFAULT NULL',
+                'earning_members_count'     => 'INT DEFAULT NULL',
+                'current_class'             => 'VARCHAR(50) DEFAULT NULL',
+                'current_college'           => 'VARCHAR(150) DEFAULT NULL',
+                'prev_scholarship_received' => 'VARCHAR(10) DEFAULT NULL',
+                'scholarship_amt_2023_24'   => 'DECIMAL(10, 2) DEFAULT NULL',
+                'scholarship_amt_2024_25'   => 'DECIMAL(10, 2) DEFAULT NULL',
+                'scholarship_amt_2025_26'   => 'DECIMAL(10, 2) DEFAULT NULL',
+                'account_holder_name'       => 'VARCHAR(100) DEFAULT NULL',
+                'career_goal'               => 'VARCHAR(255) DEFAULT NULL',
+            ];
+
+            // Describe table to check columns
+            $stmt = $this->db->query("DESCRIBE applications");
+            $existingColumns = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'Field');
+
+            foreach ($columnsToAdd as $columnName => $columnDefinition) {
+                if (!in_array($columnName, $existingColumns, true)) {
+                    $this->db->exec("ALTER TABLE applications ADD COLUMN `{$columnName}` {$columnDefinition}");
+                }
+            }
+        } catch (\Throwable $e) {
+            \App\Core\Logger::error('Auto-migration failed: ' . $e->getMessage());
+        }
     }
 }
