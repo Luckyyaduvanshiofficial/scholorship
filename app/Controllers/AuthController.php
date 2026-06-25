@@ -75,9 +75,25 @@ class AuthController
                     $this->redirectToDashboard();
                 }
             }
+        } catch (\Delight\Auth\InvalidEmailException $e) {
+            Flash::set('error', 'गलत ईमेल आईडी (Invalid email address: This email is not registered).');
+            Flash::set('old_email', $email);
+            Response::redirect('/login');
+        } catch (\Delight\Auth\InvalidPasswordException $e) {
+            Flash::set('error', 'गलत पासवर्ड (Incorrect password. Please try again).');
+            Flash::set('old_email', $email);
+            Response::redirect('/login');
+        } catch (\Delight\Auth\EmailNotVerifiedException $e) {
+            Flash::set('error', 'ईमेल सत्यापित नहीं है (Email is not verified).');
+            Flash::set('old_email', $email);
+            Response::redirect('/login');
+        } catch (\Delight\Auth\TooManyRequestsException $e) {
+            Flash::set('error', 'बहुत सारे प्रयास। कृपया थोड़ी देर बाद पुनः प्रयास करें (Too many attempts. Please try again later).');
+            Flash::set('old_email', $email);
+            Response::redirect('/login');
         } catch (\Throwable $e) {
             Logger::error('Login error: ' . $e->getMessage(), ['email' => $email]);
-            Flash::set('error', 'A temporary error occurred. Please try again in a moment.');
+            Flash::set('error', $e->getMessage() ?: 'A temporary error occurred. Please try again in a moment.');
             Flash::set('old_email', $email);
             Response::redirect('/login');
         }

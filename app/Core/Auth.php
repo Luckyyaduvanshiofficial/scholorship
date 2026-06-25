@@ -25,44 +25,48 @@ class Auth
 
     /**
      * Attempt login for an admin or representative.
-     * Returns true on success, false on failure.
+     * Returns true on success.
+     *
+     * @throws \Delight\Auth\InvalidEmailException
+     * @throws \Delight\Auth\InvalidPasswordException
+     * @throws \Delight\Auth\EmailNotVerifiedException
+     * @throws \Delight\Auth\TooManyRequestsException
+     * @throws \Exception
      */
     public static function login(string $email, string $password): bool
     {
-        try {
-            self::getAuth()->login($email, $password);
+        self::getAuth()->login($email, $password);
 
-            // Access control check: must not be a student role (SUBSCRIBER)
-            if (self::isStudent()) {
-                self::logout();
-                return false;
-            }
-
-            return true;
-        } catch (\Throwable $e) {
-            return false;
+        // Access control check: must not be a student role (SUBSCRIBER)
+        if (self::isStudent()) {
+            self::logout();
+            throw new \Exception('Access denied: Student accounts must log in through the student portal.');
         }
+
+        return true;
     }
 
     /**
      * Attempt login for a student.
-     * Returns true on success, false on failure.
+     * Returns true on success.
+     *
+     * @throws \Delight\Auth\InvalidEmailException
+     * @throws \Delight\Auth\InvalidPasswordException
+     * @throws \Delight\Auth\EmailNotVerifiedException
+     * @throws \Delight\Auth\TooManyRequestsException
+     * @throws \Exception
      */
     public static function studentLogin(string $email, string $password): bool
     {
-        try {
-            self::getAuth()->login($email, $password);
+        self::getAuth()->login($email, $password);
 
-            // Access control check: must be a student role (SUBSCRIBER)
-            if (!self::isStudent()) {
-                self::logout();
-                return false;
-            }
-
-            return true;
-        } catch (\Throwable $e) {
-            return false;
+        // Access control check: must be a student role (SUBSCRIBER)
+        if (!self::isStudent()) {
+            self::logout();
+            throw new \Exception('Access denied: Admin accounts must log in through the admin portal.');
         }
+
+        return true;
     }
 
     /**
