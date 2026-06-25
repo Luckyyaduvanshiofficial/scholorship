@@ -151,10 +151,10 @@ class AuthController
             Response::redirect('/register');
         }
 
-        // Check for existing email or mobile
+        // Check for existing email or mobile (case-insensitive to match Delight-IM users table on Linux)
         $studentModel = new Student();
 
-        if ($studentModel->findByEmail($data['email'])) {
+        if ($studentModel->emailExists($data['email'])) {
             Flash::set('error', 'An account with this email already exists.');
             Flash::set('old', $data);
             Response::redirect('/register');
@@ -193,16 +193,21 @@ class AuthController
             'status'        => 1,
         ];
 
-        $studentId = Auth::registerStudent($studentData, $data['password']);
+        $result = Auth::registerStudent($studentData, $data['password']);
 
-        if ($studentId) {
-            Logger::info('Student registered', ['id' => $studentId, 'email' => $data['email']]);
+        if (is_array($result) && ($result['ok'] ?? false) === true) {
+            Logger::info('Student registered', ['id' => $result['id'], 'email' => $data['email']]);
             Flash::set('success', 'Registration successful! Welcome, ' . $data['first_name']);
             Response::redirect('/dashboard');
         }
 
-        Logger::error('Student registration failed', ['email' => $data['email']]);
-        Flash::set('error', 'Registration failed. Please try again.');
+        $reason = is_array($result) ? ($result['reason'] ?? 'error') : 'error';
+        if ($reason === 'duplicate_email') {
+            Flash::set('error', 'An account with this email already exists.');
+        } else {
+            Logger::error('Student registration failed', ['email' => $data['email'], 'reason' => $reason]);
+            Flash::set('error', 'Registration failed. Please try again.');
+        }
         Flash::set('old', $data);
         Response::redirect('/register');
     }
@@ -243,7 +248,7 @@ class AuthController
 
         try {
             Auth::getAuth()->forgotPassword($email, function ($selector, $token) use ($email) {
-                $resetUrl = \APP_URL . '/reset-password?selector=' . urlencode($selector) . '&token=' . urlencode($token);
+                $resetUrl = constant('APP_URL') . '/reset-password?selector=' . urlencode($selector) . '&token=' . urlencode($token);
 
                 $subject = 'तम्बोली समाज पोर्टल — पासवर्ड रीसेट / Password Reset Request';
                 $htmlBody = "

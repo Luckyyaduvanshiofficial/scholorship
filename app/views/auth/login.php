@@ -47,9 +47,10 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <label for="password" class="form-label small fw-semibold mb-0">पासवर्ड / Password</label>
                                     <a href="/forgot-password" class="small text-decoration-none fw-semibold" style="color:var(--nav-red); font-size: 1.2rem;">पासवर्ड भूल गए? / Forgot?</a>
                                 </div>
-                                <div class="tsp-auth-input-group">
+                                <div class="tsp-auth-input-group tsp-password-group">
                                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                     <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+                                    <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
                                 </div>
                             </div>
                             <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center" style="background:var(--nav-red); border-color:var(--nav-red);"><i class="bi bi-box-arrow-in-right me-1"></i> लॉगिन करें / Sign In</button>

@@ -67,8 +67,13 @@ class Auth
 
     /**
      * Register a new student and log them in.
+     *
+     * Returns:
+     *   ['ok' => true,  'id' => int]              on success
+     *   ['ok' => false, 'reason' => 'duplicate_email']  if email already in use
+     *   ['ok' => false, 'reason' => 'error']      on any other failure
      */
-    public static function registerStudent(array $data, string $rawPassword): int|false
+    public static function registerStudent(array $data, string $rawPassword): array
     {
         try {
             $auth = self::getAuth();
@@ -98,10 +103,16 @@ class Auth
             if ($studentId) {
                 // 5. Automatically log the student in
                 $auth->login($data['email'], $rawPassword);
-                return $studentId;
+                return ['ok' => true, 'id' => $studentId];
             }
 
-            return false;
+            Logger::error('Student registration failed: profile insert returned false', [
+                'email' => $data['email'],
+            ]);
+            return ['ok' => false, 'reason' => 'error'];
+        } catch (\Delight\Auth\UserAlreadyExistsException $e) {
+            Logger::warning('Student registration duplicate email', ['email' => $data['email']]);
+            return ['ok' => false, 'reason' => 'duplicate_email'];
         } catch (\Throwable $e) {
             Logger::error('Student registration error: ' . get_class($e), [
                 'message' => $e->getMessage(),
@@ -110,7 +121,7 @@ class Auth
                 'line'    => $e->getLine(),
                 'previous'=> $e->getPrevious() ? get_class($e->getPrevious()) . ': ' . $e->getPrevious()->getMessage() : null,
             ]);
-            return false;
+            return ['ok' => false, 'reason' => 'error'];
         }
     }
 

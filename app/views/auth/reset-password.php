@@ -26,16 +26,18 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             
                             <div class="mb-3">
                                 <label for="password" class="form-label small fw-semibold">नया पासवर्ड / New Password</label>
-                                <div class="tsp-auth-input-group">
+                                <div class="tsp-auth-input-group tsp-password-group">
                                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                     <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" minlength="6" required autofocus>
+                                    <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <label for="password_confirm" class="form-label small fw-semibold">पासवर्ड की पुष्टि करें / Confirm Password</label>
-                                <div class="tsp-auth-input-group">
+                                <div class="tsp-auth-input-group tsp-password-group">
                                     <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
                                     <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="••••••••" minlength="6" required>
+                                    <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
                                 </div>
                             </div>
                             <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center" style="background:var(--nav-red); border-color:var(--nav-red);"><i class="bi bi-check-circle-fill me-1"></i> पासवर्ड अपडेट करें / Update Password</button>

@@ -85,11 +85,19 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <div class="row g-2 mb-4">
                                 <div class="col-sm-6">
                                     <label for="password" class="form-label small fw-semibold">पासवर्ड / Password *</label>
-                                    <input type="password" name="password" id="password" class="form-control" placeholder="Min 6 chars" minlength="6" required>
+                                    <div class="tsp-auth-input-group tsp-password-group">
+                                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                        <input type="password" name="password" id="password" class="form-control" placeholder="Min 6 chars" minlength="6" required>
+                                        <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
+                                    </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="password_confirm" class="form-label small fw-semibold">पुष्टि करें / Confirm *</label>
-                                    <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="Re-enter password" minlength="6" required>
+                                    <div class="tsp-auth-input-group tsp-password-group">
+                                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                        <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="Re-enter password" minlength="6" required>
+                                        <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
+                                    </div>
                                 </div>
                             </div>
                             <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center" style="background:var(--nav-red); border-color:var(--nav-red);"><i class="bi bi-person-plus me-1"></i> खाता बनाएं / Register</button>

@@ -63,7 +63,7 @@ class Student
 
     public function findByEmail(string $email): array|false
     {
-        $stmt = $this->db->prepare("SELECT * FROM students WHERE email = ? LIMIT 1");
+        $stmt = $this->db->prepare("SELECT * FROM students WHERE LOWER(email) = LOWER(?) LIMIT 1");
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -73,6 +73,13 @@ class Student
         $stmt = $this->db->prepare("SELECT * FROM students WHERE mobile = ? LIMIT 1");
         $stmt->execute([$mobile]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function emailExists(string $email): bool
+    {
+        $stmt = $this->db->prepare("SELECT id FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1");
+        $stmt->execute([$email]);
+        return (bool) $stmt->fetchColumn();
     }
 
     public function findByCode(string $studentCode): array|false
