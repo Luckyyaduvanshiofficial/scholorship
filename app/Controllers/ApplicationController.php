@@ -93,10 +93,11 @@ class ApplicationController
             Response::redirect('/applications');
         }
 
-        // Check for duplicate
+        // Check for duplicate or load/create draft
         $appModel = new Application();
         $typeModel = new ApplicationType();
         $scholarshipType = $typeModel->findByName('Scholarship');
+        $application = [];
 
         if ($scholarshipType) {
             $existing = $appModel->findByStudent(
@@ -105,12 +106,24 @@ class ApplicationController
                 (int) $scholarshipType['id']
             );
 
-            // Check if already has a scholarship application
-            foreach ([$existing] as $row) {
-                if ($row && (int) $row['application_type_id'] === (int) $scholarshipType['id']) {
+            if ($existing) {
+                if ($existing['submitted_at'] !== null) {
                     Flash::set('error', 'You have already applied for Scholarship in this session.');
                     Response::redirect('/applications');
+                } else {
+                    $application = $appModel->find((int) $existing['id']);
                 }
+            } else {
+                // Auto-create a draft application immediately
+                $appId = $appModel->create([
+                    'student_id'          => (int) Auth::id(),
+                    'session_id'          => (int) $activeSession['id'],
+                    'application_type_id' => (int) $scholarshipType['id'],
+                    'status_id'           => 1, // Pending
+                    'type'                => 'scholarship',
+                    'submitted_at'        => null,
+                ]);
+                $application = $appModel->find((int) $appId);
             }
         }
 
@@ -121,6 +134,7 @@ class ApplicationController
             'title'         => 'Scholarship Application — Tamboli Samaj Portal',
             'activeSession' => $activeSession,
             'student'       => $student ?: [],
+            'application'   => $application,
         ]);
     }
 
@@ -144,6 +158,7 @@ class ApplicationController
         $appModel = new Application();
         $typeModel = new ApplicationType();
         $pratibhaType = $typeModel->findByName('Pratibha Samman');
+        $application = [];
 
         if ($pratibhaType) {
             $existing = $appModel->findByStudent(
@@ -152,17 +167,35 @@ class ApplicationController
                 (int) $pratibhaType['id']
             );
 
-            foreach ([$existing] as $row) {
-                if ($row && (int) $row['application_type_id'] === (int) $pratibhaType['id']) {
+            if ($existing) {
+                if ($existing['submitted_at'] !== null) {
                     Flash::set('error', 'You have already registered for Pratibha Samman in this session.');
                     Response::redirect('/applications');
+                } else {
+                    $application = $appModel->find((int) $existing['id']);
                 }
+            } else {
+                // Auto-create a draft application immediately
+                $appId = $appModel->create([
+                    'student_id'          => (int) Auth::id(),
+                    'session_id'          => (int) $activeSession['id'],
+                    'application_type_id' => (int) $pratibhaType['id'],
+                    'status_id'           => 1, // Pending
+                    'type'                => 'pratibha',
+                    'submitted_at'        => null,
+                ]);
+                $application = $appModel->find((int) $appId);
             }
         }
+
+        $studentModel = new \App\Models\Student();
+        $student = $studentModel->find((int) Auth::id());
 
         Response::view('applications/pratibha', [
             'title'         => 'Pratibha Samman Application — Tamboli Samaj Portal',
             'activeSession' => $activeSession,
+            'student'       => $student ?: [],
+            'application'   => $application,
         ]);
     }
 
@@ -214,16 +247,27 @@ class ApplicationController
 
         // Validate application inputs
         $data = [
-            'class_year'       => Input::post('class_year', ''),
-            'college_name'     => Input::post('college_name', ''),
-            'board_university' => Input::post('board_university', ''),
-            'marks_obtained'   => Input::post('marks_obtained', ''),
-            'max_marks'        => Input::post('max_marks', ''),
-            'percentage'       => Input::post('percentage', ''),
-            'family_income'    => Input::post('family_income', ''),
-            'bank_name'        => Input::post('bank_name', ''),
-            'account_number'   => Input::post('account_number', ''),
-            'ifsc_code'        => Input::post('ifsc_code', ''),
+            'class_year'                => Input::post('class_year', ''),
+            'college_name'              => Input::post('college_name', ''),
+            'board_university'          => Input::post('board_university', ''),
+            'marks_obtained'            => Input::post('marks_obtained', ''),
+            'max_marks'                 => Input::post('max_marks', ''),
+            'percentage'                => Input::post('percentage', ''),
+            'family_income'             => Input::post('family_income', ''),
+            'bank_name'                 => Input::post('bank_name', ''),
+            'account_number'            => Input::post('account_number', ''),
+            'ifsc_code'                 => Input::post('ifsc_code', ''),
+            'family_occupation'         => Input::post('family_occupation', ''),
+            'family_members_count'      => Input::post('family_members_count', ''),
+            'earning_members_count'     => Input::post('earning_members_count', ''),
+            'current_class'             => Input::post('current_class', ''),
+            'current_college'           => Input::post('current_college', ''),
+            'prev_scholarship_received' => Input::post('prev_scholarship_received', ''),
+            'scholarship_amt_2023_24'   => Input::post('scholarship_amt_2023_24', ''),
+            'scholarship_amt_2024_25'   => Input::post('scholarship_amt_2024_25', ''),
+            'scholarship_amt_2025_26'   => Input::post('scholarship_amt_2025_26', ''),
+            'account_holder_name'       => Input::post('account_holder_name', ''),
+            'career_goal'               => Input::post('career_goal', ''),
         ];
 
         $v = Validator::make($data);
@@ -232,10 +276,17 @@ class ApplicationController
           ->numeric('percentage', 'Percentage')
           ->required('bank_name', 'Bank name')
           ->required('account_number', 'Account number')
-          ->required('ifsc_code', 'IFSC code');
+          ->required('ifsc_code', 'IFSC code')
+          ->required('family_occupation', 'Family occupation')
+          ->required('family_members_count', 'Family members count')
+          ->required('earning_members_count', 'Earning members count')
+          ->required('current_class', 'Current class')
+          ->required('current_college', 'Current college')
+          ->required('account_holder_name', 'Account holder name')
+          ->required('career_goal', 'Career goal');
 
         if ($v->fails()) {
-            Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name') ?? $v->first('ifsc_code'));
+            Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name') ?? $v->first('family_occupation') ?? $v->first('current_class'));
             Flash::set('old', $data);
             Response::redirect('/applications/scholarship');
         }
@@ -255,27 +306,76 @@ class ApplicationController
             Response::redirect('/applications/scholarship');
         }
 
-        // Validate four uploads (marksheet, passbook, photo, signature)
-        $validatedUploads = $this->validateUploads([
+        // Get draft application
+        $appModel = new Application();
+        $existingDraft = $appModel->findByStudent((int)Auth::id(), (int)$activeSession['id'], (int)$scholarshipType['id']);
+        if (!$existingDraft) {
+            $appId = $appModel->create([
+                'student_id'          => (int) Auth::id(),
+                'session_id'          => (int) $activeSession['id'],
+                'application_type_id' => (int) $scholarshipType['id'],
+                'status_id'           => 1,
+                'type'                => 'scholarship',
+            ]);
+        } else {
+            $appId = (int)$existingDraft['id'];
+        }
+
+        // Check already uploaded documents
+        $dbDocs = $appModel->documents($appId);
+        $dbDocTypes = array_column($dbDocs, 'document_type');
+
+        // Validate uploads
+        $requiredDocs = [
             'marksheet' => 'Marksheet',
             'passbook'  => 'Passbook',
             'photo'     => 'Photo',
             'signature' => 'Signature',
-        ], '/applications/scholarship', $data);
+        ];
+        $validatedUploads = [];
+        $uploader = new FileUploader();
 
-        // Store application
-        $appModel = new Application();
-        $appId = $appModel->create([
-            'student_id'          => (int) Auth::id(),
-            'session_id'          => (int) $activeSession['id'],
-            'application_type_id' => (int) $scholarshipType['id'],
-            'status_id'           => 1,
-            'type'                => 'scholarship',
-            'family_income'       => $data['family_income'] ?: null,
-            'bank_name'           => $data['bank_name'],
-            'account_number'      => $data['account_number'],
-            'ifsc_code'           => $data['ifsc_code'],
-            'submitted_at'        => date('Y-m-d H:i:s'),
+        foreach ($requiredDocs as $field => $documentType) {
+            $file = $_FILES[$field] ?? null;
+            $hasInDb = in_array($documentType, $dbDocTypes, true);
+
+            if (!$hasInDb && (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE)) {
+                Flash::set('error', $documentType . ' upload is required.');
+                Flash::set('old', $data);
+                Response::redirect('/applications/scholarship');
+            }
+
+            if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                if (!$uploader->validate($file)) {
+                    Flash::set('error', $documentType . ': ' . $uploader->firstError());
+                    Flash::set('old', $data);
+                    Response::redirect('/applications/scholarship');
+                }
+                $validatedUploads[$field] = [
+                    'type' => $documentType,
+                    'file' => $file,
+                ];
+            }
+        }
+
+        // Update application
+        $appModel->update($appId, [
+            'family_income'             => $data['family_income'] !== '' ? $data['family_income'] : null,
+            'bank_name'                 => $data['bank_name'],
+            'account_number'            => $data['account_number'],
+            'ifsc_code'                 => $data['ifsc_code'],
+            'family_occupation'         => $data['family_occupation'] ?: null,
+            'family_members_count'      => $data['family_members_count'] !== '' ? (int)$data['family_members_count'] : null,
+            'earning_members_count'     => $data['earning_members_count'] !== '' ? (int)$data['earning_members_count'] : null,
+            'current_class'             => $data['current_class'] ?: null,
+            'current_college'           => $data['current_college'] ?: null,
+            'prev_scholarship_received' => $data['prev_scholarship_received'] ?: null,
+            'scholarship_amt_2023_24'   => $data['scholarship_amt_2023_24'] !== '' ? $data['scholarship_amt_2023_24'] : null,
+            'scholarship_amt_2024_25'   => $data['scholarship_amt_2024_25'] !== '' ? $data['scholarship_amt_2024_25'] : null,
+            'scholarship_amt_2025_26'   => $data['scholarship_amt_2025_26'] !== '' ? $data['scholarship_amt_2025_26'] : null,
+            'account_holder_name'       => $data['account_holder_name'] ?: null,
+            'career_goal'               => $data['career_goal'] ?: null,
+            'submitted_at'              => date('Y-m-d H:i:s'),
         ]);
 
         if ($appId) {
@@ -390,20 +490,60 @@ class ApplicationController
             Response::redirect('/applications/pratibha');
         }
 
-        $validatedUploads = $this->validateUploads([
+        // Get draft application
+        $appModel = new Application();
+        $existingDraft = $appModel->findByStudent((int)Auth::id(), (int)$activeSession['id'], (int)$pratibhaType['id']);
+        if (!$existingDraft) {
+            $appId = $appModel->create([
+                'student_id'          => (int) Auth::id(),
+                'session_id'          => (int) $activeSession['id'],
+                'application_type_id' => (int) $pratibhaType['id'],
+                'status_id'           => 1,
+                'type'                => 'pratibha',
+            ]);
+        } else {
+            $appId = (int)$existingDraft['id'];
+        }
+
+        // Check already uploaded documents
+        $dbDocs = $appModel->documents($appId);
+        $dbDocTypes = array_column($dbDocs, 'document_type');
+
+        // Validate uploads
+        $requiredDocs = [
             'marksheet'   => 'Marksheet',
             'certificate' => 'Certificate',
             'photo'       => 'Photo',
             'signature'   => 'Signature',
-        ], '/applications/pratibha', $data);
+        ];
+        $validatedUploads = [];
+        $uploader = new FileUploader();
 
-        $appModel = new Application();
-        $appId = $appModel->create([
-            'student_id'          => (int) Auth::id(),
-            'session_id'          => (int) $activeSession['id'],
-            'application_type_id' => (int) $pratibhaType['id'],
-            'status_id'           => 1,
-            'type'                => 'pratibha',
+        foreach ($requiredDocs as $field => $documentType) {
+            $file = $_FILES[$field] ?? null;
+            $hasInDb = in_array($documentType, $dbDocTypes, true);
+
+            if (!$hasInDb && (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE)) {
+                Flash::set('error', $documentType . ' upload is required.');
+                Flash::set('old', $data);
+                Response::redirect('/applications/pratibha');
+            }
+
+            if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                if (!$uploader->validate($file)) {
+                    Flash::set('error', $documentType . ': ' . $uploader->firstError());
+                    Flash::set('old', $data);
+                    Response::redirect('/applications/pratibha');
+                }
+                $validatedUploads[$field] = [
+                    'type' => $documentType,
+                    'file' => $file,
+                ];
+            }
+        }
+
+        // Update application
+        $appModel->update($appId, [
             'achievement_title'   => $data['achievement_title'],
             'achievement_category'=> $data['achievement_category'] ?: null,
             'achievement_level'   => $data['achievement_level'] ?: null,
@@ -743,16 +883,27 @@ class ApplicationController
 
         if ($app['type'] === 'scholarship') {
             $data = [
-                'class_year'       => Input::post('class_year', ''),
-                'college_name'     => Input::post('college_name', ''),
-                'board_university' => Input::post('board_university', ''),
-                'marks_obtained'   => Input::post('marks_obtained', ''),
-                'max_marks'        => Input::post('max_marks', ''),
-                'percentage'       => Input::post('percentage', ''),
-                'family_income'    => Input::post('family_income', ''),
-                'bank_name'        => Input::post('bank_name', ''),
-                'account_number'   => Input::post('account_number', ''),
-                'ifsc_code'        => Input::post('ifsc_code', ''),
+                'class_year'                => Input::post('class_year', ''),
+                'college_name'              => Input::post('college_name', ''),
+                'board_university'          => Input::post('board_university', ''),
+                'marks_obtained'            => Input::post('marks_obtained', ''),
+                'max_marks'                 => Input::post('max_marks', ''),
+                'percentage'                => Input::post('percentage', ''),
+                'family_income'             => Input::post('family_income', ''),
+                'bank_name'                 => Input::post('bank_name', ''),
+                'account_number'            => Input::post('account_number', ''),
+                'ifsc_code'                 => Input::post('ifsc_code', ''),
+                'family_occupation'         => Input::post('family_occupation', ''),
+                'family_members_count'      => Input::post('family_members_count', ''),
+                'earning_members_count'     => Input::post('earning_members_count', ''),
+                'current_class'             => Input::post('current_class', ''),
+                'current_college'           => Input::post('current_college', ''),
+                'prev_scholarship_received' => Input::post('prev_scholarship_received', ''),
+                'scholarship_amt_2023_24'   => Input::post('scholarship_amt_2023_24', ''),
+                'scholarship_amt_2024_25'   => Input::post('scholarship_amt_2024_25', ''),
+                'scholarship_amt_2025_26'   => Input::post('scholarship_amt_2025_26', ''),
+                'account_holder_name'       => Input::post('account_holder_name', ''),
+                'career_goal'               => Input::post('career_goal', ''),
             ];
 
             $v = Validator::make($data);
@@ -761,10 +912,17 @@ class ApplicationController
               ->numeric('percentage', 'Percentage')
               ->required('bank_name', 'Bank name')
               ->required('account_number', 'Account number')
-              ->required('ifsc_code', 'IFSC code');
+              ->required('ifsc_code', 'IFSC code')
+              ->required('family_occupation', 'Family occupation')
+              ->required('family_members_count', 'Family members count')
+              ->required('earning_members_count', 'Earning members count')
+              ->required('current_class', 'Current class')
+              ->required('current_college', 'Current college')
+              ->required('account_holder_name', 'Account holder name')
+              ->required('career_goal', 'Career goal');
 
             if ($v->fails()) {
-                Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name') ?? $v->first('ifsc_code'));
+                Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name') ?? $v->first('family_occupation') ?? $v->first('current_class'));
                 Response::redirect('/applications/' . $id . '/edit');
             }
 
@@ -783,13 +941,24 @@ class ApplicationController
 
             // Update application fields
             $appModel->update((int) $id, [
-                'family_income'  => $data['family_income'] ?: null,
-                'bank_name'      => $data['bank_name'],
-                'account_number' => $data['account_number'],
-                'ifsc_code'      => $data['ifsc_code'],
-                'status_id'      => 1, // reset to pending
-                'dispute_message'=> null, // clear dispute message
-                'updated_at'     => date('Y-m-d H:i:s'),
+                'family_income'             => $data['family_income'] !== '' ? $data['family_income'] : null,
+                'bank_name'                 => $data['bank_name'],
+                'account_number'            => $data['account_number'],
+                'ifsc_code'                 => $data['ifsc_code'],
+                'family_occupation'         => $data['family_occupation'] ?: null,
+                'family_members_count'      => $data['family_members_count'] !== '' ? (int)$data['family_members_count'] : null,
+                'earning_members_count'     => $data['earning_members_count'] !== '' ? (int)$data['earning_members_count'] : null,
+                'current_class'             => $data['current_class'] ?: null,
+                'current_college'           => $data['current_college'] ?: null,
+                'prev_scholarship_received' => $data['prev_scholarship_received'] ?: null,
+                'scholarship_amt_2023_24'   => $data['scholarship_amt_2023_24'] !== '' ? $data['scholarship_amt_2023_24'] : null,
+                'scholarship_amt_2024_25'   => $data['scholarship_amt_2024_25'] !== '' ? $data['scholarship_amt_2024_25'] : null,
+                'scholarship_amt_2025_26'   => $data['scholarship_amt_2025_26'] !== '' ? $data['scholarship_amt_2025_26'] : null,
+                'account_holder_name'       => $data['account_holder_name'] ?: null,
+                'career_goal'               => $data['career_goal'] ?: null,
+                'status_id'                 => 1, // reset to pending
+                'dispute_message'           => null, // clear dispute message
+                'updated_at'                => date('Y-m-d H:i:s'),
             ]);
 
             // Update academics
@@ -1004,5 +1173,156 @@ class ApplicationController
             Flash::set('error', 'A temporary error occurred while updating. Please try again.');
             Response::redirect('/applications/' . $id . '/edit');
         }
+    }
+
+    /**
+     * AJAX Document Upload.
+     */
+    public function uploadDocumentAjax(string $id): void
+    {
+        header('Content-Type: application/json');
+
+        if (!Auth::check()) {
+            echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+            exit;
+        }
+
+        $appModel = new Application();
+        $app = $appModel->find((int)$id);
+
+        if (!$app || (!Auth::isAdmin() && !Auth::isRepresentative() && (int)$app['student_id'] !== (int)Auth::id())) {
+            echo json_encode(['success' => false, 'error' => 'Application not found or unauthorized']);
+            exit;
+        }
+
+        $documentType = Input::post('document_type', '');
+        if (!in_array($documentType, ['Photo', 'Marksheet', 'Passbook', 'Certificate', 'Signature'], true)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid document type: ' . $documentType]);
+            exit;
+        }
+
+        $file = $_FILES['file'] ?? null;
+        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['success' => false, 'error' => 'No file uploaded or upload error.']);
+            exit;
+        }
+
+        $uploader = new FileUploader();
+        if (!$uploader->validate($file)) {
+            echo json_encode(['success' => false, 'error' => $uploader->firstError()]);
+            exit;
+        }
+
+        $db = \App\Core\Database::getInstance();
+        $documentTypeId = $appModel->documentTypeId($documentType);
+
+        if ($documentTypeId === null) {
+            echo json_encode(['success' => false, 'error' => 'Invalid document type.']);
+            exit;
+        }
+
+        $directory = UPLOAD_PATH . '/applications/' . $id;
+
+        // Find and delete existing physical files for this document type
+        $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+        $stmt->execute([$id, $documentTypeId]);
+        $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($existing as $doc) {
+            $oldPath = $directory . '/' . $doc['stored_name'];
+            if (file_exists($oldPath)) {
+                @unlink($oldPath);
+            }
+        }
+
+        // Delete records from database
+        $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+        $stmt->execute([$id, $documentTypeId]);
+
+        // Upload and insert the new document
+        $storedName = $uploader->upload($file, $directory);
+        if ($storedName === false) {
+            echo json_encode(['success' => false, 'error' => $uploader->firstError()]);
+            exit;
+        }
+
+        $appModel->addDocument((int)$id, $documentType, $file, $storedName);
+
+        // Update student profile photo if updated photo
+        if ($documentType === 'Photo') {
+            $profilePhotoPath = '/uploads/applications/' . $id . '/' . $storedName;
+            $studentModel = new \App\Models\Student();
+            $studentModel->update((int)$app['student_id'], ['profile_photo' => $profilePhotoPath]);
+        }
+
+        echo json_encode([
+            'success' => true,
+            'stored_name' => $storedName,
+            'original_name' => $file['name'],
+            'url' => '/uploads/applications/' . $id . '/' . $storedName
+        ]);
+        exit;
+    }
+
+    /**
+     * AJAX Document Deletion.
+     */
+    public function deleteDocumentAjax(string $id): void
+    {
+        header('Content-Type: application/json');
+
+        if (!Auth::check()) {
+            echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+            exit;
+        }
+
+        $appModel = new Application();
+        $app = $appModel->find((int)$id);
+
+        if (!$app || (!Auth::isAdmin() && !Auth::isRepresentative() && (int)$app['student_id'] !== (int)Auth::id())) {
+            echo json_encode(['success' => false, 'error' => 'Application not found or unauthorized']);
+            exit;
+        }
+
+        $documentType = Input::post('document_type', '');
+        if (!in_array($documentType, ['Photo', 'Marksheet', 'Passbook', 'Certificate', 'Signature'], true)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid document type']);
+            exit;
+        }
+
+        $db = \App\Core\Database::getInstance();
+        $documentTypeId = $appModel->documentTypeId($documentType);
+
+        if ($documentTypeId === null) {
+            echo json_encode(['success' => false, 'error' => 'Invalid document type.']);
+            exit;
+        }
+
+        $directory = UPLOAD_PATH . '/applications/' . $id;
+
+        // Find and delete physical files
+        $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+        $stmt->execute([$id, $documentTypeId]);
+        $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($existing as $doc) {
+            $oldPath = $directory . '/' . $doc['stored_name'];
+            if (file_exists($oldPath)) {
+                @unlink($oldPath);
+            }
+        }
+
+        // Delete records from database
+        $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+        $stmt->execute([$id, $documentTypeId]);
+
+        // Reset profile photo if student photo deleted
+        if ($documentType === 'Photo') {
+            $studentModel = new \App\Models\Student();
+            $studentModel->update((int)$app['student_id'], ['profile_photo' => null]);
+        }
+
+        echo json_encode(['success' => true]);
+        exit;
     }
 }

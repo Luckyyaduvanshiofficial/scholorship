@@ -135,6 +135,17 @@ CREATE TABLE IF NOT EXISTS applications (
     bank_name VARCHAR(100) DEFAULT NULL,
     account_number VARCHAR(30) DEFAULT NULL,
     ifsc_code VARCHAR(20) DEFAULT NULL,
+    family_occupation VARCHAR(150) DEFAULT NULL,
+    family_members_count INT DEFAULT NULL,
+    earning_members_count INT DEFAULT NULL,
+    current_class VARCHAR(50) DEFAULT NULL,
+    current_college VARCHAR(150) DEFAULT NULL,
+    prev_scholarship_received VARCHAR(10) DEFAULT NULL,
+    scholarship_amt_2023_24 DECIMAL(10, 2) DEFAULT NULL,
+    scholarship_amt_2024_25 DECIMAL(10, 2) DEFAULT NULL,
+    scholarship_amt_2025_26 DECIMAL(10, 2) DEFAULT NULL,
+    account_holder_name VARCHAR(100) DEFAULT NULL,
+    career_goal VARCHAR(255) DEFAULT NULL,
     
     -- Pratibha fields (NULL if scholarship)
     achievement_title VARCHAR(200) DEFAULT NULL,

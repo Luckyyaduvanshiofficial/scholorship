@@ -26,12 +26,20 @@ class Application
               dispute_message, submitted_at, type,
               family_income, bank_name, account_number, ifsc_code,
               achievement_title, achievement_category, achievement_level, rank_position,
+              family_occupation, family_members_count, earning_members_count,
+              current_class, current_college, prev_scholarship_received,
+              scholarship_amt_2023_24, scholarship_amt_2024_25, scholarship_amt_2025_26,
+              account_holder_name, career_goal,
               created_at)
              VALUES
              (:student_id, :session_id, :application_type_id, :status_id, :reviewed_by,
               :dispute_message, :submitted_at, :type,
               :family_income, :bank_name, :account_number, :ifsc_code,
               :achievement_title, :achievement_category, :achievement_level, :rank_position,
+              :family_occupation, :family_members_count, :earning_members_count,
+              :current_class, :current_college, :prev_scholarship_received,
+              :scholarship_amt_2023_24, :scholarship_amt_2024_25, :scholarship_amt_2025_26,
+              :account_holder_name, :career_goal,
               NOW())"
         );
 
@@ -52,6 +60,17 @@ class Application
             ':achievement_category'=> $data['achievement_category'] ?? null,
             ':achievement_level'   => $data['achievement_level'] ?? null,
             ':rank_position'       => $data['rank_position'] ?? null,
+            ':family_occupation'         => $data['family_occupation'] ?? null,
+            ':family_members_count'      => isset($data['family_members_count']) ? (int)$data['family_members_count'] : null,
+            ':earning_members_count'     => isset($data['earning_members_count']) ? (int)$data['earning_members_count'] : null,
+            ':current_class'             => $data['current_class'] ?? null,
+            ':current_college'           => $data['current_college'] ?? null,
+            ':prev_scholarship_received' => $data['prev_scholarship_received'] ?? null,
+            ':scholarship_amt_2023_24'   => $data['scholarship_amt_2023_24'] ?? null,
+            ':scholarship_amt_2024_25'   => $data['scholarship_amt_2024_25'] ?? null,
+            ':scholarship_amt_2025_26'   => $data['scholarship_amt_2025_26'] ?? null,
+            ':account_holder_name'       => $data['account_holder_name'] ?? null,
+            ':career_goal'               => $data['career_goal'] ?? null,
         ]);
 
         return $result ? (int) $this->db->lastInsertId() : false;
@@ -200,7 +219,11 @@ class Application
             'student_id', 'session_id', 'application_type_id', 'status_id',
             'reviewed_by', 'dispute_message', 'submitted_at', 'type',
             'family_income', 'bank_name', 'account_number', 'ifsc_code',
-            'achievement_title', 'achievement_category', 'achievement_level', 'rank_position'
+            'achievement_title', 'achievement_category', 'achievement_level', 'rank_position',
+            'family_occupation', 'family_members_count', 'earning_members_count',
+            'current_class', 'current_college', 'prev_scholarship_received',
+            'scholarship_amt_2023_24', 'scholarship_amt_2024_25', 'scholarship_amt_2025_26',
+            'account_holder_name', 'career_goal'
         ];
 
         foreach ($data as $key => $value) {

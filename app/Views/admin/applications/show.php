@@ -19,6 +19,20 @@ if (Auth::check()) {
 }
 $adminName = Auth::userName() ?: 'Super Admin';
 
+// Find Photo and Signature document paths for printing
+$photoUrl = '';
+$signatureUrl = '';
+if (!empty($app['documents'])) {
+    foreach ($app['documents'] as $doc) {
+        if (($doc['document_type'] ?? '') === 'Photo') {
+            $photoUrl = '/uploads/applications/' . $app['id'] . '/' . $doc['stored_name'];
+        }
+        if (($doc['document_type'] ?? '') === 'Signature') {
+            $signatureUrl = '/uploads/applications/' . $app['id'] . '/' . $doc['stored_name'];
+        }
+    }
+}
+
 // Helper to determine status badges in Hindi
 function getHindiStatusInfo($statusName) {
     $statusName = strtolower($statusName ?? '');
@@ -67,8 +81,12 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
                         </p>
                     </div>
 
-                    <div>
-                        <span class="badge rounded-pill px-4 py-2 fs-5 fw-bold <?= $statusInfo['class'] ?>" style="font-size: 1.25rem; display: inline-block;">
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-outline-dark btn-sm rounded-pill d-inline-flex align-items-center gap-1 shadow-sm px-3 py-2 fw-semibold" onclick="window.print();">
+                            <i class="bi bi-printer-fill"></i>
+                            <span>प्रिंट / PDF सेव करें</span>
+                        </button>
+                        <span class="badge rounded-pill px-4 py-2 fs-5 fw-bold <?= $statusInfo['class'] ?>" style="font-size: 1.25rem; display: inline-block; margin-bottom: 0;">
                             <?= htmlspecialchars($statusInfo['text']) ?>
                         </span>
                     </div>
@@ -133,18 +151,128 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
                                 </h4>
                                 <div class="row g-3 mb-4" style="font-size: 1.35rem;">
                                     <div class="col-sm-6">
-                                        <label class="small text-muted d-block fw-semibold mb-1">आवेदक का नाम</label>
+                                        <label class="small text-muted d-block fw-semibold mb-1">आवेदक का नाम (Name)</label>
                                         <span class="fw-bold text-dark"><?= Helpers::esc(($app['first_name'] ?? '') . ' ' . ($app['last_name'] ?? '')) ?></span>
                                     </div>
                                     <div class="col-sm-6">
                                         <label class="small text-muted d-block fw-semibold mb-1">स्टूडेंट कोड (Reference)</label>
                                         <span class="fw-bold text-dark"><?= Helpers::esc($app['student_code'] ?? '-') ?></span>
                                     </div>
+                                    <div class="col-sm-6">
+                                        <label class="small text-muted d-block fw-semibold mb-1">पिता का नाम (Father's Name)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['father_name'] ?? '-') ?></span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="small text-muted d-block fw-semibold mb-1">माता का नाम (Mother's Name)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['mother_name'] ?? '-') ?></span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="small text-muted d-block fw-semibold mb-1">मोबाइल नंबर (Mobile)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['mobile'] ?? '-') ?></span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="small text-muted d-block fw-semibold mb-1">लिंग (Gender)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['gender'] ?? '-') ?></span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="small text-muted d-block fw-semibold mb-1">जन्म तिथि (DOB)</label>
+                                        <span class="fw-bold text-dark"><?= !empty($app['dob']) ? date('d/m/Y', strtotime($app['dob'])) : '-' ?></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="small text-muted d-block fw-semibold mb-1">वर्तमान स्थायी पता (Address)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['address'] ?? '-') ?>, <?= Helpers::esc($app['city'] ?? '') ?>, <?= Helpers::esc($app['district'] ?? '') ?> - <?= Helpers::esc($app['pincode'] ?? '') ?></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="small text-muted d-block fw-semibold mb-1">भविष्य में आप क्या बनना चाहते हैं (Career Goal)</label>
+                                        <span class="fw-bold text-dark text-success"><?= Helpers::esc($app['career_goal'] ?? '-') ?></span>
+                                    </div>
+                                </div>
+
+                                <h4 class="h5 fw-bold text-dark mb-4 border-bottom pb-2 font-heading">
+                                    <i class="bi bi-book text-danger me-2"></i> शैक्षणिक विवरण (Academic Details)
+                                </h4>
+                                <div class="row g-3 mb-4" style="font-size: 1.35rem;">
+                                    <div class="col-sm-6">
+                                        <label class="small text-muted d-block fw-semibold mb-1">उत्तीर्ण कक्षा व वर्ष (Passed Class)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['class_year'] ?? '-') ?></span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="small text-muted d-block fw-semibold mb-1">परीक्षा परिणाम प्रतिशत (Percentage)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['percentage'] ?? '-') ?>%</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="small text-muted d-block fw-semibold mb-1">प्राप्त / कुल अंक (Marks Obtained/Max)</label>
+                                        <span class="fw-bold text-dark"><?= (!empty($app['marks_obtained']) && !empty($app['max_marks'])) ? $app['marks_obtained'] . ' / ' . $app['max_marks'] : '-' ?></span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="small text-muted d-block fw-semibold mb-1">बोर्ड / विश्वविद्यालय (Board/Univ)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['board_university'] ?? '-') ?></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="small text-muted d-block fw-semibold mb-1">अध्ययनरत विद्यालय/महाविद्यालय का नाम (Institution)</label>
+                                        <span class="fw-bold text-dark"><?= Helpers::esc($app['college_name'] ?? '-') ?></span>
+                                    </div>
+                                    <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                                        <div class="col-sm-6">
+                                            <label class="small text-muted d-block fw-semibold mb-1">वर्तमान में अध्ययनरत कक्षा (Current Class)</label>
+                                            <span class="fw-bold text-dark"><?= Helpers::esc($app['current_class'] ?? '-') ?></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="small text-muted d-block fw-semibold mb-1">वर्तमान में अध्ययनरत विद्यालय/महाविद्यालय (Current Inst.)</label>
+                                            <span class="fw-bold text-dark"><?= Helpers::esc($app['current_college'] ?? '-') ?></span>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
 
                                 <?php if (($app['type'] ?? '') === 'scholarship'): ?>
                                     <h4 class="h5 fw-bold text-dark mb-4 border-bottom pb-2 font-heading">
-                                        <i class="bi bi-bank text-danger me-2"></i> बैंक एवं पारिवारिक विवरण (Bank & Income Details)
+                                        <i class="bi bi-people-fill text-danger me-2"></i> पारिवारिक विवरण (Family Details)
+                                    </h4>
+                                    <div class="row g-3 mb-4" style="font-size: 1.35rem;">
+                                        <div class="col-sm-6">
+                                            <label class="small text-muted d-block fw-semibold mb-1">परिवार का व्यवसाय/आजीविका का साधन</label>
+                                            <span class="fw-bold text-dark"><?= Helpers::esc($app['family_occupation'] ?? '-') ?></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="small text-muted d-block fw-semibold mb-1">वार्षिक पारिवारिक आय</label>
+                                            <span class="fw-bold text-dark text-danger"><?= !empty($app['family_income']) ? '₹ ' . number_format((float) $app['family_income'], 2) : '-' ?></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="small text-muted d-block fw-semibold mb-1">परिवार में कुल सदस्य</label>
+                                            <span class="fw-bold text-dark"><?= Helpers::esc($app['family_members_count'] ?? '-') ?></span>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="small text-muted d-block fw-semibold mb-1">परिवार में कमाने वाले सदस्यों की संख्या</label>
+                                            <span class="fw-bold text-dark"><?= Helpers::esc($app['earning_members_count'] ?? '-') ?></span>
+                                        </div>
+                                    </div>
+
+                                    <h4 class="h5 fw-bold text-dark mb-4 border-bottom pb-2 font-heading">
+                                        <i class="bi bi-gift-fill text-danger me-2"></i> संस्था से पिछले वर्षों में छात्रवृत्ति (Prev Scholarship Details)
+                                    </h4>
+                                    <div class="row g-3 mb-4" style="font-size: 1.35rem;">
+                                        <div class="col-12">
+                                            <label class="small text-muted d-block fw-semibold mb-1">क्या संस्था से पिछले वर्षों में छात्रवृत्ति प्राप्त हुई है?</label>
+                                            <span class="fw-bold text-dark"><?= Helpers::esc($app['prev_scholarship_received'] ?? 'नहीं') ?></span>
+                                        </div>
+                                        <?php if (($app['prev_scholarship_received'] ?? '') === 'हाँ'): ?>
+                                            <div class="col-sm-4">
+                                                <label class="small text-muted d-block fw-semibold mb-1">वर्ष 2023-24 में प्राप्त राशि</label>
+                                                <span class="fw-bold text-dark"><?= !empty($app['scholarship_amt_2023_24']) ? '₹ ' . number_format((float)$app['scholarship_amt_2023_24'], 2) : '₹ 0.00' ?></span>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="small text-muted d-block fw-semibold mb-1">वर्ष 2024-25 में प्राप्त राशि</label>
+                                                <span class="fw-bold text-dark"><?= !empty($app['scholarship_amt_2024_25']) ? '₹ ' . number_format((float)$app['scholarship_amt_2024_25'], 2) : '₹ 0.00' ?></span>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="small text-muted d-block fw-semibold mb-1">वर्ष 2025-26 में प्राप्त राशि</label>
+                                                <span class="fw-bold text-dark"><?= !empty($app['scholarship_amt_2025_26']) ? '₹ ' . number_format((float)$app['scholarship_amt_2025_26'], 2) : '₹ 0.00' ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <h4 class="h5 fw-bold text-dark mb-4 border-bottom pb-2 font-heading">
+                                        <i class="bi bi-bank text-danger me-2"></i> बैंक विवरण (Bank Account Details)
                                     </h4>
                                     <div class="row g-3" style="font-size: 1.35rem;">
                                         <div class="col-sm-6">
@@ -152,16 +280,16 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
                                             <span class="fw-bold text-dark"><?= Helpers::esc($app['bank_name'] ?? '-') ?></span>
                                         </div>
                                         <div class="col-sm-6">
+                                            <label class="small text-muted d-block fw-semibold mb-1">खाता धारक का नाम</label>
+                                            <span class="fw-bold text-dark"><?= Helpers::esc($app['account_holder_name'] ?? '-') ?></span>
+                                        </div>
+                                        <div class="col-sm-6 mt-3">
                                             <label class="small text-muted d-block fw-semibold mb-1">खाता संख्या</label>
                                             <span class="fw-bold text-dark"><?= Helpers::esc($app['account_number'] ?? '-') ?></span>
                                         </div>
                                         <div class="col-sm-6 mt-3">
                                             <label class="small text-muted d-block fw-semibold mb-1">IFSC कोड</label>
                                             <span class="fw-bold text-dark"><?= Helpers::esc($app['ifsc_code'] ?? '-') ?></span>
-                                        </div>
-                                        <div class="col-sm-6 mt-3">
-                                            <label class="small text-muted d-block fw-semibold mb-1">वार्षिक पारिवारिक आय</label>
-                                            <span class="fw-bold text-dark text-danger"><?= !empty($app['family_income']) ? '₹ ' . number_format((float) $app['family_income'], 2) : '-' ?></span>
                                         </div>
                                     </div>
                                 <?php else: ?>
@@ -245,6 +373,209 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
                         </div>
                     </div>
                 </div>
+
+            <!-- Hidden Print Container: Only rendered during browser printing (triggered by window.print()) -->
+            <div id="printableForm" class="d-none-screen">
+                <!-- Print Header -->
+                <div class="print-header">
+                    <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
+                        <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj" class="print-logo" width="60" height="60">
+                        <div class="text-center">
+                            <h2 class="print-org-title" style="font-size: 2.1rem; font-weight: 800; text-decoration: underline; margin: 0;">तम्बोली समाज विकास संस्था, राजस्थान</h2>
+                            <div class="print-reg-no" style="font-size: 1.25rem; font-weight: bold; text-align: center; margin-top: 2px;">रजि.नं. 411/2016-17</div>
+                            <div class="print-office-address" style="font-size: 1.15rem; text-align: center; margin-top: 1px;">कार्यालय: 132, जनकपुरी-2, इमलीफाटक, जयपुर (राज.)-302005</div>
+                            <div class="print-contact" style="font-size: 1.15rem; text-align: center; margin-top: 1px;">मो. 982971477, 9414728866 ई मेल : tambolisamaj@gmail.com</div>
+                        </div>
+                    </div>
+                    <div class="print-form-title-underlined text-center font-weight-bold" style="font-size: 1.6rem; text-decoration: underline; margin-top: 12px;">
+                        <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                            सामाजिक छात्रवृत्ति हेतु आवेदन - <?= date('Y', strtotime($app['created_at'] ?? 'now')) ?>
+                        <?php else: ?>
+                            प्रतिभा सम्मान हेतु आवेदन - <?= date('Y', strtotime($app['created_at'] ?? 'now')) ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Profile Photo at top-right -->
+                <div class="print-photo-box-top-right">
+                    <?php if ($photoUrl): ?>
+                        <img src="<?= Helpers::esc($photoUrl) ?>" alt="Photo">
+                    <?php else: ?>
+                        <div class="print-photo-placeholder">विद्यार्थी का<br>फोटो</div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Form Fields styled like offline paper form with dotted lines -->
+                <div class="print-form-fields">
+                    <div class="print-field-row">
+                        <div class="print-field-label">विद्यार्थी का नाम (Name) :</div>
+                        <div class="print-field-value"><?= Helpers::esc(($app['first_name'] ?? '') . ' ' . ($app['last_name'] ?? '')) ?></div>
+                    </div>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">पिता / संरक्षक का नाम (Father's Name) :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['father_name'] ?? '-') ?></div>
+                    </div>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">माता का नाम (Mother's Name) :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['mother_name'] ?? '-') ?></div>
+                    </div>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">वर्तमान स्थायी पता (Address) :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['address'] ?? '-') ?>, <?= Helpers::esc($app['city'] ?? '') ?>, <?= Helpers::esc($app['district'] ?? '') ?> - <?= Helpers::esc($app['pincode'] ?? '') ?></div>
+                    </div>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">मोबाइल नंबर (Mobile) :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['mobile'] ?? '-') ?></div>
+                        <div class="print-field-label" style="padding-left: 2rem;">लिंग (Gender) :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['gender'] ?? '-') ?></div>
+                        <div class="print-field-label" style="padding-left: 2rem;">जन्म तिथि (DOB) :</div>
+                        <div class="print-field-value"><?= !empty($app['dob']) ? date('d/m/Y', strtotime($app['dob'])) : '-' ?></div>
+                    </div>
+
+                    <!-- Only for Scholarship: Family income / details -->
+                    <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                        <div class="print-field-row">
+                            <div class="print-field-label">परिवार का व्यवसाय/आजीविका का साधन :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['family_occupation'] ?? '-') ?></div>
+                        </div>
+                        <div class="print-field-row">
+                            <div class="print-field-label">परिवार में कुल सदस्य :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['family_members_count'] ?? '-') ?></div>
+                            <div class="print-field-label" style="padding-left: 2rem;">कमाने वाले सदस्यों की संख्या :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['earning_members_count'] ?? '-') ?></div>
+                        </div>
+                        <div class="print-field-row">
+                            <div class="print-field-label">वर्तमान में अध्ययनरत कक्षा (Current Class) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['current_class'] ?? '-') ?></div>
+                        </div>
+                        <div class="print-field-row">
+                            <div class="print-field-label">वर्तमान में अध्ययनरत विद्यालय/महाविद्यालय :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['current_college'] ?? '-') ?></div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">उत्तीर्ण कक्षा व वर्ष (Class & Year Passed) :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['class_year'] ?? '-') ?></div>
+                        <div class="print-field-label" style="padding-left: 2rem;">परीक्षा परिणाम प्रतिशत (Percentage) :</div>
+                        <div class="print-field-value" style="font-weight: bold;"><?= Helpers::esc($app['percentage'] ?? '-') ?>%</div>
+                    </div>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">प्राप्त / कुल अंक (Marks Obtained/Max) :</div>
+                        <div class="print-field-value"><?= (!empty($app['marks_obtained']) && !empty($app['max_marks'])) ? $app['marks_obtained'] . ' / ' . $app['max_marks'] : '-' ?></div>
+                    </div>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">अध्ययनरत विद्यालय/महाविद्यालय का नाम (Institution) :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['college_name'] ?? '-') ?></div>
+                    </div>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">बोर्ड / विश्वविद्यालय (Board/University) :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['board_university'] ?? '-') ?></div>
+                    </div>
+
+                    <!-- Specific details for scholarship -->
+                    <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                        <div class="print-field-row">
+                            <div class="print-field-label">संस्था से पिछले वर्षों में छात्रवृत्ति प्राप्त हुई है :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['prev_scholarship_received'] ?? '-') ?></div>
+                        </div>
+                        <?php if (($app['prev_scholarship_received'] ?? '') === 'हाँ'): ?>
+                        <div class="print-field-row">
+                            <div class="print-field-label">यदि हाँ तो वर्ष 2023-24 में राशि:</div>
+                            <div class="print-field-value"><?= !empty($app['scholarship_amt_2023_24']) ? '₹ ' . Helpers::esc($app['scholarship_amt_2023_24']) : '-' ?></div>
+                            <div class="print-field-label" style="padding-left: 1rem;">2024-25 में राशि:</div>
+                            <div class="print-field-value"><?= !empty($app['scholarship_amt_2024_25']) ? '₹ ' . Helpers::esc($app['scholarship_amt_2024_25']) : '-' ?></div>
+                            <div class="print-field-label" style="padding-left: 1rem;">2025-26 में राशि:</div>
+                            <div class="print-field-value"><?= !empty($app['scholarship_amt_2025_26']) ? '₹ ' . Helpers::esc($app['scholarship_amt_2025_26']) : '-' ?></div>
+                        </div>
+                        <?php endif; ?>
+
+                        <div class="print-field-row">
+                            <div class="print-field-label">बैंक खाता संख्या (Account No.) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['account_number'] ?? '-') ?></div>
+                        </div>
+                        <div class="print-field-row">
+                            <div class="print-field-label">खाता धारक का नाम (Holder Name) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['account_holder_name'] ?? '-') ?></div>
+                        </div>
+                        <div class="print-field-row">
+                            <div class="print-field-label">बैंक का नाम (Bank Name) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['bank_name'] ?? '-') ?></div>
+                            <div class="print-field-label" style="padding-left: 2rem;">IFSC कोड :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['ifsc_code'] ?? '-') ?></div>
+                        </div>
+                    <?php else: ?>
+                        <!-- Specific details for Pratibha -->
+                        <div class="print-field-row">
+                            <div class="print-field-label">उपलब्धि का नाम (Achievement Title) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['achievement_title'] ?? '-') ?></div>
+                        </div>
+                        <div class="print-field-row">
+                            <div class="print-field-label">रैंक / स्थान (Rank/Position) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['rank_position'] ?? '-') ?></div>
+                            <div class="print-field-label" style="padding-left: 2rem;">श्रेणी (Category) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['achievement_category'] ?? '-') ?></div>
+                            <div class="print-field-label" style="padding-left: 2rem;">स्तर (Level) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['achievement_level'] ?? '-') ?></div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="print-field-row">
+                        <div class="print-field-label">भविष्य में आप क्या बनना चाहते हैं :</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['career_goal'] ?? '-') ?></div>
+                    </div>
+                </div>
+
+                <div class="mt-4 mb-4">
+                    <span class="print-note" style="font-size: 1.2rem; font-weight: bold; border: 1px solid #000; padding: 6px; display: inline-block;">
+                        <?php if (($app['type'] ?? '') === 'scholarship'): ?>
+                            नोट - मार्कशीट एवं बैंक पासबुक की छायाप्रति संलग्न करना आवश्यक है।
+                        <?php else: ?>
+                            नोट - मार्कशीट एवं योग्यता प्रमाणपत्र की छायाप्रति संलग्न करना आवश्यक है।
+                        <?php endif; ?>
+                    </span>
+                </div>
+
+                <!-- Signature box and declarations -->
+                <div class="print-footer-declaration border-top pt-3" style="margin-top: 30px;">
+                    <div class="d-flex justify-content-between align-items-end mt-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <div class="print-signature-box mb-2" style="border: none;"></div>
+                            <div style="width: 200px; border-top: 1px solid #000; text-align: center;" class="pt-2 small fw-bold">विद्यार्थी के हस्ताक्षर</div>
+                        </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <div class="print-signature-box mb-2">
+                                <?php if ($signatureUrl): ?>
+                                    <img src="<?= Helpers::esc($signatureUrl) ?>" alt="Signature" style="max-height: 50px; object-fit: contain;">
+                                <?php endif; ?>
+                            </div>
+                            <div style="width: 200px; border-top: 1px solid #000; text-align: center;" class="pt-2 small fw-bold">पिता / संरक्षक के हस्ताक्षर</div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="border-top: 2px dashed #000; margin: 40px 0 20px 0;">
+
+                <!-- Representatives Recommendation Section -->
+                <div class="print-recommendation-box mt-3" style="font-size: 1.25rem; line-height: 1.6;">
+                    <p class="mb-4">
+                        विद्यार्थी की पढ़ाई अविरल चलती रहे इसके लिये संस्था द्वारा <?= (($app['type'] ?? '') === 'scholarship') ? 'सामाजिक छात्रवृत्ति' : 'प्रतिभा सम्मान' ?> आवश्यक है।
+                    </p>
+                    <p class="mb-5">
+                        <?= (($app['type'] ?? '') === 'scholarship') ? 'छात्रवृत्ति' : 'सम्मान' ?> की अनुशंसा की जाती है।
+                    </p>
+                    <div class="d-flex justify-content-end mt-5">
+                        <div style="width: 350px; border-top: 1px solid #000; text-align: center;" class="pt-2 small fw-bold">संस्था के छात्रवृत्ति प्रतिनिधियों के हस्ताक्षर मय नाम</div>
+                    </div>
+                </div>
+            </div>
 
             </div>
         </main>

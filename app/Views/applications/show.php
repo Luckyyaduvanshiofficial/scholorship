@@ -194,6 +194,30 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <span class="fw-semibold text-dark"><?= Helpers::esc($app['address']) ?>, <?= Helpers::esc($app['city'] ?? '') ?>, <?= Helpers::esc($app['district'] ?? '') ?> - <?= Helpers::esc($app['pincode'] ?? '') ?></span>
                                 </div>
                                 <?php endif; ?>
+                                <?php if (!empty($app['family_occupation'])): ?>
+                                <div class="col-sm-6">
+                                    <span class="small text-muted d-block mb-1">परिवार का व्यवसाय (Family Occupation)</span>
+                                    <span class="fw-semibold text-dark"><?= Helpers::esc($app['family_occupation']) ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if (!empty($app['career_goal'])): ?>
+                                <div class="col-sm-6">
+                                    <span class="small text-muted d-block mb-1">भविष्य का लक्ष्य (Career Goal)</span>
+                                    <span class="fw-semibold text-dark"><?= Helpers::esc($app['career_goal']) ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if (isset($app['family_members_count'])): ?>
+                                <div class="col-sm-6">
+                                    <span class="small text-muted d-block mb-1">परिवार में कुल सदस्य (Family Members)</span>
+                                    <span class="fw-semibold text-dark"><?= (int) $app['family_members_count'] ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if (isset($app['earning_members_count'])): ?>
+                                <div class="col-sm-6">
+                                    <span class="small text-muted d-block mb-1">कमाने वाले सदस्यों की संख्या (Earning Members)</span>
+                                    <span class="fw-semibold text-dark"><?= (int) $app['earning_members_count'] ?></span>
+                                </div>
+                                <?php endif; ?>
                             </div>
 
                             <hr class="my-4" style="border-color: #e2e8f0;">
@@ -224,6 +248,18 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                         <span class="small text-muted d-block mb-1">बोर्ड / विश्वविद्यालय (Board/University)</span>
                                         <span class="fw-semibold text-dark"><?= Helpers::esc($app['board_university'] ?? '-') ?></span>
                                     </div>
+                                    <?php if (!empty($app['current_class'])): ?>
+                                    <div class="col-sm-6">
+                                        <span class="small text-muted d-block mb-1">वर्तमान अध्ययनरत कक्षा (Current Class)</span>
+                                        <span class="fw-semibold text-dark"><?= Helpers::esc($app['current_class']) ?></span>
+                                    </div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($app['current_college'])): ?>
+                                    <div class="col-sm-6">
+                                        <span class="small text-muted d-block mb-1">वर्तमान संस्थान (Current Institution)</span>
+                                        <span class="fw-semibold text-dark"><?= Helpers::esc($app['current_college']) ?></span>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
 
                                 <hr class="my-4" style="border-color: #e2e8f0;">
@@ -252,6 +288,37 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                         <span class="small text-muted d-block mb-1">वार्षिक पारिवारिक आय (Annual Family Income)</span>
                                         <span class="fw-semibold text-dark"><?= !empty($app['family_income']) ? '₹ ' . number_format((float) $app['family_income'], 2) : '-' ?></span>
                                     </div>
+                                    <?php if (!empty($app['account_holder_name'])): ?>
+                                    <div class="col-sm-6">
+                                        <span class="small text-muted d-block mb-1">खाता धारक का नाम (Account Holder Name)</span>
+                                        <span class="fw-semibold text-dark"><?= Helpers::esc($app['account_holder_name']) ?></span>
+                                    </div>
+                                    <?php endif; ?>
+                                    <?php if (!empty($app['prev_scholarship_received'])): ?>
+                                    <div class="col-sm-6">
+                                        <span class="small text-muted d-block mb-1">संस्था से पूर्व छात्रवृत्ति प्राप्त हुई है? (Prev Scholarship)</span>
+                                        <span class="fw-semibold text-dark"><?= Helpers::esc($app['prev_scholarship_received']) ?></span>
+                                    </div>
+                                    <?php endif; ?>
+                                    <?php if (($app['prev_scholarship_received'] ?? '') === 'हाँ'): ?>
+                                    <div class="col-12 mt-2">
+                                        <span class="small text-muted d-block mb-2 fw-semibold">पिछले वर्षों में प्राप्त राशि (Received Amounts):</span>
+                                        <div class="row g-2">
+                                            <div class="col-sm-4 bg-light p-2 rounded text-center">
+                                                <span class="small text-muted d-block text-xs">2023-24</span>
+                                                <span class="fw-semibold text-dark"><?= !empty($app['scholarship_amt_2023_24']) ? '₹ ' . number_format((float)$app['scholarship_amt_2023_24'], 2) : '-' ?></span>
+                                            </div>
+                                            <div class="col-sm-4 bg-light p-2 rounded text-center">
+                                                <span class="small text-muted d-block text-xs">2024-25</span>
+                                                <span class="fw-semibold text-dark"><?= !empty($app['scholarship_amt_2024_25']) ? '₹ ' . number_format((float)$app['scholarship_amt_2024_25'], 2) : '-' ?></span>
+                                            </div>
+                                            <div class="col-sm-4 bg-light p-2 rounded text-center">
+                                                <span class="small text-muted d-block text-xs">2025-26</span>
+                                                <span class="fw-semibold text-dark"><?= !empty($app['scholarship_amt_2025_26']) ? '₹ ' . number_format((float)$app['scholarship_amt_2025_26'], 2) : '-' ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             <?php else: ?>
                                 <div class="d-flex align-items-center gap-2 mb-3">
@@ -407,13 +474,21 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <?php if (($app['type'] ?? '') === 'scholarship'): ?>
                         <div class="print-field-row">
                             <div class="print-field-label">परिवार का व्यवसाय/आजीविका का साधन :</div>
-                            <div class="print-field-value">-</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['family_occupation'] ?? '-') ?></div>
                         </div>
                         <div class="print-field-row">
                             <div class="print-field-label">परिवार में कुल सदस्य :</div>
-                            <div class="print-field-value">-</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['family_members_count'] ?? '-') ?></div>
                             <div class="print-field-label" style="padding-left: 2rem;">कमाने वाले सदस्यों की संख्या :</div>
-                            <div class="print-field-value">-</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['earning_members_count'] ?? '-') ?></div>
+                        </div>
+                        <div class="print-field-row">
+                            <div class="print-field-label">वर्तमान में अध्ययनरत कक्षा (Current Class) :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['current_class'] ?? '-') ?></div>
+                        </div>
+                        <div class="print-field-row">
+                            <div class="print-field-label">वर्तमान में अध्ययनरत विद्यालय/महाविद्यालय :</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['current_college'] ?? '-') ?></div>
                         </div>
                     <?php endif; ?>
 
@@ -443,16 +518,18 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <?php if (($app['type'] ?? '') === 'scholarship'): ?>
                         <div class="print-field-row">
                             <div class="print-field-label">संस्था से पिछले वर्षों में छात्रवृत्ति प्राप्त हुई है :</div>
-                            <div class="print-field-value">हाँ / नहीं</div>
+                            <div class="print-field-value"><?= Helpers::esc($app['prev_scholarship_received'] ?? '-') ?></div>
                         </div>
+                        <?php if (($app['prev_scholarship_received'] ?? '') === 'हाँ'): ?>
                         <div class="print-field-row">
                             <div class="print-field-label">यदि हाँ तो वर्ष 2023-24 में राशि:</div>
-                            <div class="print-field-value">-</div>
+                            <div class="print-field-value"><?= !empty($app['scholarship_amt_2023_24']) ? '₹ ' . Helpers::esc($app['scholarship_amt_2023_24']) : '-' ?></div>
                             <div class="print-field-label" style="padding-left: 1rem;">2024-25 में राशि:</div>
-                            <div class="print-field-value">-</div>
+                            <div class="print-field-value"><?= !empty($app['scholarship_amt_2024_25']) ? '₹ ' . Helpers::esc($app['scholarship_amt_2024_25']) : '-' ?></div>
                             <div class="print-field-label" style="padding-left: 1rem;">2025-26 में राशि:</div>
-                            <div class="print-field-value">-</div>
+                            <div class="print-field-value"><?= !empty($app['scholarship_amt_2025_26']) ? '₹ ' . Helpers::esc($app['scholarship_amt_2025_26']) : '-' ?></div>
                         </div>
+                        <?php endif; ?>
 
                         <div class="print-field-row">
                             <div class="print-field-label">बैंक खाता संख्या (Account No.) :</div>
@@ -460,7 +537,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         </div>
                         <div class="print-field-row">
                             <div class="print-field-label">खाता धारक का नाम (Holder Name) :</div>
-                            <div class="print-field-value"><?= Helpers::esc(($app['first_name'] ?? '') . ' ' . ($app['last_name'] ?? '')) ?></div>
+                            <div class="print-field-value"><?= Helpers::esc($app['account_holder_name'] ?? '-') ?></div>
                         </div>
                         <div class="print-field-row">
                             <div class="print-field-label">बैंक का नाम (Bank Name) :</div>
@@ -486,7 +563,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
 
                     <div class="print-field-row">
                         <div class="print-field-label">भविष्य में आप क्या बनना चाहते हैं :</div>
-                        <div class="print-field-value">-</div>
+                        <div class="print-field-value"><?= Helpers::esc($app['career_goal'] ?? '-') ?></div>
                     </div>
                 </div>
 
