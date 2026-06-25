@@ -3407,7 +3407,17 @@ textarea.form-control:focus {
     margin: 1cm;
   }
 
-  /* Hide everything on the page first */
+  /* Remove all hover transforms that create stacking contexts */
+  .card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .tsp-dash-content-area .card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide everything and collapse space */
   * {
     visibility: hidden;
   }
@@ -3418,9 +3428,9 @@ textarea.form-control:focus {
     visibility: visible;
   }
 
-  /* Position the printable form to fill the page */
+  /* Position the printable form to the viewport top-left, filling the page */
   #printableForm {
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     width: 100%;
@@ -3434,6 +3444,7 @@ textarea.form-control:focus {
     font-family: 'Noto Sans Devanagari', 'Inter', sans-serif !important;
     font-size: 11pt !important;
     line-height: 1.4 !important;
+    z-index: 9999;
   }
 
   /* Compact print header */
