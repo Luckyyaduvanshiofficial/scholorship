@@ -1169,21 +1169,6 @@ a {
 /* ══════════════════════════════════════════════════════
    PRINT
    ══════════════════════════════════════════════════════ */
-@media print {
-  .tsp-site-header,
-  .tsp-notice-strip,
-  .tsp-site-footer,
-  .tsp-mini-footer,
-  .tsp-flash-container,
-  .tsp-sidebar,
-  .tsp-nav { display: none !important; }
-  body {
-    font-size: 1.2rem;
-    background: #fff;
-    color: #000;
-  }
-  .tsp-dashboard-content { padding: 0; }
-}
 
 /* ═══════════════════════════════════════════════════════
    HOMEPAGE — TOP HEADER (white, centered logo)
@@ -2538,66 +2523,6 @@ a {
   text-align: justify;
 }
 
-/* Print CSS Media query */
-@media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-  }
-  
-  /* Hide sidebar, dashboard header, footer, buttons, alerts */
-  header.tsp-dash-header,
-  aside.tsp-dash-sidebar,
-  footer,
-  .btn,
-  .alert,
-  .mb-4,
-  .navbar,
-  .flash-msg-container,
-  .d-flex.justify-content-between.align-items-center {
-    display: none !important;
-  }
-  
-  /* Adjust main container to occupy full page */
-  .tsp-dash-container {
-    display: block !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-  }
-  
-  .tsp-dash-content-area {
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-  }
-
-  .card {
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-  }
-
-  .card-body {
-    padding: 0 !important;
-  }
-  
-  #printableScholarshipForm {
-    display: block !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-  }
-
-  /* Force page breaks if necessary */
-  .page-break {
-    page-break-before: always;
-  }
-}
-
 /* ══════════════════════════════════════════════════════
    UNIFIED ADMIN / DASHBOARD HEADER  (tsp-adm-*)
    Shared by: admin, student, representative dashboards
@@ -3460,76 +3385,31 @@ textarea.form-control:focus {
     margin: 1cm;
   }
 
-  /* Reset body and page settings */
-  body,
-  .d-flex,
-  .flex-column,
-  .min-vh-100,
-  .flex-grow-1,
-  .position-relative {
-    display: block !important;
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif !important;
-    position: static !important;
-    min-height: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  /* Hide everything on the page first */
+  * {
+    visibility: hidden;
   }
 
-  /* Hide all layout structures, navigation, sidebars, buttons, steps except step 4 printable form */
-  header,
-  nav,
-  aside,
-  footer,
-  .btn,
-  .alert,
-  .flash-msg-container,
-  .tsp-navbar-wrapper,
-  .tsp-top-header,
-  .tsp-adm-header,
-  .tsp-dash-sidebar,
-  .tsp-stepper,
-  #formStepper,
-  #wizardActions,
-  .mb-4,
-  .tsp-form-step:not(#step4),
-  #step4 > div:not(#printableForm),
-  #step4 > p,
-  #step4 > h4 {
-    display: none !important;
+  /* Show only the printable form and its children */
+  #printableForm,
+  #printableForm * {
+    visibility: visible;
   }
 
-  /* Reset layout wrappers to allow full-width print page */
-  .tsp-dash-container,
-  .tsp-dash-content-area,
-  .container-fluid,
-  .card,
-  .card-body,
-  form,
-  #step4 {
-    display: block !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-  }
-
+  /* Position the printable form to fill the page */
   #printableForm {
-    display: block !important;
-    width: 100% !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
     padding: 0 !important;
-    box-sizing: border-box !important;
-    color: #000000 !important;
+    margin: 0 !important;
     border: none !important;
     box-shadow: none !important;
-    margin: 0 !important;
-    max-width: 100% !important;
     border-radius: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif !important;
     font-size: 11pt !important;
     line-height: 1.4 !important;
   }
@@ -3639,7 +3519,7 @@ textarea.form-control:focus {
     margin-top: 15px !important;
   }
 
-  /* Hide hr dashed line spacing */
+  /* Compact hr */
   hr {
     margin: 15px 0 10px 0 !important;
   }
