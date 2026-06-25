@@ -92,35 +92,35 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्रथम नाम (First Name) <span class="text-danger">*</span></label>
                                     <input type="text" name="first_name" id="field_first_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
-                                           value="<?= Helpers::esc($old['first_name'] ?? $student['first_name'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['first_name'] ?? ($isEdit ? $application['first_name'] : $student['first_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">अंतिम नाम (Last Name) <span class="text-danger">*</span></label>
                                     <input type="text" name="last_name" id="field_last_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
-                                           value="<?= Helpers::esc($old['last_name'] ?? $student['last_name'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['last_name'] ?? ($isEdit ? $application['last_name'] : $student['last_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">पिता का नाम (Father Name) <span class="text-danger">*</span></label>
                                     <input type="text" name="father_name" id="field_father_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
-                                           value="<?= Helpers::esc($old['father_name'] ?? $student['father_name'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['father_name'] ?? ($isEdit ? $application['father_name'] : $student['father_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">माता का नाम (Mother Name) <span class="text-danger">*</span></label>
                                     <input type="text" name="mother_name" id="field_mother_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
-                                           value="<?= Helpers::esc($old['mother_name'] ?? $student['mother_name'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['mother_name'] ?? ($isEdit ? $application['mother_name'] : $student['mother_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">जन्म तिथि (Date of Birth) <span class="text-danger">*</span></label>
                                     <input type="date" name="dob" id="field_dob" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
-                                           value="<?= Helpers::esc($old['dob'] ?? $student['dob'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['dob'] ?? ($isEdit ? $application['dob'] : $student['dob']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">लिंग (Gender) <span class="text-danger">*</span></label>
                                     <select name="gender" id="field_gender" class="form-select border-2 py-2" style="border-radius: 0.5rem;" required>
                                         <option value="">Select</option>
-                                        <option value="Male" <?= ($old['gender'] ?? $student['gender'] ?? '') === 'Male' ? 'selected' : '' ?>>पुरुष (Male)</option>
-                                        <option value="Female" <?= ($old['gender'] ?? $student['gender'] ?? '') === 'Female' ? 'selected' : '' ?>>महिला (Female)</option>
-                                        <option value="Other" <?= ($old['gender'] ?? $student['gender'] ?? '') === 'Other' ? 'selected' : '' ?>>अन्य (Other)</option>
+                                        <option value="Male" <?= ($old['gender'] ?? ($isEdit ? $application['gender'] : $student['gender']) ?? '') === 'Male' ? 'selected' : '' ?>>पुरुष (Male)</option>
+                                        <option value="Female" <?= ($old['gender'] ?? ($isEdit ? $application['gender'] : $student['gender']) ?? '') === 'Female' ? 'selected' : '' ?>>महिला (Female)</option>
+                                        <option value="Other" <?= ($old['gender'] ?? ($isEdit ? $application['gender'] : $student['gender']) ?? '') === 'Other' ? 'selected' : '' ?>>अन्य (Other)</option>
                                     </select>
                                 </div>
                                 <div class="col-sm-6">
@@ -135,22 +135,22 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small fw-semibold text-muted">स्थाई पता (Permanent Address) <span class="text-danger">*</span></label>
-                                    <textarea name="address" id="field_address" class="form-control border-2 py-2" style="border-radius: 0.5rem;" rows="3" required><?= Helpers::esc($old['address'] ?? $student['address'] ?? '') ?></textarea>
+                                    <textarea name="address" id="field_address" class="form-control border-2 py-2" style="border-radius: 0.5rem;" rows="3" required><?= Helpers::esc($old['address'] ?? ($isEdit ? $application['address'] : $student['address']) ?? '') ?></textarea>
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">शहर/कस्बा (City) <span class="text-danger">*</span></label>
                                     <input type="text" name="city" id="field_city" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
-                                           value="<?= Helpers::esc($old['city'] ?? $student['city'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['city'] ?? ($isEdit ? $application['city'] : $student['city']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">जिला (District) <span class="text-danger">*</span></label>
                                     <input type="text" name="district" id="field_district" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
-                                           value="<?= Helpers::esc($old['district'] ?? $student['district'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['district'] ?? ($isEdit ? $application['district'] : $student['district']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">पिनकोड (PIN Code) <span class="text-danger">*</span></label>
                                     <input type="text" name="pincode" id="field_pincode" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
-                                           value="<?= Helpers::esc($old['pincode'] ?? $student['pincode'] ?? '') ?>">
+                                           value="<?= Helpers::esc($old['pincode'] ?? ($isEdit ? $application['pincode'] : $student['pincode']) ?? '') ?>">
                                 </div>
                             </div>
                         </div>
