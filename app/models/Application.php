@@ -196,7 +196,17 @@ class Application
         $sets = [];
         $values = [];
 
+        $whitelist = [
+            'student_id', 'session_id', 'application_type_id', 'status_id',
+            'reviewed_by', 'dispute_message', 'submitted_at', 'type',
+            'family_income', 'bank_name', 'account_number', 'ifsc_code',
+            'achievement_title', 'achievement_category', 'achievement_level', 'rank_position'
+        ];
+
         foreach ($data as $key => $value) {
+            if (!in_array($key, $whitelist, true)) {
+                throw new \InvalidArgumentException("Invalid column update requested: {$key}");
+            }
             $sets[] = "`$key` = ?";
             $values[] = $value;
         }

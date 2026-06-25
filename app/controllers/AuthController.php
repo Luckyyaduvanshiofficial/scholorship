@@ -159,9 +159,16 @@ class AuthController
             Response::redirect('/register');
         }
 
-        // Generate student code: TSVS-{year}-{id format}
-        // We'll do a quick one: TSVS + year + random 4 digits (will be replaced by proper id later)
-        $studentCode = 'TSVS-' . date('Y') . '-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 4));
+        // Generate a unique student code: TSVS-{year}-{4 hex chars}
+        $db = \App\Core\Database::getInstance();
+        $retryCount = 0;
+        do {
+            $studentCode = 'TSVS-' . date('Y') . '-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 4));
+            $stmt = $db->prepare("SELECT COUNT(*) FROM students WHERE student_code = ?");
+            $stmt->execute([$studentCode]);
+            $exists = ((int) $stmt->fetchColumn() > 0);
+            $retryCount++;
+        } while ($exists && $retryCount < 10);
 
         $studentData = [
             'student_code'  => $studentCode,

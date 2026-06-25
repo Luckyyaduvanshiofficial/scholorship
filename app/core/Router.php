@@ -143,7 +143,7 @@ class Router
         if (!class_exists($class)) {
             Logger::error("Middleware class not found: {$class}");
 
-            return true; // Fail-open for missing middleware; abort would block legit requests
+            Response::abort(500, "Middleware class not found: {$name}");
         }
 
         $instance = new $class();

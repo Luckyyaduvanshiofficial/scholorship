@@ -19,20 +19,25 @@ class Mailer
         $user = getenv('SMTP_USER') ?: '';
         $pass = getenv('SMTP_PASS') ?: '';
         
+        $isDebug = (getenv('APP_DEBUG') === 'true');
+        $hasSmtp = (!empty($host) && !empty($user) && !empty($pass));
+
         // Always log locally so developer/user can verify the reset token on local machines without active SMTP
         Logger::info("Sending email to {$toEmail}", [
             'subject' => $subject,
-            'body' => $htmlBody
+            'body' => ($isDebug || !$hasSmtp) ? $htmlBody : '[REDACTED IN PRODUCTION]'
         ]);
 
         // Write directly to a temporary text log file for easy local development verification
-        $resetLogFile = ROOT_PATH . '/storage/logs/mail_resets.log';
-        $logDir = dirname($resetLogFile);
-        if (!is_dir($logDir)) {
-            mkdir($logDir, 0777, true);
+        if ($isDebug || !$hasSmtp) {
+            $resetLogFile = ROOT_PATH . '/storage/logs/mail_resets.log';
+            $logDir = dirname($resetLogFile);
+            if (!is_dir($logDir)) {
+                mkdir($logDir, 0777, true);
+            }
+            $logContent = "[" . date('Y-m-d H:i:s') . "] TO: {$toEmail}\nSUBJECT: {$subject}\nBODY: {$htmlBody}\n----------------------------------------\n";
+            file_put_contents($resetLogFile, $logContent, FILE_APPEND);
         }
-        $logContent = "[" . date('Y-m-d H:i:s') . "] TO: {$toEmail}\nSUBJECT: {$subject}\nBODY: {$htmlBody}\n----------------------------------------\n";
-        file_put_contents($resetLogFile, $logContent, FILE_APPEND);
 
         // If no SMTP credentials configured at all, log only and return mock success
         if (empty($host) || empty($user) || empty($pass)) {

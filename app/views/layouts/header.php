@@ -5,7 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="तम्बोली समाज विकास संस्था — प्रतिभा सम्मान एवं छात्रवृत्ति आवेदन पोर्टल">
     <meta name="theme-color" content="#8B0000">  <!-- maroon brand color, mobile browser bar -->
+    <?php
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $isAuthPage = \App\Core\Auth::check() || 
+                  str_contains($requestUri, '/admin') || 
+                  str_contains($requestUri, '/dashboard') || 
+                  str_contains($requestUri, '/profile') || 
+                  str_contains($requestUri, '/applications');
+    if ($isAuthPage): ?>
+        <meta name="robots" content="noindex, nofollow">
+    <?php endif; ?>
     <title><?= \App\Core\Helpers::esc($title ?? 'Tamboli Samaj Portal') ?></title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<?= APP_URL . parse_url($requestUri, PHP_URL_PATH) ?>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?= APP_URL . $requestUri ?>">
+    <meta property="og:title" content="<?= \App\Core\Helpers::esc($title ?? 'Tamboli Samaj Portal') ?>">
+    <meta property="og:description" content="तम्बोली समाज विकास संस्था — प्रतिभा सम्मान एवं छात्रवृत्ति आवेदन पोर्टल">
+    <meta property="og:image" content="<?= APP_URL ?>/assets/images/share_banner.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<?= APP_URL . $requestUri ?>">
+    <meta name="twitter:title" content="<?= \App\Core\Helpers::esc($title ?? 'Tamboli Samaj Portal') ?>">
+    <meta name="twitter:description" content="तम्बोली समाज विकास संस्था — प्रतिभा सम्मान एवं छात्रवृत्ति आवेदन पोर्टल">
+    <meta name="twitter:image" content="<?= APP_URL ?>/assets/images/share_banner.png">
 
     <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

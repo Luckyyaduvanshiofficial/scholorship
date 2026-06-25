@@ -124,7 +124,7 @@ class ProfileController
             Response::redirect('/profile/edit');
         }
 
-        $updateData = array_filter([
+        $updateData = [
             'first_name'  => $data['first_name'],
             'last_name'   => $data['last_name'],
             'gender'      => $data['gender'] ?: null,
@@ -137,7 +137,7 @@ class ProfileController
             'district'    => $data['district'] ?: null,
             'state'       => $data['state'] ?: null,
             'pincode'     => $data['pincode'] ?: null,
-        ]);
+        ];
 
         $studentModel->update($studentId, $updateData);
 
@@ -168,15 +168,24 @@ class ProfileController
             $parts = explode(',', $croppedData);
             if (count($parts) === 2) {
                 $base64 = $parts[1];
-                $data = base64_decode($base64);
-                if ($data !== false) {
-                    $storedName = 'profile_' . Auth::id() . '_' . time() . '.jpg';
+                $decoded = base64_decode($base64);
+                if ($decoded !== false) {
+                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                    $mimeType = $finfo->buffer($decoded);
+                    $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+                    if (!in_array($mimeType, $allowedMimes, true)) {
+                        Flash::set('error', 'Invalid image format. Only JPEG and PNG are allowed.');
+                        Response::redirect('/profile/edit');
+                    }
+
+                    $ext = ($mimeType === 'image/png') ? 'png' : 'jpg';
+                    $storedName = 'profile_' . Auth::id() . '_' . time() . '.' . $ext;
                     $uploadDir = PUBLIC_PATH . '/uploads/profiles';
                     if (!is_dir($uploadDir)) {
                         mkdir($uploadDir, 0755, true);
                     }
                     $filePath = $uploadDir . '/' . $storedName;
-                    file_put_contents($filePath, $data);
+                    file_put_contents($filePath, $decoded);
 
                     $studentModel = new Student();
                     $studentModel->update((int) Auth::id(), [
@@ -220,6 +229,6 @@ class ProfileController
         \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
 
         Flash::set('success', 'Profile photo updated successfully.');
-        Response::redirect($_SERVER['HTTP_REFERER'] ?? '/profile');
+        Response::redirect('/profile');
     }
 }

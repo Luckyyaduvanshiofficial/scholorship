@@ -55,6 +55,11 @@ class AdminSettingsController
             Response::redirect('/');
         }
 
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/admin/settings');
+        }
+
         $db = Database::getInstance();
 
         $keys = [
@@ -100,6 +105,11 @@ class AdminSettingsController
             Response::redirect('/');
         }
 
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/admin/settings');
+        }
+
         $sessionName = trim(Input::post('session_name', ''));
 
         $v = Validator::make([
@@ -138,6 +148,11 @@ class AdminSettingsController
         if (!Auth::isSuperAdmin()) {
             Flash::set('error', 'Access denied.');
             Response::redirect('/');
+        }
+
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/admin/settings');
         }
 
         $db = Database::getInstance();

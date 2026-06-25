@@ -15,8 +15,9 @@ class DashboardController
      */
     public function student(): void
     {
-        if (!Auth::check()) {
-            Response::redirect('/login');
+        if (!Auth::isStudent()) {
+            Flash::set('error', 'Access denied.');
+            Response::redirect('/');
         }
 
         $db = \App\Core\Database::getInstance();
@@ -44,28 +45,36 @@ class DashboardController
 
         $db = \App\Core\Database::getInstance();
 
-        // 1. Total applications count
-        $totalApps = (int) $db->query("SELECT COUNT(*) FROM applications")->fetchColumn();
+        // 1. Fetch counts in a single query
+        $countsQuery = $db->query("
+            SELECT 
+                COUNT(*) as total_apps,
+                SUM(CASE WHEN type = 'scholarship' THEN 1 ELSE 0 END) as scholarship_apps,
+                SUM(CASE WHEN type = 'pratibha' THEN 1 ELSE 0 END) as pratibha_apps,
+                SUM(CASE WHEN status_id = 1 THEN 1 ELSE 0 END) as pending_apps,
+                SUM(CASE WHEN status_id = 2 THEN 1 ELSE 0 END) as approved_apps,
+                SUM(CASE WHEN status_id = 3 THEN 1 ELSE 0 END) as rejected_apps,
+                SUM(CASE WHEN status_id = 4 THEN 1 ELSE 0 END) as disputed_apps
+            FROM applications
+        ");
+        $counts = $countsQuery->fetch(\PDO::FETCH_ASSOC);
+
+        $totalApps = (int) ($counts['total_apps'] ?? 0);
+        $scholarshipApps = (int) ($counts['scholarship_apps'] ?? 0);
+        $pratibhaApps = (int) ($counts['pratibha_apps'] ?? 0);
+
+        $statusCounts = [
+            'pending'  => (int) ($counts['pending_apps'] ?? 0),
+            'approved' => (int) ($counts['approved_apps'] ?? 0),
+            'rejected' => (int) ($counts['rejected_apps'] ?? 0),
+            'disputed' => (int) ($counts['disputed_apps'] ?? 0),
+        ];
 
         // 2. Registered students count
         $totalStudents = (int) $db->query("SELECT COUNT(*) FROM students")->fetchColumn();
 
-        // 3. Scholarship applications count
-        $scholarshipApps = (int) $db->query("SELECT COUNT(*) FROM applications WHERE type = 'scholarship'")->fetchColumn();
-
-        // 4. Pratibha applications count
-        $pratibhaApps = (int) $db->query("SELECT COUNT(*) FROM applications WHERE type = 'pratibha'")->fetchColumn();
-
-        // 5. Total announcements count
+        // 3. Total announcements count
         $totalAnnouncements = (int) $db->query("SELECT COUNT(*) FROM announcements")->fetchColumn();
-
-        // 6. Application status counts (1: Pending, 2: Approved, 3: Rejected, 4: Disputed)
-        $statusCounts = [
-            'pending'  => (int) $db->query("SELECT COUNT(*) FROM applications WHERE status_id = 1")->fetchColumn(),
-            'approved' => (int) $db->query("SELECT COUNT(*) FROM applications WHERE status_id = 2")->fetchColumn(),
-            'rejected' => (int) $db->query("SELECT COUNT(*) FROM applications WHERE status_id = 3")->fetchColumn(),
-            'disputed' => (int) $db->query("SELECT COUNT(*) FROM applications WHERE status_id = 4")->fetchColumn(),
-        ];
 
         // 7. Recent applications (limit 5)
         $stmt = $db->query(
@@ -114,11 +123,6 @@ class DashboardController
 
         $activities = array_slice($activities, 0, 5);
 
-        // 9. Get other counts
-        $seniorCount = 198;
-        $retiredCount = 102;
-        $newlyCount = 56;
-
         $adminEmail = '';
         if (Auth::check()) {
             $stmt = $db->prepare("SELECT email FROM users WHERE id = ? LIMIT 1");
@@ -138,9 +142,6 @@ class DashboardController
             'statusCounts'       => $statusCounts,
             'recentApps'         => $recentApps,
             'activities'         => $activities,
-            'seniorCount'        => $seniorCount,
-            'retiredCount'       => $retiredCount,
-            'newlyCount'         => $newlyCount
         ]);
     }
 

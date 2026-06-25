@@ -115,8 +115,9 @@ class Auth
     {
         try {
             self::getAuth()->logOut();
-            // Also clear cached student code
+            // Also clear cached student code and profile photo
             Session::remove('student_code');
+            Session::remove('profile_photo');
         } catch (\Throwable $e) {
             // Safe fallback
         }

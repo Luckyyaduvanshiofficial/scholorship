@@ -72,6 +72,11 @@ class AdminUserController
             Response::redirect('/');
         }
 
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/admin/students');
+        }
+
         $db = Database::getInstance();
 
         // Fetch current status
@@ -87,12 +92,22 @@ class AdminUserController
         // Toggles status: 0 (Normal/Active) <-> 2 (Suspended)
         $newStatus = ((int) $user['status'] === 0) ? 2 : 0;
 
-        $stmt = $db->prepare("UPDATE users SET status = ? WHERE id = ?");
-        $stmt->execute([$newStatus, $id]);
+        try {
+            $db->beginTransaction();
 
-        // Also update students status column to sync
-        $stmt = $db->prepare("UPDATE students SET status = ? WHERE id = ?");
-        $stmt->execute([$newStatus === 0 ? 1 : 0, $id]);
+            $stmt = $db->prepare("UPDATE users SET status = ? WHERE id = ?");
+            $stmt->execute([$newStatus, $id]);
+
+            // Also update students status column to sync
+            $stmt = $db->prepare("UPDATE students SET status = ? WHERE id = ?");
+            $stmt->execute([$newStatus === 0 ? 1 : 0, $id]);
+
+            $db->commit();
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            Flash::set('error', 'स्थिति अपडेट करने में त्रुटि: ' . $e->getMessage());
+            Response::redirect('/admin/students');
+        }
 
         $statusText = ($newStatus === 0) ? 'सक्रिय' : 'निलंबित';
         Flash::set('success', "छात्र का खाता अब {$statusText} है।");
@@ -107,6 +122,11 @@ class AdminUserController
         if (!Auth::isAdmin()) {
             Flash::set('error', 'Access denied.');
             Response::redirect('/');
+        }
+
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/admin/students');
         }
 
         $db = Database::getInstance();
@@ -175,6 +195,11 @@ class AdminUserController
             Response::redirect('/');
         }
 
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/admin/reps');
+        }
+
         $username = trim(Input::post('username', ''));
         $email = trim(Input::post('email', ''));
         $password = Input::post('password', '');
@@ -228,6 +253,11 @@ class AdminUserController
             Response::redirect('/');
         }
 
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/admin/reps');
+        }
+
         $db = Database::getInstance();
 
         $stmt = $db->prepare("SELECT status FROM users WHERE id = ? LIMIT 1");
@@ -257,6 +287,11 @@ class AdminUserController
         if (!Auth::isSuperAdmin()) {
             Flash::set('error', 'Access denied.');
             Response::redirect('/');
+        }
+
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/admin/reps');
         }
 
         $db = Database::getInstance();

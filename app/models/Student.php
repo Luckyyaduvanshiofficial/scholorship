@@ -99,7 +99,16 @@ class Student
         $sets = [];
         $values = [];
 
+        $whitelist = [
+            'student_code', 'first_name', 'last_name', 'gender', 'dob',
+            'mobile', 'email', 'father_name', 'mother_name', 'address',
+            'city', 'district', 'state', 'pincode', 'profile_photo', 'status'
+        ];
+
         foreach ($data as $key => $value) {
+            if (!in_array($key, $whitelist, true)) {
+                throw new \InvalidArgumentException("Invalid column update requested: {$key}");
+            }
             $sets[] = "`$key` = ?";
             $values[] = $value;
         }

@@ -234,10 +234,18 @@ class ApplicationController
           ->required('ifsc_code', 'IFSC code');
 
         if ($v->fails()) {
-            Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name'));
+            Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name') ?? $v->first('ifsc_code'));
             Flash::set('old', $data);
             Response::redirect('/applications/scholarship');
         }
+
+        $ifsc = strtoupper(trim($data['ifsc_code']));
+        if (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/', $ifsc)) {
+            Flash::set('error', 'IFSC code must be in the format: 4 uppercase letters, a zero, and 6 alphanumeric characters (e.g., SBIN0012345).');
+            Flash::set('old', $data);
+            Response::redirect('/applications/scholarship');
+        }
+        $data['ifsc_code'] = $ifsc;
 
         $pct = (float) $data['percentage'];
         if ($pct < 0 || $pct > 100) {
@@ -273,14 +281,13 @@ class ApplicationController
             // Store academic record
             $db = \App\Core\Database::getInstance();
             $stmt = $db->prepare(
-                "INSERT INTO student_academics (student_id, session_id, course_name, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                "INSERT INTO student_academics (student_id, session_id, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
                  ON DUPLICATE KEY UPDATE class_year=VALUES(class_year), college_name=VALUES(college_name), board_university=VALUES(board_university), marks_obtained=VALUES(marks_obtained), max_marks=VALUES(max_marks), percentage=VALUES(percentage)"
             );
             $stmt->execute([
                 (int) Auth::id(),
                 (int) $activeSession['id'],
-                $data['class_year'],
                 $data['class_year'],
                 $data['college_name'],
                 $data['board_university'],
@@ -296,7 +303,7 @@ class ApplicationController
                 $studentModel->update((int) Auth::id(), ['profile_photo' => $profilePhotoPath]);
             }
 
-            Flash::set('success', 'Scholarship application submitted! Your application number is TSVS-' . date('Y') . '-' . str_pad((string) $appId, 6, '0', STR_PAD_LEFT));
+            Flash::set('success', 'Scholarship application submitted! Your Application ID is TSVS-' . date('Y') . '-' . str_pad((string) $appId, 6, '0', STR_PAD_LEFT));
             Response::redirect('/applications');
         }
 
@@ -407,14 +414,13 @@ class ApplicationController
             // Store academic record
             $db = \App\Core\Database::getInstance();
             $stmt = $db->prepare(
-                "INSERT INTO student_academics (student_id, session_id, course_name, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                "INSERT INTO student_academics (student_id, session_id, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
                  ON DUPLICATE KEY UPDATE class_year=VALUES(class_year), college_name=VALUES(college_name), board_university=VALUES(board_university), marks_obtained=VALUES(marks_obtained), max_marks=VALUES(max_marks), percentage=VALUES(percentage)"
             );
             $stmt->execute([
                 (int) Auth::id(),
                 (int) $activeSession['id'],
-                $data['class_year'],
                 $data['class_year'],
                 $data['college_name'],
                 $data['board_university'],
@@ -429,7 +435,7 @@ class ApplicationController
                 $studentModel->update((int) Auth::id(), ['profile_photo' => $profilePhotoPath]);
             }
 
-            Flash::set('success', 'Pratibha Samman application submitted! Your application number is TSVS-' . date('Y') . '-' . str_pad((string) $appId, 6, '0', STR_PAD_LEFT));
+            Flash::set('success', 'Pratibha Samman application submitted! Your Application ID is TSVS-' . date('Y') . '-' . str_pad((string) $appId, 6, '0', STR_PAD_LEFT));
             Response::redirect('/applications');
         }
 
@@ -592,6 +598,7 @@ class ApplicationController
 
         // Reset application status to Pending (status_id = 1) and clear dispute remarks
         $stmt = $db->prepare("UPDATE applications SET status_id = 1, dispute_message = NULL WHERE id = ?");
+        $stmt->execute([$id]);
         Flash::set('success', 'Application has been successfully resubmitted. It will be reviewed again.');
         Response::redirect('/applications/' . $id);
     }
@@ -754,9 +761,16 @@ class ApplicationController
               ->required('ifsc_code', 'IFSC code');
 
             if ($v->fails()) {
-                Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name'));
+                Flash::set('error', $v->first('class_year') ?? $v->first('percentage') ?? $v->first('bank_name') ?? $v->first('ifsc_code'));
                 Response::redirect('/applications/' . $id . '/edit');
             }
+
+            $ifsc = strtoupper(trim($data['ifsc_code']));
+            if (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/', $ifsc)) {
+                Flash::set('error', 'IFSC code must be in the format: 4 uppercase letters, a zero, and 6 alphanumeric characters (e.g., SBIN0012345).');
+                Response::redirect('/applications/' . $id . '/edit');
+            }
+            $data['ifsc_code'] = $ifsc;
 
             $pct = (float) $data['percentage'];
             if ($pct < 0 || $pct > 100) {
@@ -778,14 +792,13 @@ class ApplicationController
             // Update academics
             $db = \App\Core\Database::getInstance();
             $stmt = $db->prepare(
-                "INSERT INTO student_academics (student_id, session_id, course_name, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                "INSERT INTO student_academics (student_id, session_id, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
                  ON DUPLICATE KEY UPDATE class_year=VALUES(class_year), college_name=VALUES(college_name), board_university=VALUES(board_university), marks_obtained=VALUES(marks_obtained), max_marks=VALUES(max_marks), percentage=VALUES(percentage)"
             );
             $stmt->execute([
                 (int) Auth::id(),
                 (int) $app['session_id'],
-                $data['class_year'],
                 $data['class_year'],
                 $data['college_name'],
                 $data['board_university'],
@@ -897,14 +910,13 @@ class ApplicationController
             // Update academics
             $db = \App\Core\Database::getInstance();
             $stmt = $db->prepare(
-                "INSERT INTO student_academics (student_id, session_id, course_name, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                "INSERT INTO student_academics (student_id, session_id, class_year, college_name, board_university, marks_obtained, max_marks, percentage, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
                  ON DUPLICATE KEY UPDATE class_year=VALUES(class_year), college_name=VALUES(college_name), board_university=VALUES(board_university), marks_obtained=VALUES(marks_obtained), max_marks=VALUES(max_marks), percentage=VALUES(percentage)"
             );
             $stmt->execute([
                 (int) Auth::id(),
                 (int) $app['session_id'],
-                $data['class_year'],
                 $data['class_year'],
                 $data['college_name'],
                 $data['board_university'],

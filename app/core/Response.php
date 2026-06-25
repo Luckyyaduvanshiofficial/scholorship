@@ -73,9 +73,14 @@ class Response
 
         $file = VIEW_PATH . '/' . $template . '.php';
 
+        // Force generic error message in production for server errors
+        $errorMessage = $message;
+        if ($code >= 500 && (!defined('APP_DEBUG') || !APP_DEBUG)) {
+            $errorMessage = 'An internal server error occurred. Please try again later.';
+        }
+
         // Extract variables for the error view
         $errorCode    = $code;
-        $errorMessage = $message;
 
         require VIEW_PATH . '/layouts/header.php';
         require $file;
