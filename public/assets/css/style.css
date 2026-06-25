@@ -3216,6 +3216,28 @@ textarea.form-control:focus {
   }
 }
 
+/* Readonly form fields */
+.tsp-form-step .form-control[readonly],
+.tsp-form-step .form-select[readonly] {
+  background-color: #f1f5f9 !important;
+  opacity: 0.85;
+  cursor: not-allowed;
+}
+
+/* Validation error - danger color */
+.tsp-form-step .form-control.is-invalid,
+.tsp-form-step .form-select.is-invalid {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+  background-image: none !important;
+}
+
+/* Account confirm match error */
+.field-confirm-error {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+}
+
 /* ==========================================================================
    FORMAL PAPER FORM PREVIEW (Screen & Print)
    ========================================================================== */

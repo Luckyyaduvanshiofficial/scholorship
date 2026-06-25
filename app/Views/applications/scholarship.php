@@ -79,7 +79,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
             <!-- Interactive Form Wizard Wrapper -->
             <div class="card border-0 shadow-sm" style="border-radius: 1.25rem;">
                 <div class="card-body p-4 p-md-5">
-                    <form action="<?= $isEdit ? '/applications/' . $application['id'] . '/edit' : '/applications/scholarship' ?>" method="POST" enctype="multipart/form-data" id="scholarshipWizardForm">
+                    <form action="<?= $isEdit ? '/applications/' . (int) $application['id'] . '/edit' : '/applications/scholarship' ?>" method="POST" enctype="multipart/form-data" id="scholarshipWizardForm">
                         <?= Csrf::field() ?>
 
                         <!-- STEP 1: Personal & Family Information -->
@@ -91,32 +91,32 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्रथम नाम (First Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="first_name" id="field_first_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="first_name" id="field_first_name" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['first_name'] ?? ($isEdit ? $application['first_name'] : $student['first_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">अंतिम नाम (Last Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="last_name" id="field_last_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="last_name" id="field_last_name" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['last_name'] ?? ($isEdit ? $application['last_name'] : $student['last_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">पिता का नाम (Father Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="father_name" id="field_father_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="father_name" id="field_father_name" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['father_name'] ?? ($isEdit ? $application['father_name'] : $student['father_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">माता का नाम (Mother Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="mother_name" id="field_mother_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="mother_name" id="field_mother_name" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['mother_name'] ?? ($isEdit ? $application['mother_name'] : $student['mother_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">जन्म तिथि (Date of Birth) <span class="text-danger">*</span></label>
-                                    <input type="date" name="dob" id="field_dob" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="date" name="dob" id="field_dob" class="form-control border-2 py-2" required max="<?= date('Y-m-d') ?>"
                                            value="<?= Helpers::esc($old['dob'] ?? ($isEdit ? $application['dob'] : $student['dob']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">लिंग (Gender) <span class="text-danger">*</span></label>
-                                    <select name="gender" id="field_gender" class="form-select border-2 py-2" style="border-radius: 0.5rem;" required>
+                                    <select name="gender" id="field_gender" class="form-select border-2 py-2" required>
                                         <option value="">Select</option>
                                         <option value="Male" <?= ($old['gender'] ?? ($isEdit ? $application['gender'] : $student['gender']) ?? '') === 'Male' ? 'selected' : '' ?>>पुरुष (Male)</option>
                                         <option value="Female" <?= ($old['gender'] ?? ($isEdit ? $application['gender'] : $student['gender']) ?? '') === 'Female' ? 'selected' : '' ?>>महिला (Female)</option>
@@ -125,51 +125,51 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">मोबाइल नंबर (Mobile) <span class="text-danger">*</span></label>
-                                    <input type="text" name="mobile" id="field_mobile" class="form-control border-2 py-2" style="border-radius: 0.5rem;" readonly
+                                    <input type="text" name="mobile" id="field_mobile" class="form-control border-2 py-2 bg-light" readonly
                                            value="<?= Helpers::esc($student['mobile'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">ईमेल (Email) <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" id="field_email" class="form-control border-2 py-2" style="border-radius: 0.5rem;" readonly
+                                    <input type="email" name="email" id="field_email" class="form-control border-2 py-2 bg-light" readonly
                                            value="<?= Helpers::esc($student['email'] ?? '') ?>">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small fw-semibold text-muted">स्थाई पता (Permanent Address) <span class="text-danger">*</span></label>
-                                    <textarea name="address" id="field_address" class="form-control border-2 py-2" style="border-radius: 0.5rem;" rows="3" required><?= Helpers::esc($old['address'] ?? ($isEdit ? $application['address'] : $student['address']) ?? '') ?></textarea>
+                                    <textarea name="address" id="field_address" class="form-control border-2 py-2" rows="3" required><?= Helpers::esc($old['address'] ?? ($isEdit ? $application['address'] : $student['address']) ?? '') ?></textarea>
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">शहर/कस्बा (City) <span class="text-danger">*</span></label>
-                                    <input type="text" name="city" id="field_city" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="city" id="field_city" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['city'] ?? ($isEdit ? $application['city'] : $student['city']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">जिला (District) <span class="text-danger">*</span></label>
-                                    <input type="text" name="district" id="field_district" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="district" id="field_district" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['district'] ?? ($isEdit ? $application['district'] : $student['district']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">पिनकोड (PIN Code) <span class="text-danger">*</span></label>
-                                    <input type="text" name="pincode" id="field_pincode" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="pincode" id="field_pincode" class="form-control border-2 py-2" required pattern="\d{6}" inputmode="numeric" maxlength="6"
                                            value="<?= Helpers::esc($old['pincode'] ?? ($isEdit ? $application['pincode'] : $student['pincode']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">परिवार का व्यवसाय/आजीविका का साधन (Family Occupation) <span class="text-danger">*</span></label>
-                                    <input type="text" name="family_occupation" id="field_family_occupation" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="family_occupation" id="field_family_occupation" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['family_occupation'] ?? $application['family_occupation'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">भविष्य में आप क्या बनना चाहते हैं (Career Goal) <span class="text-danger">*</span></label>
-                                    <input type="text" name="career_goal" id="field_career_goal" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="career_goal" id="field_career_goal" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['career_goal'] ?? $application['career_goal'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">परिवार में कुल सदस्य (Total Family Members) <span class="text-danger">*</span></label>
-                                    <input type="number" name="family_members_count" id="field_family_members_count" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="number" name="family_members_count" id="field_family_members_count" class="form-control border-2 py-2" min="1" max="30" required
                                            value="<?= Helpers::esc($old['family_members_count'] ?? $application['family_members_count'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">परिवार में कमाने वाले सदस्यों की संख्या (Earning Members) <span class="text-danger">*</span></label>
-                                    <input type="number" name="earning_members_count" id="field_earning_members_count" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="number" name="earning_members_count" id="field_earning_members_count" class="form-control border-2 py-2" min="0" max="30" required
                                            value="<?= Helpers::esc($old['earning_members_count'] ?? $application['earning_members_count'] ?? '') ?>">
                                 </div>
                             </div>
@@ -185,7 +185,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <div class="row g-3 mb-4">
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">कक्षा / वर्ष (Class/Year) <span class="text-danger">*</span></label>
-                                    <select name="class_year" id="field_class_year" class="form-select border-2 py-2" style="border-radius: 0.5rem;" required>
+                                    <select name="class_year" id="field_class_year" class="form-select border-2 py-2" required>
                                         <option value="">कक्षा चुनें / Select</option>
                                         <?php foreach (['10th', '12th', 'Graduation', 'Post Graduation'] as $cy): ?>
                                             <option value="<?= $cy ?>" <?= ($old['class_year'] ?? $application['class_year'] ?? '') === $cy ? 'selected' : '' ?>><?= $cy ?></option>
@@ -194,42 +194,42 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्राप्त प्रतिशत (Percentage) <span class="text-danger">*</span></label>
-                                    <input type="number" name="percentage" id="field_percentage" class="form-control border-2 py-2" style="border-radius: 0.5rem;" step="0.01" min="0" max="100" placeholder="उदा. 75.00" required
+                                    <input type="number" name="percentage" id="field_percentage" class="form-control border-2 py-2" step="0.01" min="0" max="100" placeholder="उदा. 75.00" required
                                            value="<?= Helpers::esc($old['percentage'] ?? $application['percentage'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्राप्त अंक (Marks Obtained)</label>
-                                    <input type="number" name="marks_obtained" id="field_marks_obtained" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="प्राप्त अंक"
+                                    <input type="number" name="marks_obtained" id="field_marks_obtained" class="form-control border-2 py-2" min="0" max="10000" placeholder="प्राप्त अंक"
                                            value="<?= Helpers::esc($old['marks_obtained'] ?? $application['marks_obtained'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">कुल पूर्णांक (Max Marks)</label>
-                                    <input type="number" name="max_marks" id="field_max_marks" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="कुल पूर्णांक"
+                                    <input type="number" name="max_marks" id="field_max_marks" class="form-control border-2 py-2" min="1" max="10000" placeholder="कुल पूर्णांक"
                                            value="<?= Helpers::esc($old['max_marks'] ?? $application['max_marks'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">विद्यालय / महाविद्यालय (College/School Name)</label>
-                                    <input type="text" name="college_name" id="field_college_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="विद्यालय/महाविद्यालय"
+                                    <input type="text" name="college_name" id="field_college_name" class="form-control border-2 py-2" placeholder="विद्यालय/महाविद्यालय"
                                            value="<?= Helpers::esc($old['college_name'] ?? $application['college_name'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">बोर्ड / विश्वविद्यालय (Board/University)</label>
-                                    <input type="text" name="board_university" id="field_board_university" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. RBSE, CBSE"
+                                    <input type="text" name="board_university" id="field_board_university" class="form-control border-2 py-2" placeholder="उदा. RBSE, CBSE"
                                            value="<?= Helpers::esc($old['board_university'] ?? $application['board_university'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">वर्तमान में अध्ययनरत कक्षा (Current Class) <span class="text-danger">*</span></label>
-                                    <input type="text" name="current_class" id="field_current_class" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. 11th, B.Sc. 1st Year" required
+                                    <input type="text" name="current_class" id="field_current_class" class="form-control border-2 py-2" placeholder="उदा. 11th, B.Sc. 1st Year" required
                                            value="<?= Helpers::esc($old['current_class'] ?? $application['current_class'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">वर्तमान में अध्ययनरत विद्यालय/महाविद्यालय का नाम (Current Institution) <span class="text-danger">*</span></label>
-                                    <input type="text" name="current_college" id="field_current_college" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="विद्यालय/महाविद्यालय का नाम" required
+                                    <input type="text" name="current_college" id="field_current_college" class="form-control border-2 py-2" placeholder="विद्यालय/महाविद्यालय का नाम" required
                                            value="<?= Helpers::esc($old['current_college'] ?? $application['current_college'] ?? '') ?>">
                                 </div>
                             </div>
 
-                            <hr class="my-4" style="border-color: #cbd5e1;">
+                            <hr class="my-4">
 
                             <h5 class="h6 fw-bold mb-3 text-secondary">संस्था से छात्रवृत्ति की जानकारी / Previous Scholarship Details</h5>
                             <div class="row g-3 mb-4">
@@ -237,11 +237,11 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <label class="form-label small fw-semibold text-muted d-block">संस्था से पिछले वर्षों में छात्रवृत्ति प्राप्त हुई है? (Received scholarship in previous years?) <span class="text-danger">*</span></label>
                                     <?php $prevSch = $old['prev_scholarship_received'] ?? $application['prev_scholarship_received'] ?? 'नहीं'; ?>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="prev_scholarship_received" id="prev_sch_yes" value="हाँ" <?= $prevSch === 'हाँ' ? 'checked' : '' ?> onclick="togglePrevSchAmt(true);">
+                                        <input class="form-check-input" type="radio" name="prev_scholarship_received" id="prev_sch_yes" value="हाँ" <?= $prevSch === 'हाँ' ? 'checked' : '' ?> onchange="togglePrevSchAmt(true);">
                                         <label class="form-check-label" for="prev_sch_yes">हाँ / Yes</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="prev_scholarship_received" id="prev_sch_no" value="नहीं" <?= $prevSch !== 'हाँ' ? 'checked' : '' ?> onclick="togglePrevSchAmt(false);">
+                                        <input class="form-check-input" type="radio" name="prev_scholarship_received" id="prev_sch_no" value="नहीं" <?= $prevSch !== 'हाँ' ? 'checked' : '' ?> onchange="togglePrevSchAmt(false);">
                                         <label class="form-check-label" for="prev_sch_no">नहीं / No</label>
                                     </div>
                                 </div>
@@ -249,50 +249,56 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <div class="row g-3">
                                         <div class="col-sm-4">
                                             <label class="form-label small fw-semibold text-muted">वर्ष 2023-24 में प्राप्त राशि (Amt in 2023-24)</label>
-                                            <input type="number" name="scholarship_amt_2023_24" id="field_scholarship_amt_2023_24" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. 1500"
+                                            <input type="number" name="scholarship_amt_2023_24" id="field_scholarship_amt_2023_24" class="form-control border-2 py-2" placeholder="उदा. 1500"
                                                    value="<?= Helpers::esc($old['scholarship_amt_2023_24'] ?? $application['scholarship_amt_2023_24'] ?? '') ?>">
                                         </div>
                                         <div class="col-sm-4">
                                             <label class="form-label small fw-semibold text-muted">वर्ष 2024-25 में प्राप्त राशि (Amt in 2024-25)</label>
-                                            <input type="number" name="scholarship_amt_2024_25" id="field_scholarship_amt_2024_25" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. 2000"
+                                            <input type="number" name="scholarship_amt_2024_25" id="field_scholarship_amt_2024_25" class="form-control border-2 py-2" placeholder="उदा. 2000"
                                                    value="<?= Helpers::esc($old['scholarship_amt_2024_25'] ?? $application['scholarship_amt_2024_25'] ?? '') ?>">
                                         </div>
                                         <div class="col-sm-4">
                                             <label class="form-label small fw-semibold text-muted">वर्ष 2025-26 में प्राप्त राशि (Amt in 2025-26)</label>
-                                            <input type="number" name="scholarship_amt_2025_26" id="field_scholarship_amt_2025_26" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. 2500"
+                                            <input type="number" name="scholarship_amt_2025_26" id="field_scholarship_amt_2025_26" class="form-control border-2 py-2" placeholder="उदा. 2500"
                                                    value="<?= Helpers::esc($old['scholarship_amt_2025_26'] ?? $application['scholarship_amt_2025_26'] ?? '') ?>">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <hr class="my-4" style="border-color: #cbd5e1;">
+                            <hr class="my-4">
 
                             <h5 class="h6 fw-bold mb-3 text-secondary">बैंक खाता विवरण / Bank Account</h5>
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">बैंक का नाम (Bank Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="bank_name" id="field_bank_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="बैंक का नाम" required
+                                    <input type="text" name="bank_name" id="field_bank_name" class="form-control border-2 py-2" placeholder="बैंक का नाम" required
                                            value="<?= Helpers::esc($old['bank_name'] ?? $application['bank_name'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">खाता संख्या (Account Number) <span class="text-danger">*</span></label>
-                                    <input type="text" name="account_number" id="field_account_number" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="खाता नंबर" required
+                                    <input type="text" name="account_number" id="field_account_number" class="form-control border-2 py-2" placeholder="खाता नंबर" required
                                            value="<?= Helpers::esc($old['account_number'] ?? $application['account_number'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
+                                    <label class="form-label small fw-semibold text-muted">खाता संख्या पुनः दर्ज करें (Confirm Account Number) <span class="text-danger">*</span></label>
+                                    <input type="text" name="confirm_account_number" id="field_confirm_account_number" class="form-control border-2 py-2" placeholder="पुनः खाता नंबर" required
+                                           value="<?= Helpers::esc($old['account_number'] ?? $application['account_number'] ?? '') ?>">
+                                </div>
+                                </div>
+                                <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">खाता धारक का नाम (Account Holder Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="account_holder_name" id="field_account_holder_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="खाता धारक का नाम" required
+                                    <input type="text" name="account_holder_name" id="field_account_holder_name" class="form-control border-2 py-2" placeholder="खाता धारक का नाम" required
                                            value="<?= Helpers::esc($old['account_holder_name'] ?? $application['account_holder_name'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">IFSC कोड (IFSC Code) <span class="text-danger">*</span></label>
-                                    <input type="text" name="ifsc_code" id="field_ifsc_code" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="IFSC कोड" required
+                                    <input type="text" name="ifsc_code" id="field_ifsc_code" class="form-control border-2 py-2" placeholder="IFSC कोड" required
                                            value="<?= Helpers::esc($old['ifsc_code'] ?? $application['ifsc_code'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">वार्षिक पारिवारिक आय (Annual Family Income)</label>
-                                    <input type="number" name="family_income" id="field_family_income" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. 180000"
+                                    <input type="number" name="family_income" id="field_family_income" class="form-control border-2 py-2" placeholder="उदा. 180000"
                                            value="<?= Helpers::esc($old['family_income'] ?? $application['family_income'] ?? '') ?>">
                                 </div>
                             </div>
@@ -449,7 +455,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <h2 class="print-org-title text-center mb-1">तम्बोली समाज विकास संस्था, राजस्थान</h2>
                                     <div class="print-reg-no text-center fw-bold small mb-1">रजि.नं. 411 / 2016-17</div>
                                     <div class="print-office-address text-center small mb-1">कार्यालय: 132, जनकपुरी-2, इमलीफाटक, जयपुर (राज.)-302005</div>
-                                    <div class="print-contact text-center small mb-2">मो. 982971477, 9414728866 ई मेल : tambolisamaj@gmail.com</div>
+                                    <div class="print-contact text-center small mb-2">मो. 9829714778, 9414728866 ई मेल : tambolisamaj@gmail.com</div>
                                     <div class="print-form-title-underlined text-center fw-bold fs-5 border-top border-bottom py-2">
                                         सामाजिक छात्रवृत्ति हेतु आवेदन - <?= Helpers::esc($activeSession['session_name'] ?? '2026') ?>
                                     </div>
@@ -668,12 +674,21 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             </div>
                         </div>
 
+                        <!-- Declaration Checkbox -->
+                        <div class="form-check mt-4 p-3 border rounded bg-light" id="declarationBox">
+                            <input class="form-check-input" type="checkbox" name="declaration" id="declarationCheckbox" required onchange="toggleSubmitBtn();">
+                            <label class="form-check-label fw-semibold small" for="declarationCheckbox">
+                                मैं घोषणा करता/करती हूँ कि उपरोक्त सभी जानकारी सत्य एवं सही है। गलत जानकारी पाए जाने पर मेरा आवेदन निरस्त किया जा सकता है।<br>
+                                <span class="text-muted">I hereby declare that all the above information is true and correct. If found false, my application may be cancelled.</span>
+                            </label>
+                        </div>
+
                         <!-- Stepper Actions Navigation Footer -->
                         <div class="d-flex gap-2 justify-content-between mt-5 pt-3 border-top" id="wizardActions">
                             <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-semibold d-none" id="btnPrev" onclick="moveStep(-1);">
                                 <i class="bi bi-chevron-left"></i> पिछला चरण / Previous
                             </button>
-                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('scholarship_form_draft_new'); localStorage.removeItem('scholarship_form_draft_<?= $application['id'] ?? '' ?>'); location.href='/applications/create';">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('scholarship_form_draft_new'); localStorage.removeItem('scholarship_form_draft_<?= (int) ($application['id'] ?? 0) ?>'); location.href='/applications/create';">
                                 रद्द करें / Cancel
                             </button>
                             <button type="button" class="btn tsp-dash-welcome-btn shadow-sm rounded-pill px-4 py-2 fw-semibold ms-auto" id="btnNext" onclick="moveStep(1);">
@@ -720,6 +735,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function uploadDocAjax(docType, inputId) {
+    if (!applicationId) {
+        alert('कृपया पहले फॉर्म सेव करें। / Please save the form first.');
+        return;
+    }
     const input = document.getElementById(inputId);
     const file = input.files[0];
     if (!file) {
@@ -814,6 +833,7 @@ async function uploadDocAjax(docType, inputId) {
 }
 
 async function deleteDocAjax(docType, inputId) {
+    if (!applicationId) return;
     if (!confirm('क्या आप वाकई इस दस्तावेज़ को हटाना चाहते हैं? / Are you sure you want to delete this document?')) {
         return;
     }
@@ -951,7 +971,6 @@ function validateCurrentStep() {
             const fileInput = card.querySelector('.file-input-field');
             const hasLocalSelectedFile = fileInput && fileInput.files && fileInput.files.length > 0;
             
-            // If the document is not uploaded to DB and no local file is selected
             if (!isUploaded && !hasLocalSelectedFile) {
                 card.classList.add('border-danger');
                 isValid = false;
@@ -969,14 +988,43 @@ function validateCurrentStep() {
                 input.classList.remove('is-invalid');
             }
         }
+
+        // Step 1 cross-validations
+        if (currentStep === 1) {
+            const totalEl = document.getElementById('field_family_members_count');
+            const earnEl = document.getElementById('field_earning_members_count');
+            if (totalEl && earnEl && totalEl.value && earnEl.value) {
+                const total = parseInt(totalEl.value, 10);
+                const earn = parseInt(earnEl.value, 10);
+                if (earn > total) {
+                    earnEl.classList.add('is-invalid');
+                    isValid = false;
+                }
+            }
+
+            const prevSchYes = document.getElementById('prev_sch_yes');
+            const prevSchNo = document.getElementById('prev_sch_no');
+            if (prevSchYes && prevSchNo && !prevSchYes.checked && !prevSchNo.checked) {
+                isValid = false;
+            }
+        }
         
-        // Extra percentage range validation on Step 2
+        // Step 2 cross-validations
         if (currentStep === 2) {
             const pctInput = document.getElementById('field_percentage');
             if (pctInput) {
                 const pct = parseFloat(pctInput.value);
                 if (isNaN(pct) || pct < 0 || pct > 100) {
                     pctInput.classList.add('is-invalid');
+                    isValid = false;
+                }
+            }
+
+            const acctInput = document.getElementById('field_account_number');
+            const acctConfirm = document.getElementById('field_confirm_account_number');
+            if (acctInput && acctConfirm && acctInput.value && acctConfirm.value) {
+                if (acctInput.value !== acctConfirm.value) {
+                    acctConfirm.classList.add('is-invalid');
                     isValid = false;
                 }
             }
@@ -1000,12 +1048,30 @@ function togglePrevSchAmt(show) {
         div.classList.remove('d-none');
     } else {
         div.classList.add('d-none');
-        // Clear values if hidden
         document.getElementById('field_scholarship_amt_2023_24').value = '';
         document.getElementById('field_scholarship_amt_2024_25').value = '';
         document.getElementById('field_scholarship_amt_2025_26').value = '';
     }
 }
+
+function toggleSubmitBtn() {
+    const cb = document.getElementById('declarationCheckbox');
+    const btn = document.getElementById('btnSubmit');
+    if (cb && btn) {
+        btn.disabled = !cb.checked;
+    }
+}
+
+// Restore togglePrevSchAmt state from draft on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const prevSchYes = document.getElementById('prev_sch_yes');
+    const prevSchNo = document.getElementById('prev_sch_no');
+    if (prevSchYes && prevSchYes.checked) {
+        togglePrevSchAmt(true);
+    } else if (prevSchNo && prevSchNo.checked) {
+        togglePrevSchAmt(false);
+    }
+});
 
 function compileFormPreview() {
     // Collect values from form fields
@@ -1057,7 +1123,8 @@ function compileFormPreview() {
     
     // Formatting date
     if (dob) {
-        const d = new Date(dob);
+        const parts = dob.split('-');
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
         document.getElementById('preview_dob').textContent = d.toLocaleDateString('hi-IN', { day: '2-digit', month: 'long', year: 'numeric' });
     } else {
         document.getElementById('preview_dob').textContent = '-';
@@ -1183,7 +1250,7 @@ function compileFormPreview() {
 // ─── Unsaved Progress Auto-Save and Navigation Warn ───
 (function () {
     const isEditMode = <?= $isEdit ? 'true' : 'false' ?>;
-    const FORM_DRAFT_KEY = 'scholarship_form_draft_' + (isEditMode ? '<?= $application['id'] ?? '' ?>' : 'new');
+    const FORM_DRAFT_KEY = 'scholarship_form_draft_' + (isEditMode ? String(<?= (int) ($application['id'] ?? 0) ?>) : 'new');
     const wizardForm = document.getElementById('scholarshipWizardForm');
     if (!wizardForm) return;
 
@@ -1191,7 +1258,7 @@ function compileFormPreview() {
     function saveFormDraft() {
         const formData = {};
         wizardForm.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([name="csrf_token"]), select, textarea').forEach(input => {
-            if (input.name) {
+            if (input.name && !input.readOnly && !input.disabled) {
                 if (input.type === 'checkbox' || input.type === 'radio') {
                     if (input.checked) {
                         formData[input.name] = input.value;
@@ -1214,13 +1281,13 @@ function compileFormPreview() {
                     const value = formData[name];
                     const inputs = wizardForm.querySelectorAll(`[name="${name}"]`);
                     inputs.forEach(input => {
+                        if (input.readOnly || input.disabled) return;
                         if (input.type === 'checkbox' || input.type === 'radio') {
                             if (input.value === value) {
                                 input.checked = true;
                             }
                         } else {
                             input.value = value;
-                            // Trigger event to compile preview properly if values are restored
                             input.dispatchEvent(new Event('input'));
                         }
                     });

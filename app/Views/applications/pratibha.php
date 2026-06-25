@@ -79,7 +79,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
             <!-- Interactive Form Wizard Wrapper -->
             <div class="card border-0 shadow-sm" style="border-radius: 1.25rem;">
                 <div class="card-body p-4 p-md-5">
-                    <form action="<?= $isEdit ? '/applications/' . $application['id'] . '/edit' : '/applications/pratibha' ?>" method="POST" enctype="multipart/form-data" id="pratibhaWizardForm">
+                    <form action="<?= $isEdit ? '/applications/' . (int) $application['id'] . '/edit' : '/applications/pratibha' ?>" method="POST" enctype="multipart/form-data" id="pratibhaWizardForm">
                         <?= Csrf::field() ?>
 
                         <!-- STEP 1: Personal & Family Information -->
@@ -91,32 +91,32 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <div class="row g-3">
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्रथम नाम (First Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="first_name" id="field_first_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="first_name" id="field_first_name" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['first_name'] ?? ($isEdit ? $application['first_name'] : $student['first_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">अंतिम नाम (Last Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="last_name" id="field_last_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="last_name" id="field_last_name" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['last_name'] ?? ($isEdit ? $application['last_name'] : $student['last_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">पिता का नाम (Father Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="father_name" id="field_father_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="father_name" id="field_father_name" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['father_name'] ?? ($isEdit ? $application['father_name'] : $student['father_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">माता का नाम (Mother Name) <span class="text-danger">*</span></label>
-                                    <input type="text" name="mother_name" id="field_mother_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="mother_name" id="field_mother_name" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['mother_name'] ?? ($isEdit ? $application['mother_name'] : $student['mother_name']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">जन्म तिथि (Date of Birth) <span class="text-danger">*</span></label>
-                                    <input type="date" name="dob" id="field_dob" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="date" name="dob" id="field_dob" class="form-control border-2 py-2" required max="<?= date('Y-m-d') ?>"
                                            value="<?= Helpers::esc($old['dob'] ?? ($isEdit ? $application['dob'] : $student['dob']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">लिंग (Gender) <span class="text-danger">*</span></label>
-                                    <select name="gender" id="field_gender" class="form-select border-2 py-2" style="border-radius: 0.5rem;" required>
+                                    <select name="gender" id="field_gender" class="form-select border-2 py-2" required>
                                         <option value="">Select</option>
                                         <option value="Male" <?= ($old['gender'] ?? ($isEdit ? $application['gender'] : $student['gender']) ?? '') === 'Male' ? 'selected' : '' ?>>पुरुष (Male)</option>
                                         <option value="Female" <?= ($old['gender'] ?? ($isEdit ? $application['gender'] : $student['gender']) ?? '') === 'Female' ? 'selected' : '' ?>>महिला (Female)</option>
@@ -125,31 +125,31 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">मोबाइल नंबर (Mobile) <span class="text-danger">*</span></label>
-                                    <input type="text" name="mobile" id="field_mobile" class="form-control border-2 py-2" style="border-radius: 0.5rem;" readonly
+                                    <input type="text" name="mobile" id="field_mobile" class="form-control border-2 py-2 bg-light" readonly
                                            value="<?= Helpers::esc($student['mobile'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">ईमेल (Email) <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" id="field_email" class="form-control border-2 py-2" style="border-radius: 0.5rem;" readonly
+                                    <input type="email" name="email" id="field_email" class="form-control border-2 py-2 bg-light" readonly
                                            value="<?= Helpers::esc($student['email'] ?? '') ?>">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small fw-semibold text-muted">स्थाई पता (Permanent Address) <span class="text-danger">*</span></label>
-                                    <textarea name="address" id="field_address" class="form-control border-2 py-2" style="border-radius: 0.5rem;" rows="3" required><?= Helpers::esc($old['address'] ?? ($isEdit ? $application['address'] : $student['address']) ?? '') ?></textarea>
+                                    <textarea name="address" id="field_address" class="form-control border-2 py-2" rows="3" required><?= Helpers::esc($old['address'] ?? ($isEdit ? $application['address'] : $student['address']) ?? '') ?></textarea>
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">शहर/कस्बा (City) <span class="text-danger">*</span></label>
-                                    <input type="text" name="city" id="field_city" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="city" id="field_city" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['city'] ?? ($isEdit ? $application['city'] : $student['city']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">जिला (District) <span class="text-danger">*</span></label>
-                                    <input type="text" name="district" id="field_district" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="district" id="field_district" class="form-control border-2 py-2" required
                                            value="<?= Helpers::esc($old['district'] ?? ($isEdit ? $application['district'] : $student['district']) ?? '') ?>">
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">पिनकोड (PIN Code) <span class="text-danger">*</span></label>
-                                    <input type="text" name="pincode" id="field_pincode" class="form-control border-2 py-2" style="border-radius: 0.5rem;" required
+                                    <input type="text" name="pincode" id="field_pincode" class="form-control border-2 py-2" required pattern="\d{6}" inputmode="numeric" maxlength="6"
                                            value="<?= Helpers::esc($old['pincode'] ?? ($isEdit ? $application['pincode'] : $student['pincode']) ?? '') ?>">
                                 </div>
                             </div>
@@ -165,7 +165,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <div class="row g-3 mb-4">
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">कक्षा / वर्ष (Class/Year) <span class="text-danger">*</span></label>
-                                    <select name="class_year" id="field_class_year" class="form-select border-2 py-2" style="border-radius: 0.5rem;" required>
+                                    <select name="class_year" id="field_class_year" class="form-select border-2 py-2" required>
                                         <option value="">कक्षा चुनें / Select</option>
                                         <?php foreach (['10th', '12th', 'Graduation', 'Post Graduation'] as $cy): ?>
                                             <option value="<?= $cy ?>" <?= ($old['class_year'] ?? $application['class_year'] ?? '') === $cy ? 'selected' : '' ?>><?= $cy ?></option>
@@ -174,48 +174,48 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्राप्त प्रतिशत (Percentage) <span class="text-danger">*</span></label>
-                                    <input type="number" name="percentage" id="field_percentage" class="form-control border-2 py-2" style="border-radius: 0.5rem;" step="0.01" min="0" max="100" placeholder="उदा. 75.00" required
+                                    <input type="number" name="percentage" id="field_percentage" class="form-control border-2 py-2" step="0.01" min="0" max="100" placeholder="उदा. 75.00" required
                                            value="<?= Helpers::esc($old['percentage'] ?? $application['percentage'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">प्राप्त अंक (Marks Obtained)</label>
-                                    <input type="number" name="marks_obtained" id="field_marks_obtained" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="प्राप्त अंक"
+                                    <input type="number" name="marks_obtained" id="field_marks_obtained" class="form-control border-2 py-2" min="0" max="10000" placeholder="प्राप्त अंक"
                                            value="<?= Helpers::esc($old['marks_obtained'] ?? $application['marks_obtained'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">कुल पूर्णांक (Max Marks)</label>
-                                    <input type="number" name="max_marks" id="field_max_marks" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="कुल पूर्णांक"
+                                    <input type="number" name="max_marks" id="field_max_marks" class="form-control border-2 py-2" min="1" max="10000" placeholder="कुल पूर्णांक"
                                            value="<?= Helpers::esc($old['max_marks'] ?? $application['max_marks'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">विद्यालय / महाविद्यालय (College/School Name)</label>
-                                    <input type="text" name="college_name" id="field_college_name" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="विद्यालय/महाविद्यालय"
+                                    <input type="text" name="college_name" id="field_college_name" class="form-control border-2 py-2" placeholder="विद्यालय/महाविद्यालय"
                                            value="<?= Helpers::esc($old['college_name'] ?? $application['college_name'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">बोर्ड / विश्वविद्यालय (Board/University)</label>
-                                    <input type="text" name="board_university" id="field_board_university" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. RBSE, CBSE"
+                                    <input type="text" name="board_university" id="field_board_university" class="form-control border-2 py-2" placeholder="उदा. RBSE, CBSE"
                                            value="<?= Helpers::esc($old['board_university'] ?? $application['board_university'] ?? '') ?>">
                                 </div>
                             </div>
 
-                            <hr class="my-4" style="border-color: #cbd5e1;">
+                            <hr class="my-4">
 
                             <h5 class="h6 fw-bold mb-3 text-secondary">उपलब्धि विवरण / Achievement Details</h5>
                             <div class="row g-3">
                                 <div class="col-sm-8">
                                     <label class="form-label small fw-semibold text-muted">उपलब्धि का नाम (Achievement Title) <span class="text-danger">*</span></label>
-                                    <input type="text" name="achievement_title" id="field_achievement_title" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. जिला स्तरीय विज्ञान प्रदर्शनी, खेल प्रतियोगिता" required
+                                    <input type="text" name="achievement_title" id="field_achievement_title" class="form-control border-2 py-2" placeholder="उदा. जिला स्तरीय विज्ञान प्रदर्शनी, खेल प्रतियोगिता" required
                                            value="<?= Helpers::esc($old['achievement_title'] ?? $application['achievement_title'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">रैंक / स्थान (Rank/Position)</label>
-                                    <input type="text" name="rank_position" id="field_rank_position" class="form-control border-2 py-2" style="border-radius: 0.5rem;" placeholder="उदा. प्रथम (1st), द्वितीय"
+                                    <input type="text" name="rank_position" id="field_rank_position" class="form-control border-2 py-2" placeholder="उदा. प्रथम (1st), द्वितीय"
                                            value="<?= Helpers::esc($old['rank_position'] ?? $application['rank_position'] ?? '') ?>">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">श्रेणी (Category)</label>
-                                    <select name="achievement_category" id="field_achievement_category" class="form-select border-2 py-2" style="border-radius: 0.5rem;">
+                                    <select name="achievement_category" id="field_achievement_category" class="form-select border-2 py-2">
                                         <option value="">श्रेणी चुनें / Select</option>
                                         <?php foreach (['Academic', 'Sports', 'Cultural', 'Science', 'Arts', 'Other'] as $cat): ?>
                                             <option value="<?= $cat ?>" <?= ($old['achievement_category'] ?? $application['achievement_category'] ?? '') === $cat ? 'selected' : '' ?>><?= $cat ?></option>
@@ -224,7 +224,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="form-label small fw-semibold text-muted">स्तर (Level)</label>
-                                    <select name="achievement_level" id="field_achievement_level" class="form-select border-2 py-2" style="border-radius: 0.5rem;">
+                                    <select name="achievement_level" id="field_achievement_level" class="form-select border-2 py-2">
                                         <option value="">स्तर चुनें / Select</option>
                                         <?php foreach (['School', 'District', 'State', 'National', 'International'] as $lvl): ?>
                                             <option value="<?= $lvl ?>" <?= ($old['achievement_level'] ?? $application['achievement_level'] ?? '') === $lvl ? 'selected' : '' ?>><?= $lvl ?></option>
@@ -385,7 +385,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <h2 class="print-org-title text-center mb-1">तम्बोली समाज विकास संस्था, राजस्थान</h2>
                                     <div class="print-reg-no text-center fw-bold small mb-1">रजि.नं. 411 / 2016-17</div>
                                     <div class="print-office-address text-center small mb-1">कार्यालय: 132, जनकपुरी-2, इमलीफाटक, जयपुर (राज.)-302005</div>
-                                    <div class="print-contact text-center small mb-2">मो. 982971477, 9414728866 ई मेल : tambolisamaj@gmail.com</div>
+                                    <div class="print-contact text-center small mb-2">मो. 9829714778, 9414728866 ई मेल : tambolisamaj@gmail.com</div>
                                     <div class="print-form-title-underlined text-center fw-bold fs-5 border-top border-bottom py-2">
                                         प्रतिभा सम्मान रजिस्ट्रेशन आवेदन पत्र - <?= Helpers::esc($activeSession['session_name'] ?? '2026') ?>
                                     </div>
@@ -530,7 +530,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-semibold d-none" id="btnPrev" onclick="moveStep(-1);">
                                 <i class="bi bi-chevron-left"></i> पिछला चरण / Previous
                             </button>
-                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('pratibha_form_draft_new'); localStorage.removeItem('pratibha_form_draft_<?= $application['id'] ?? '' ?>'); location.href='/applications/create';">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('pratibha_form_draft_new'); localStorage.removeItem('pratibha_form_draft_<?= (int) ($application['id'] ?? 0) ?>'); location.href='/applications/create';">
                                 रद्द करें / Cancel
                             </button>
                             <button type="button" class="btn tsp-dash-welcome-btn shadow-sm rounded-pill px-4 py-2 fw-semibold ms-auto" id="btnNext" onclick="moveStep(1);">
@@ -578,6 +578,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function uploadDocAjax(docType, inputId) {
+    if (!applicationId) {
+        alert('कृपया पहले फॉर्म सेव करें। / Please save the form first.');
+        return;
+    }
     const input = document.getElementById(inputId);
     const file = input.files[0];
     if (!file) {
@@ -672,6 +676,7 @@ async function uploadDocAjax(docType, inputId) {
 }
 
 async function deleteDocAjax(docType, inputId) {
+    if (!applicationId) return;
     if (!confirm('क्या आप वाकई इस दस्तावेज़ को हटाना चाहते हैं? / Are you sure you want to delete this document?')) {
         return;
     }
@@ -887,7 +892,8 @@ function compileFormPreview() {
     
     // Formatting date
     if (dob) {
-        const d = new Date(dob);
+        const parts = dob.split('-');
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
         document.getElementById('preview_dob').textContent = d.toLocaleDateString('hi-IN', { day: '2-digit', month: 'long', year: 'numeric' });
     } else {
         document.getElementById('preview_dob').textContent = '-';
@@ -994,7 +1000,7 @@ function compileFormPreview() {
 // ─── Unsaved Progress Auto-Save and Navigation Warn ───
 (function () {
     const isEditMode = <?= $isEdit ? 'true' : 'false' ?>;
-    const FORM_DRAFT_KEY = 'pratibha_form_draft_' + (isEditMode ? '<?= $application['id'] ?? '' ?>' : 'new');
+    const FORM_DRAFT_KEY = 'pratibha_form_draft_' + (isEditMode ? String(<?= (int) ($application['id'] ?? 0) ?>) : 'new');
     const wizardForm = document.getElementById('pratibhaWizardForm');
     if (!wizardForm) return;
 
@@ -1002,7 +1008,7 @@ function compileFormPreview() {
     function saveFormDraft() {
         const formData = {};
         wizardForm.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([name="csrf_token"]), select, textarea').forEach(input => {
-            if (input.name) {
+            if (input.name && !input.readOnly && !input.disabled) {
                 if (input.type === 'checkbox' || input.type === 'radio') {
                     if (input.checked) {
                         formData[input.name] = input.value;
@@ -1025,13 +1031,13 @@ function compileFormPreview() {
                     const value = formData[name];
                     const inputs = wizardForm.querySelectorAll(`[name="${name}"]`);
                     inputs.forEach(input => {
+                        if (input.readOnly || input.disabled) return;
                         if (input.type === 'checkbox' || input.type === 'radio') {
                             if (input.value === value) {
                                 input.checked = true;
                             }
                         } else {
                             input.value = value;
-                            // Trigger event to compile preview properly if values are restored
                             input.dispatchEvent(new Event('input'));
                         }
                     });
