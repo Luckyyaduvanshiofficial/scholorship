@@ -10,8 +10,9 @@ class Flash
 
     /**
      * Set a flash message. Available until next read of that type.
+     * Accepts strings (error/success messages) and arrays (form old-data, etc).
      */
-    public static function set(string $type, string $message): void
+    public static function set(string $type, mixed $message): void
     {
         Session::start();
 

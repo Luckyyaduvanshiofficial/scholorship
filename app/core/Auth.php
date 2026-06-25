@@ -103,7 +103,13 @@ class Auth
 
             return false;
         } catch (\Throwable $e) {
-            Logger::error('Student registration error: ' . $e->getMessage());
+            Logger::error('Student registration error: ' . get_class($e), [
+                'message' => $e->getMessage(),
+                'code'    => $e->getCode(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'previous'=> $e->getPrevious() ? get_class($e->getPrevious()) . ': ' . $e->getPrevious()->getMessage() : null,
+            ]);
             return false;
         }
     }
@@ -179,7 +185,11 @@ class Auth
      */
     public static function userName(): string
     {
-        return self::getAuth()->getUsername() ?? '';
+        try {
+            return self::getAuth()->getUsername() ?? '';
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     /**

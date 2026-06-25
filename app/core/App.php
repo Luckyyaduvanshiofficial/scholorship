@@ -21,7 +21,7 @@ class App
         try {
             // Load routes — pass router as $router variable
             $router = $this->router;
-            require APP_ROOT . '/app/routes/web.php';
+            require APP_ROOT . '/app/Routes/web.php';
 
             // Resolve the current request
             $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';

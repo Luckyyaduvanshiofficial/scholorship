@@ -81,23 +81,37 @@ class FileUploader
 
     /**
      * Move the uploaded file to the destination directory.
-     * Generates a unique stored filename. Returns the stored filename.
+     * Generates a unique stored filename. Returns the stored filename, or false on failure.
      */
-    public function upload(array $file, string $directory): string
+    public function upload(array $file, string $directory): string|false
     {
-        if (!is_dir($directory)) {
-            @mkdir($directory, 0755, true);
+        try {
+            if (!is_dir($directory)) {
+                if (!@mkdir($directory, 0755, true) && !is_dir($directory)) {
+                    $this->errors[] = 'Could not create upload directory.';
+                    return false;
+                }
+            }
+
+            $extension    = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
+            $storedName   = time() . '_' . Helpers::random(8) . '.' . $extension;
+            $destination  = rtrim($directory, '/') . '/' . $storedName;
+
+            if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                $this->errors[] = 'Failed to save uploaded file. Please try again.';
+                return false;
+            }
+
+            return $storedName;
+
+        } catch (\Throwable $e) {
+            Logger::error('File upload error: ' . $e->getMessage(), [
+                'file' => $file['name'] ?? 'unknown',
+                'dest' => $directory,
+            ]);
+            $this->errors[] = 'An error occurred while uploading. Please try again.';
+            return false;
         }
-
-        $extension    = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
-        $storedName   = time() . '_' . Helpers::random(8) . '.' . $extension;
-        $destination  = rtrim($directory, '/') . '/' . $storedName;
-
-        if (!move_uploaded_file($file['tmp_name'], $destination)) {
-            throw new \RuntimeException("Failed to move uploaded file to {$destination}");
-        }
-
-        return $storedName;
     }
 
     /**

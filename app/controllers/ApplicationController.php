@@ -10,6 +10,7 @@ use App\Core\Flash;
 use App\Core\FileUploader;
 use App\Core\Helpers;
 use App\Core\Input;
+use App\Core\Logger;
 use App\Core\Response;
 use App\Core\Validator;
 use App\Models\AcademicSession;
@@ -722,6 +723,8 @@ class ApplicationController
             Response::redirect('/applications/' . $id);
         }
 
+        try {
+
         // Retrieve and update student profile information if changed in form
         $studentModel = new \App\Models\Student();
         $studentModel->update((int) Auth::id(), [
@@ -972,6 +975,12 @@ class ApplicationController
 
                     // Upload and insert the new document
                     $storedName = $uploader->upload($upload['file'], $directory);
+
+                    if ($storedName === false) {
+                        Flash::set('error', $upload['type'] . ': ' . $uploader->firstError());
+                        Response::redirect('/applications/' . $id . '/edit');
+                    }
+
                     $appModel->addDocument((int) $id, $upload['type'], $upload['file'], $storedName);
 
                     // Update student profile photo if updated photo
@@ -985,5 +994,15 @@ class ApplicationController
 
         Flash::set('success', 'Application details updated successfully.');
         Response::redirect('/applications/' . $id);
+
+        } catch (\Throwable $e) {
+            Logger::error('Application update failed', [
+                'application_id' => $id,
+                'student_id'     => Auth::id(),
+                'error'          => $e->getMessage(),
+            ]);
+            Flash::set('error', 'A temporary error occurred while updating. Please try again.');
+            Response::redirect('/applications/' . $id . '/edit');
+        }
     }
 }

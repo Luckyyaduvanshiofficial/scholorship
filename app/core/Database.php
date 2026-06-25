@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Core;
 
 use PDO;
+use PDOException;
+use RuntimeException;
 
 class Database
 {
@@ -12,10 +14,15 @@ class Database
 
     /**
      * Return the single PDO connection. Creates it on first call.
+     * Throws RuntimeException with a user-friendly message on failure.
      */
     public static function getInstance(): PDO
     {
-        if (self::$instance === null) {
+        if (self::$instance !== null) {
+            return self::$instance;
+        }
+
+        try {
             $config = require CONFIG_PATH . '/database.php';
 
             $dsn = sprintf(
@@ -33,9 +40,22 @@ class Database
                 $config['password'],
                 $config['options']
             );
-        }
 
-        return self::$instance;
+            return self::$instance;
+
+        } catch (PDOException $e) {
+            Logger::error('Database connection failed', [
+                'error' => $e->getMessage(),
+                'host'  => $config['host'] ?? 'unknown',
+                'db'    => $config['database'] ?? 'unknown',
+            ]);
+
+            throw new RuntimeException(
+                'Unable to connect to the database. Please try again in a moment.',
+                (int) $e->getCode(),
+                $e
+            );
+        }
     }
 
     /**

@@ -162,73 +162,88 @@ class ProfileController
             Response::redirect('/profile/edit');
         }
 
-        // Check if cropped base64 image is submitted
-        $croppedData = Input::post('cropped_image', '');
-        if (!empty($croppedData) && str_starts_with($croppedData, 'data:image/')) {
-            $parts = explode(',', $croppedData);
-            if (count($parts) === 2) {
-                $base64 = $parts[1];
-                $decoded = base64_decode($base64);
-                if ($decoded !== false) {
-                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
-                    $mimeType = $finfo->buffer($decoded);
-                    $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
-                    if (!in_array($mimeType, $allowedMimes, true)) {
-                        Flash::set('error', 'Invalid image format. Only JPEG and PNG are allowed.');
-                        Response::redirect('/profile/edit');
+        try {
+            // Check if cropped base64 image is submitted
+            $croppedData = Input::post('cropped_image', '');
+            if (!empty($croppedData) && str_starts_with($croppedData, 'data:image/')) {
+                $parts = explode(',', $croppedData);
+                if (count($parts) === 2) {
+                    $base64 = $parts[1];
+                    $decoded = base64_decode($base64);
+                    if ($decoded !== false) {
+                        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                        $mimeType = $finfo->buffer($decoded);
+                        $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+                        if (!in_array($mimeType, $allowedMimes, true)) {
+                            Flash::set('error', 'Invalid image format. Only JPEG and PNG are allowed.');
+                            Response::redirect('/profile/edit');
+                        }
+
+                        $ext = ($mimeType === 'image/png') ? 'png' : 'jpg';
+                        $storedName = 'profile_' . Auth::id() . '_' . time() . '.' . $ext;
+                        $uploadDir = PUBLIC_PATH . '/uploads/profiles';
+                        if (!is_dir($uploadDir)) {
+                            if (!@mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+                                Flash::set('error', 'Could not create upload directory. Please contact support.');
+                                Response::redirect('/profile/edit');
+                            }
+                        }
+                        $filePath = $uploadDir . '/' . $storedName;
+                        if (file_put_contents($filePath, $decoded) === false) {
+                            Flash::set('error', 'Failed to save photo. Please try again.');
+                            Response::redirect('/profile/edit');
+                        }
+
+                        $studentModel = new Student();
+                        $studentModel->update((int) Auth::id(), [
+                            'profile_photo' => $storedName,
+                        ]);
+                        \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
+
+                        Flash::set('success', 'Profile photo updated successfully.');
+                        Response::redirect('/profile');
+                        return;
                     }
-
-                    $ext = ($mimeType === 'image/png') ? 'png' : 'jpg';
-                    $storedName = 'profile_' . Auth::id() . '_' . time() . '.' . $ext;
-                    $uploadDir = PUBLIC_PATH . '/uploads/profiles';
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
-                    }
-                    $filePath = $uploadDir . '/' . $storedName;
-                    file_put_contents($filePath, $decoded);
-
-                    $studentModel = new Student();
-                    $studentModel->update((int) Auth::id(), [
-                        'profile_photo' => $storedName,
-                    ]);
-                    \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
-
-                    Flash::set('success', 'Profile photo updated successfully.');
-                    Response::redirect('/profile');
-                    return;
                 }
             }
-        }
 
-        $uploader = new FileUploader();
-        $file = Input::file('profile_photo');
+            $uploader = new FileUploader();
+            $file = Input::file('profile_photo');
 
-        if (!$file || $file['error'] === UPLOAD_ERR_NO_FILE) {
-            Flash::set('error', 'Please select a photo to upload.');
-            Response::redirect('/profile/edit');
-        }
+            if (!$file || $file['error'] === UPLOAD_ERR_NO_FILE) {
+                Flash::set('error', 'Please select a photo to upload.');
+                Response::redirect('/profile/edit');
+            }
 
-        if (!$uploader->validate($file)) {
-            Flash::set('error', $uploader->firstError());
-            Response::redirect('/profile/edit');
-        }
+            if (!$uploader->validate($file)) {
+                Flash::set('error', $uploader->firstError());
+                Response::redirect('/profile/edit');
+            }
 
-        $uploadDir = PUBLIC_PATH . '/uploads/profiles';
-
-        try {
+            $uploadDir = PUBLIC_PATH . '/uploads/profiles';
             $storedName = $uploader->upload($file, $uploadDir);
-        } catch (\RuntimeException $e) {
-            Flash::set('error', 'Failed to upload photo. Please try again.');
+
+            if ($storedName === false) {
+                Flash::set('error', $uploader->firstError());
+                Response::redirect('/profile/edit');
+            }
+
+            $studentModel = new Student();
+            $studentModel->update((int) Auth::id(), [
+                'profile_photo' => $storedName,
+            ]);
+            \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
+
+            Flash::set('success', 'Profile photo updated successfully.');
+            Response::redirect('/profile');
+
+        } catch (\Throwable $e) {
+            Logger::error('Profile photo upload failed', [
+                'student_id' => Auth::id(),
+                'error'      => $e->getMessage(),
+            ]);
+            Flash::set('error', 'A temporary error occurred while uploading. Please try again.');
             Response::redirect('/profile/edit');
         }
-
-        $studentModel = new Student();
-        $studentModel->update((int) Auth::id(), [
-            'profile_photo' => $storedName,
-        ]);
-        \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
-
-        Flash::set('success', 'Profile photo updated successfully.');
-        Response::redirect('/profile');
     }
 }

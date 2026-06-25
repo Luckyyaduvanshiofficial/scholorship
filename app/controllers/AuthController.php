@@ -61,18 +61,25 @@ class AuthController
             Response::redirect('/login');
         }
 
-        if ($role === 'admin') {
-            if (Auth::login($email, $password)) {
-                Logger::info('Admin login successful', ['email' => $email]);
-                Flash::set('success', 'Welcome back, ' . Auth::userName());
-                $this->redirectToDashboard();
+        try {
+            if ($role === 'admin') {
+                if (Auth::login($email, $password)) {
+                    Logger::info('Admin login successful', ['email' => $email]);
+                    Flash::set('success', 'Welcome back, ' . Auth::userName());
+                    $this->redirectToDashboard();
+                }
+            } else {
+                if (Auth::studentLogin($email, $password)) {
+                    Logger::info('Student login successful', ['email' => $email]);
+                    Flash::set('success', 'Welcome, ' . Auth::userName());
+                    $this->redirectToDashboard();
+                }
             }
-        } else {
-            if (Auth::studentLogin($email, $password)) {
-                Logger::info('Student login successful', ['email' => $email]);
-                Flash::set('success', 'Welcome, ' . Auth::userName());
-                $this->redirectToDashboard();
-            }
+        } catch (\Throwable $e) {
+            Logger::error('Login error: ' . $e->getMessage(), ['email' => $email]);
+            Flash::set('error', 'A temporary error occurred. Please try again in a moment.');
+            Flash::set('old_email', $email);
+            Response::redirect('/login');
         }
 
         Flash::set('error', 'Invalid email or password.');

@@ -48,8 +48,8 @@ if (file_exists($envFile)) {
 }
 
 // ─── Load Configuration ───────────────────────────────────
-require ROOT_PATH . '/app/config/constants.php';
-require ROOT_PATH . '/app/config/paths.php';
+require ROOT_PATH . '/app/Config/constants.php';
+require ROOT_PATH . '/app/Config/paths.php';
 
 // ─── Error Reporting ──────────────────────────────────────
 if (APP_DEBUG) {
@@ -67,6 +67,45 @@ date_default_timezone_set(APP_TIMEZONE);
 
 // ─── Start Session ────────────────────────────────────────
 \App\Core\Session::start();
+
+// ─── Global Exception Handler ─────────────────────────────
+// Catches anything that escapes controller / framework code.
+// For form POSTs, we redirect with a friendly flash instead of
+// showing a raw 500 page. For normal page requests, we keep
+// the existing 500 page behaviour.
+set_exception_handler(function (\Throwable $e): void {
+    \App\Core\Logger::error('Uncaught exception: ' . $e->getMessage(), [
+        'file'  => $e->getFile(),
+        'line'  => $e->getLine(),
+        'trace' => $e->getTraceAsString(),
+    ]);
+
+    $isPost = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+    $isAjax = (
+        ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest'
+        || str_contains((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json')
+    );
+
+    if ($isPost && !$isAjax) {
+        try {
+            \App\Core\Flash::set('error', 'A temporary error occurred. Please try again in a moment.');
+        } catch (\Throwable $flashError) {
+            // Session not writable — fall through to plain redirect
+        }
+        $referrer = $_SERVER['HTTP_REFERER'] ?? '/';
+        header('Location: ' . $referrer, true, 302);
+        exit;
+    }
+
+    // GET / JSON — show the standard 500 page
+    try {
+        \App\Core\Response::abort(500, APP_DEBUG ? $e->getMessage() : '');
+    } catch (\Throwable $abortError) {
+        // Last-resort fallback if even abort fails (e.g. view missing)
+        http_response_code(500);
+        echo 'A temporary error occurred. Please try again.';
+    }
+});
 
 // ─── Run Application ──────────────────────────────────────
 $app = new \App\Core\App();
