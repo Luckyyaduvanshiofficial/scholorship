@@ -284,7 +284,12 @@ class Auth
             $studentModel = new Student();
             $student = $studentModel->find((int) self::id());
             if ($student && !empty($student['profile_photo'])) {
-                Session::set('profile_photo', '/uploads/profiles/' . $student['profile_photo']);
+                $photoPath = $student['profile_photo'];
+                if (str_starts_with($photoPath, '/') || str_starts_with($photoPath, 'http')) {
+                    Session::set('profile_photo', $photoPath);
+                } else {
+                    Session::set('profile_photo', '/uploads/profiles/' . $photoPath);
+                }
             } else {
                 Session::set('profile_photo', '');
             }

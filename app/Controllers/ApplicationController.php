@@ -1253,6 +1253,7 @@ class ApplicationController
             $profilePhotoPath = '/uploads/applications/' . $id . '/' . $storedName;
             $studentModel = new \App\Models\Student();
             $studentModel->update((int)$app['student_id'], ['profile_photo' => $profilePhotoPath]);
+            \App\Core\Session::set('profile_photo', $profilePhotoPath);
         }
 
         echo json_encode([
@@ -1320,6 +1321,7 @@ class ApplicationController
         if ($documentType === 'Photo') {
             $studentModel = new \App\Models\Student();
             $studentModel->update((int)$app['student_id'], ['profile_photo' => null]);
+            \App\Core\Session::remove('profile_photo');
         }
 
         echo json_encode(['success' => true]);
