@@ -30,26 +30,22 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <div class="tsp-role-selector">
                                     <input type="radio" name="role" id="roleStudent" value="student" checked>
                                     <label for="roleStudent"><i class="bi bi-mortarboard"></i> छात्र / Student</label>
-                                    
+
                                     <input type="radio" name="role" id="roleAdmin" value="admin">
                                     <label for="roleAdmin"><i class="bi bi-shield-lock"></i> एडमिन / Admin</label>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label small fw-semibold">ईमेल / Email</label>
-                                <div class="tsp-auth-input-group">
-                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                    <input type="email" name="email" id="email" class="form-control" placeholder="you@example.com" value="<?= Helpers::esc($emailVal) ?>" required autofocus>
-                                </div>
+                                <input type="email" name="email" id="email" class="form-control tsp-input" placeholder="you@example.com" value="<?= Helpers::esc($emailVal) ?>" required autofocus>
                             </div>
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <label for="password" class="form-label small fw-semibold mb-0">पासवर्ड / Password</label>
                                     <a href="/forgot-password" class="small text-decoration-none fw-semibold" style="color:var(--nav-red); font-size: 1.2rem;">पासवर्ड भूल गए? / Forgot?</a>
                                 </div>
-                                <div class="tsp-auth-input-group tsp-password-group">
-                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+                                <div class="tsp-password-group position-relative">
+                                    <input type="password" name="password" id="password" class="form-control tsp-input tsp-input-pw" placeholder="••••••••" required>
                                     <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
                                 </div>
                             </div>

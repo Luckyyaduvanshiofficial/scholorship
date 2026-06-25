@@ -193,27 +193,33 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 </div>
                 <div class="tsp-announcements-wrapper">
                     <?php if (empty($announcements)): ?>
-                        <div class="tsp-notice-item p-4 mb-3 d-flex gap-3 align-items-start">
-                            <span class="tsp-notice-bullet mt-2"></span>
-                            <div>
-                                <h4 class="h6 fw-bold mb-1">प्रतिभा सम्मान 2026 आवेदन खुला है। / Pratibha Samman 2026 Application Open.</h4>
+                        <div class="tsp-notice-item p-4 mb-3 d-flex gap-3 align-items-center">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 text-danger bg-danger-subtle" style="width: 42px; height: 42px;">
+                                <i class="bi bi-bell-fill" style="font-size: 1.45rem;"></i>
+                            </span>
+                            <div class="flex-grow-1">
+                                <h4 class="h6 fw-bold mb-1 text-dark">प्रतिभा सम्मान 2026 आवेदन खुला है। / Pratibha Samman 2026 Application Open.</h4>
                                 <p class="text-muted small mb-0">योग्य छात्र अंतिम तिथि से पूर्व आवेदन करें। मार्कशीट एवं बैंक पासबुक अपलोड करना अनिवार्य है।</p>
                             </div>
-                            <span class="badge bg-danger-subtle text-danger ms-auto">NEW</span>
+                            <span class="badge bg-danger-subtle text-danger ms-auto px-2.5 py-1.5 rounded-pill">NEW</span>
                         </div>
-                        <div class="tsp-notice-item p-4 mb-3 d-flex gap-3 align-items-start">
-                            <span class="tsp-notice-bullet mt-2"></span>
-                            <div>
-                                <h4 class="h6 fw-bold mb-1">दस्तावेज़ अपलोड निर्देश / Document Upload Guidelines</h4>
+                        <div class="tsp-notice-item p-4 mb-3 d-flex gap-3 align-items-center">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 text-primary bg-primary-subtle" style="width: 42px; height: 42px;">
+                                <i class="bi bi-file-earmark-text-fill" style="font-size: 1.45rem;"></i>
+                            </span>
+                            <div class="flex-grow-1">
+                                <h4 class="h6 fw-bold mb-1 text-dark">दस्तावेज़ अपलोड निर्देश / Document Upload Guidelines</h4>
                                 <p class="text-muted small mb-0">सभी फाइलें स्पष्ट एवं पठनीय होनी चाहिए। पीडीएफ या जेपीजी प्रारूप ही स्वीकार्य हैं।</p>
                             </div>
                         </div>
                     <?php else: ?>
                         <?php foreach ($announcements as $notice): ?>
-                            <div class="tsp-notice-item p-4 mb-3 d-flex gap-3 align-items-start">
-                                <span class="tsp-notice-bullet mt-2"></span>
+                            <div class="tsp-notice-item p-4 mb-3 d-flex gap-3 align-items-center">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 text-danger bg-danger-subtle" style="width: 42px; height: 42px;">
+                                    <i class="bi bi-megaphone-fill" style="font-size: 1.45rem;"></i>
+                                </span>
                                 <div class="flex-grow-1">
-                                    <h4 class="h6 fw-bold mb-1"><?= Helpers::esc($notice['title'] ?? '') ?></h4>
+                                    <h4 class="h6 fw-bold mb-1 text-dark"><?= Helpers::esc($notice['title'] ?? '') ?></h4>
                                     <?php if (!empty($notice['content'])): ?>
                                         <p class="text-muted small mb-0"><?= Helpers::esc(strip_tags((string)$notice['content'])) ?></p>
                                     <?php endif; ?>

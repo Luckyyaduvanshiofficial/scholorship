@@ -722,7 +722,6 @@ function compileFormPreview() {
         <?php endif; ?>
     }
 }
-}
 </script>
 
 <!-- Responsive Sidebar toggle control -->
