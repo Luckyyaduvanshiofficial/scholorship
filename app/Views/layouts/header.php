@@ -52,7 +52,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- Custom CSS -->
-    <link href="/assets/css/style.css?v=1.0.2" rel="stylesheet">
+    <link href="/assets/css/style.css?v=1.0.5" rel="stylesheet">
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="/assets/js/bootstrap.bundle.min.js" defer></script>
