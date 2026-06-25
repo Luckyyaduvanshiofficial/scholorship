@@ -68,11 +68,11 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
         <main class="tsp-dash-content-area flex-grow-1 p-4 bg-light">
             <div class="container-fluid p-0">
 
-                <a href="/admin/applications" class="btn btn-sm btn-light border px-3 rounded-pill text-secondary fw-semibold mb-3">
+                <a href="/admin/applications" class="btn btn-sm btn-light border px-3 rounded-pill text-secondary fw-semibold mb-3 print-hide">
                     <i class="bi bi-arrow-left me-1"></i> वापस जाएं (Back)
                 </a>
 
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 print-hide">
                     <div>
                         <h2 class="h3 fw-bold text-dark mb-1 font-heading">आवेदन की समीक्षा (Review Application)</h2>
                         <p class="text-secondary mb-0 small fw-semibold" style="font-size: 1.25rem;">
@@ -94,7 +94,7 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
 
                 <!-- Action Form Buttons Card -->
                 <?php if (($app['status_name'] ?? '') === 'Pending' || ($app['status_name'] ?? '') === 'Disputed'): ?>
-                <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                <div class="card border-0 shadow-sm mb-4 print-hide" style="border-radius: 16px;">
                     <div class="card-body p-4">
                         <h4 class="h5 fw-bold text-dark mb-3 font-heading">निर्णय प्रक्रिया (Action Menu)</h4>
                         <div class="row g-3">
@@ -142,7 +142,7 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
                 <?php endif; ?>
 
                 <!-- Main Application Detail Fields Card -->
-                <div class="row g-4">
+                <div class="row g-4 print-hide">
                     <div class="col-lg-8">
                         <div class="card border-0 shadow-sm" style="border-radius: 16px;">
                             <div class="card-body p-4">
@@ -327,7 +327,7 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
                     </div>
 
                     <!-- Right Column: Document Review Checklist -->
-                    <div class="col-lg-4">
+                    <div class="col-lg-4 print-hide">
                         <div class="card border-0 shadow-sm" style="border-radius: 16px;">
                             <div class="card-body p-4">
                                 <h4 class="h5 fw-bold text-dark mb-4 border-bottom pb-2 font-heading">

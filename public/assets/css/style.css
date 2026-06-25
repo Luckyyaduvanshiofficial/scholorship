@@ -3281,6 +3281,16 @@ textarea.form-control:focus {
   display: none !important;
 }
 
+.print-hide {
+  display: block !important;
+}
+
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+}
+
 /* ==========================================================================
    FORMAL PAPER FORM PREVIEW (Screen & Print)
    ========================================================================== */
@@ -3445,6 +3455,11 @@ textarea.form-control:focus {
 
 /* Print CSS Media query */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 1cm;
+  }
+
   /* Reset body and page settings */
   body,
   .d-flex,
@@ -3507,13 +3522,125 @@ textarea.form-control:focus {
   #printableForm {
     display: block !important;
     width: 100% !important;
-    padding: 0.5cm !important;
-    box-sizing: border-box;
+    padding: 0 !important;
+    box-sizing: border-box !important;
     color: #000000 !important;
     border: none !important;
     box-shadow: none !important;
     margin: 0 !important;
     max-width: 100% !important;
     border-radius: 0 !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Compact print header */
+  .print-header {
+    padding-bottom: 8px !important;
+    margin-bottom: 10px !important;
+    border-bottom: 1.5px solid #000 !important;
+  }
+
+  .print-logo {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .print-org-title {
+    font-size: 16pt !important;
+    margin-bottom: 2px !important;
+  }
+
+  .print-reg-no {
+    font-size: 10pt !important;
+    margin-top: 1px !important;
+  }
+
+  .print-office-address,
+  .print-contact {
+    font-size: 9pt !important;
+    margin-top: 0 !important;
+  }
+
+  .print-form-title-underlined {
+    font-size: 13pt !important;
+    margin-top: 8px !important;
+    margin-bottom: 6px !important;
+  }
+
+  /* Compact photo box */
+  .print-photo-box-top-right {
+    width: 90px !important;
+    height: 110px !important;
+    top: 10px !important;
+    right: 0 !important;
+  }
+
+  /* Compact form fields */
+  .print-form-fields {
+    margin-top: 10px !important;
+  }
+
+  .print-field-row {
+    margin-bottom: 6px !important;
+    font-size: 10.5pt !important;
+    line-height: 1.35 !important;
+  }
+
+  .print-field-label {
+    font-size: 10pt !important;
+  }
+
+  .print-field-value {
+    font-size: 10.5pt !important;
+    min-height: 1.6rem !important;
+  }
+
+  /* Compact note */
+  .print-note {
+    font-size: 9.5pt !important;
+    padding: 3px 6px !important;
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+  }
+
+  /* Compact signature section */
+  .print-footer-declaration {
+    margin-top: 15px !important;
+    padding-top: 8px !important;
+    font-size: 10pt !important;
+  }
+
+  .print-footer-declaration .d-flex {
+    gap: 2rem !important;
+  }
+
+  .print-signature-box {
+    width: 140px !important;
+    height: 40px !important;
+  }
+
+  .print-signature-box + div {
+    font-size: 9pt !important;
+  }
+
+  /* Compact recommendation */
+  .print-recommendation-box {
+    font-size: 10.5pt !important;
+    line-height: 1.4 !important;
+    margin-top: 10px !important;
+  }
+
+  .print-recommendation-box p {
+    margin-bottom: 8px !important;
+  }
+
+  .print-recommendation-box .d-flex {
+    margin-top: 15px !important;
+  }
+
+  /* Hide hr dashed line spacing */
+  hr {
+    margin: 15px 0 10px 0 !important;
   }
 }
