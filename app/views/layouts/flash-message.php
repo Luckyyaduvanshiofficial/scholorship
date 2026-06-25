@@ -28,3 +28,20 @@ $config = [
         <?php endforeach; ?>
     <?php endforeach; ?>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.tsp-flash-alert');
+        alerts.forEach(function(alert) {
+            if (window.bootstrap && bootstrap.Alert) {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                if (bsAlert) bsAlert.close();
+            } else {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 150);
+            }
+        });
+    }, 5000);
+});
+</script>

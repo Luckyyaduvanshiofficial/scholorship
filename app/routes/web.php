@@ -57,5 +57,30 @@ $router->get('/admin', 'DashboardController@admin');
 // ─── Representative Dashboard ─────────────────────────────
 $router->get('/representative', 'DashboardController@representative');
 
+// ─── Super Admin / Admin User Management Routes ───────────
+$router->get('/admin/students', 'AdminUserController@students');
+$router->post('/admin/students/{id}/toggle-status', 'AdminUserController@toggleStudentStatus');
+$router->post('/admin/students/{id}/delete', 'AdminUserController@deleteStudent');
+
+// ─── Super Admin Representative Management Routes ─────────
+$router->get('/admin/reps', 'AdminUserController@reps');
+$router->post('/admin/reps/create', 'AdminUserController@createRep');
+$router->post('/admin/reps/{id}/toggle-status', 'AdminUserController@toggleRepStatus');
+$router->post('/admin/reps/{id}/delete', 'AdminUserController@deleteRep');
+
+// ─── Announcements Management Routes ──────────────────────
+$router->get('/admin/announcements', 'AdminAnnouncementController@index');
+$router->get('/admin/announcements/create', 'AdminAnnouncementController@create');
+$router->post('/admin/announcements/create', 'AdminAnnouncementController@store');
+$router->get('/admin/announcements/{id}/edit', 'AdminAnnouncementController@edit');
+$router->post('/admin/announcements/{id}/edit', 'AdminAnnouncementController@update');
+$router->post('/admin/announcements/{id}/delete', 'AdminAnnouncementController@delete');
+
+// ─── Settings / Session Management Routes ─────────────────
+$router->get('/admin/settings', 'AdminSettingsController@index');
+$router->post('/admin/settings/update', 'AdminSettingsController@update');
+$router->post('/admin/settings/session/create', 'AdminSettingsController@createSession');
+$router->post('/admin/settings/session/{id}/activate', 'AdminSettingsController@activateSession');
+
 // ─── Application Resubmission ─────────────────────────────
 $router->post('/applications/{id}/resubmit', 'ApplicationController@resubmit');

@@ -28,66 +28,14 @@ require VIEW_PATH . '/layouts/header.php';
 require VIEW_PATH . '/layouts/flash-message.php';
 ?>
 
-<!-- Dashboard Top Header -->
-<header class="tsp-dash-header">
-    <!-- Left: Menu Toggle Button -->
-    <button class="tsp-dash-menu-toggle" id="tspSidebarToggle" aria-label="Toggle sidebar">
-        <i class="bi bi-list"></i>
-    </button>
-
-    <!-- Center: Logo & Bilingual Title -->
-    <div class="tsp-dash-logo-title-group d-flex flex-column align-items-center">
-        <div class="d-flex align-items-center gap-2 mb-1">
-            <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj Logo" width="36" height="36">
-            <h1 class="tsp-dash-title-hi">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</h1>
-        </div>
-        <span class="tsp-dash-title-en">TAMBOLI SAMAJ VIKAS SANSTHA, RAJASTHAN</span>
-    </div>
-
-    <!-- Right: Student Profile Block & Logout -->
-    <div class="tsp-dash-profile-block">
-        <div class="tsp-dash-profile-info d-none d-md-flex align-items-end me-1">
-            <span class="tsp-dash-profile-name"><?= Helpers::esc(Auth::userName()) ?></span>
-            <span class="tsp-dash-profile-code"><?= Helpers::esc(Auth::studentCode()) ?></span>
-        </div>
-        <div class="tsp-dash-avatar me-2">
-            <i class="bi bi-person-fill fs-5"></i>
-        </div>
-        <form action="/logout" method="post" class="m-0">
-            <?= Csrf::field() ?>
-            <button type="submit" class="tsp-dash-logout-btn shadow-sm">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>लॉगआउट</span>
-            </button>
-        </form>
-    </div>
-</header>
+<?php require VIEW_PATH . '/layouts/admin-header.php'; ?>
 
 <!-- Dashboard Main Container -->
 <div class="tsp-dash-container">
-    <!-- Sidebar -->
-    <aside class="tsp-dash-sidebar" id="tspSidebar">
-        <a href="/dashboard" class="tsp-dash-sidebar-link">
-            <i class="bi bi-house-door-fill"></i>
-            <span>डैशबोर्ड</span>
-        </a>
-        <a href="/applications/create" class="tsp-dash-sidebar-link active">
-            <i class="bi bi-pencil-square"></i>
-            <span>आवेदन फॉर्म भरें</span>
-        </a>
-        <a href="/applications" class="tsp-dash-sidebar-link">
-            <i class="bi bi-file-earmark-text"></i>
-            <span>मेरे आवेदन</span>
-        </a>
-        <a href="/applications" class="tsp-dash-sidebar-link">
-            <i class="bi bi-clock-history"></i>
-            <span>आवेदन की स्थिति</span>
-        </a>
-        <a href="/dashboard#help" class="tsp-dash-sidebar-link">
-            <i class="bi bi-question-circle"></i>
-            <span>सहायता</span>
-        </a>
-    </aside>
+    <?php
+    $activeLink = 'apply';
+    require VIEW_PATH . '/layouts/student-sidebar.php';
+    ?>
 
     <!-- Main Content Area -->
     <main class="tsp-dash-content-area">
@@ -472,12 +420,20 @@ require VIEW_PATH . '/layouts/flash-message.php';
 
                                 <!-- Upload Checklist info -->
                                 <div class="print-section-heading">5. संलग्न दस्तावेज़ (Attached Documents Checklist)</div>
-                                <ul style="list-style-type: square; padding-left: 2rem; font-size: 1.25rem;">
-                                    <li>गत वर्ष की अंकतालिका / Last Year Marksheet (अपलोड की गई)</li>
-                                    <li>बैंक पासबुक का पृष्ठ / Bank Passbook Photo (अपलोड की गई)</li>
-                                    <li>पासपोर्ट साइज फोटो / Passport Photo (अपलोड की गई)</li>
-                                    <li>आवेदक के हस्ताक्षर / Applicant Signature (अपलोड की गई)</li>
-                                </ul>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-sm-6">
+                                        <div class="fw-semibold small text-muted mb-2">गत वर्ष की अंकतालिका / Last Year Marksheet:</div>
+                                        <div id="preview_marksheet_box" class="tsp-thumbnail-preview d-flex align-items-center justify-content-center bg-light text-muted py-3" style="min-height: 120px;">
+                                            अंकतालिका / Marksheet
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="fw-semibold small text-muted mb-2">बैंक पासबुक / Bank Passbook Photo:</div>
+                                        <div id="preview_passbook_box" class="tsp-thumbnail-preview d-flex align-items-center justify-content-center bg-light text-muted py-3" style="min-height: 120px;">
+                                            पासबुक / Passbook
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Signature box and declarations -->
                                 <div class="print-footer-declaration border-top pt-4">
@@ -690,7 +646,11 @@ function compileFormPreview() {
         };
         reader.readAsDataURL(filePhoto);
     } else {
-        previewPhotoBox.innerHTML = 'फोटो<br>Photo';
+        <?php if ($photoDoc): ?>
+            previewPhotoBox.innerHTML = `<img src="/uploads/applications/<?= $application['id'] ?>/<?= $photoDoc['stored_name'] ?>" alt="Student Photo">`;
+        <?php else: ?>
+            previewPhotoBox.innerHTML = 'फोटो<br>Photo';
+        <?php endif; ?>
     }
 
     // File Preview using FileReader for Signature
@@ -703,32 +663,69 @@ function compileFormPreview() {
         };
         reader.readAsDataURL(fileSignature);
     } else {
-        previewSignatureBox.innerHTML = 'हस्ताक्षर<br>Signature';
+        <?php if ($signatureDoc): ?>
+            previewSignatureBox.innerHTML = `<img src="/uploads/applications/<?= $application['id'] ?>/<?= $signatureDoc['stored_name'] ?>" alt="Student Signature">`;
+        <?php else: ?>
+            previewSignatureBox.innerHTML = 'हस्ताक्षर<br>Signature';
+        <?php endif; ?>
     }
+
+    // File Preview for Marksheet
+    const fileMarksheet = document.getElementById('file_marksheet').files[0];
+    const previewMarksheetBox = document.getElementById('preview_marksheet_box');
+    if (fileMarksheet) {
+        if (fileMarksheet.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewMarksheetBox.innerHTML = `<img src="${e.target.result}" style="max-height: 120px; max-width: 100%; object-fit: contain;">`;
+            };
+            reader.readAsDataURL(fileMarksheet);
+        } else {
+            previewMarksheetBox.innerHTML = `<div class="py-2 text-center"><i class="bi bi-file-earmark-pdf fs-2 text-danger"></i><div class="mt-1 small text-truncate" style="max-width: 150px;">${fileMarksheet.name}</div></div>`;
+        }
+    } else {
+        <?php if ($marksheetDoc): ?>
+            <?php $isPdf = strtolower(pathinfo($marksheetDoc['stored_name'], PATHINFO_EXTENSION)) === 'pdf'; ?>
+            <?php if ($isPdf): ?>
+                previewMarksheetBox.innerHTML = `<div class="py-2 text-center"><i class="bi bi-file-earmark-pdf fs-2 text-danger"></i><div class="mt-1 small"><a href="/uploads/applications/<?= $application['id'] ?>/<?= $marksheetDoc['stored_name'] ?>" target="_blank" class="text-decoration-underline text-primary">PDF View</a></div></div>`;
+            <?php else: ?>
+                previewMarksheetBox.innerHTML = `<img src="/uploads/applications/<?= $application['id'] ?>/<?= $marksheetDoc['stored_name'] ?>" style="max-height: 120px; max-width: 100%; object-fit: contain;">`;
+            <?php endif; ?>
+        <?php else: ?>
+            previewMarksheetBox.innerHTML = '<span class="text-muted">अंकतालिका उपलब्ध नहीं है / No Marksheet</span>';
+        <?php endif; ?>
+    }
+
+    // File Preview for Passbook
+    const filePassbook = document.getElementById('file_passbook').files[0];
+    const previewPassbookBox = document.getElementById('preview_passbook_box');
+    if (filePassbook) {
+        if (filePassbook.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewPassbookBox.innerHTML = `<img src="${e.target.result}" style="max-height: 120px; max-width: 100%; object-fit: contain;">`;
+            };
+            reader.readAsDataURL(filePassbook);
+        } else {
+            previewPassbookBox.innerHTML = `<div class="py-2 text-center"><i class="bi bi-file-earmark-pdf fs-2 text-danger"></i><div class="mt-1 small text-truncate" style="max-width: 150px;">${filePassbook.name}</div></div>`;
+        }
+    } else {
+        <?php if ($passbookDoc): ?>
+            <?php $isPdf = strtolower(pathinfo($passbookDoc['stored_name'], PATHINFO_EXTENSION)) === 'pdf'; ?>
+            <?php if ($isPdf): ?>
+                previewPassbookBox.innerHTML = `<div class="py-2 text-center"><i class="bi bi-file-earmark-pdf fs-2 text-danger"></i><div class="mt-1 small"><a href="/uploads/applications/<?= $application['id'] ?>/<?= $passbookDoc['stored_name'] ?>" target="_blank" class="text-decoration-underline text-primary">PDF View</a></div></div>`;
+            <?php else: ?>
+                previewPassbookBox.innerHTML = `<img src="/uploads/applications/<?= $application['id'] ?>/<?= $passbookDoc['stored_name'] ?>" style="max-height: 120px; max-width: 100%; object-fit: contain;">`;
+            <?php endif; ?>
+        <?php else: ?>
+            previewPassbookBox.innerHTML = '<span class="text-muted">बैंक पासबुक उपलब्ध नहीं है / No Passbook</span>';
+        <?php endif; ?>
+    }
+}
 }
 </script>
 
 <!-- Responsive Sidebar toggle control -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('tspSidebarToggle');
-    const sidebar = document.getElementById('tspSidebar');
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            sidebar.classList.toggle('collapsed');
-        });
-    }
-    
-    // Auto collapse sidebar on small screens when clicking outside
-    document.addEventListener('click', function(e) {
-        if (window.innerWidth <= 991.98) {
-            if (sidebar && !sidebar.classList.contains('collapsed') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
-                sidebar.classList.add('collapsed');
-            }
-        }
-    });
-});
-</script>
+<?php require VIEW_PATH . '/layouts/admin-sidebar-script.php'; ?>
 
 <?php require VIEW_PATH . '/layouts/footer.php'; ?>

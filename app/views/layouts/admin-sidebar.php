@@ -8,23 +8,25 @@
  * Requires Bootstrap 5 JS for sidebar collapse toggle (handled in admin-header.php).
  */
 use App\Core\Csrf;
+use App\Core\Auth;
 
 $activeSidebarLink = $activeSidebarLink ?? '';
 
 $sidebarLinks = [
     ['href' => '/admin',                         'icon' => 'bi-house-door-fill',    'label' => 'डैशबोर्ड'],
     ['href' => '/admin/students',                'icon' => 'bi-people',             'label' => 'उपयोगकर्ता प्रबंधन'],
-    ['href' => '/admin/applications',            'icon' => 'bi-file-earmark-text',  'label' => 'आवेदन प्रबंधन'],
-    ['href' => '/admin/applications?type=scholarship', 'icon' => 'bi-mortarboard', 'label' => 'छात्रवृत्ति प्रबंधन'],
-    ['href' => '#',                              'icon' => 'bi-calendar-event',     'label' => 'कार्यक्रम प्रबंधन'],
-    ['href' => '#',                              'icon' => 'bi-person-heart',       'label' => 'वरिष्ठ नागरिक / सेवानिवृत्त'],
-    ['href' => '/admin/announcements',           'icon' => 'bi-megaphone',          'label' => 'सूचनाएं प्रबंधन'],
-    ['href' => '#',                              'icon' => 'bi-journal-text',       'label' => 'सामग्री प्रबंधन'],
-    ['href' => '#',                              'icon' => 'bi-bar-chart-line',     'label' => 'रिपोर्ट एवं विश्लेषण'],
-    ['href' => '#',                              'icon' => 'bi-gear',               'label' => 'सिस्टम सेटिंग्स'],
-    ['href' => '#',                              'icon' => 'bi-fingerprint',        'label' => 'OTR प्रबंधन'],
-    ['href' => '#',                              'icon' => 'bi-question-circle',    'label' => 'सहायता एवं संपर्क'],
 ];
+
+if (Auth::isSuperAdmin()) {
+    $sidebarLinks[] = ['href' => '/admin/reps',  'icon' => 'bi-shield-lock-fill',   'label' => 'प्रतिनिधि प्रबंधन'];
+}
+
+$sidebarLinks[] = ['href' => '/admin/applications',            'icon' => 'bi-file-earmark-text',  'label' => 'आवेदन प्रबंधन'];
+$sidebarLinks[] = ['href' => '/admin/announcements',           'icon' => 'bi-megaphone',          'label' => 'सूचनाएं प्रबंधन'];
+
+if (Auth::isSuperAdmin()) {
+    $sidebarLinks[] = ['href' => '/admin/settings', 'icon' => 'bi-gear-fill',          'label' => 'सिस्टम सेटिंग्स'];
+}
 ?>
 
 <!-- Mobile sidebar backdrop -->

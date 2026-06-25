@@ -19,10 +19,16 @@ class DashboardController
             Response::redirect('/login');
         }
 
+        $db = \App\Core\Database::getInstance();
+        $stmt = $db->prepare("SELECT * FROM students WHERE id = ? LIMIT 1");
+        $stmt->execute([Auth::id()]);
+        $student = $stmt->fetch(\PDO::FETCH_ASSOC) ?: [];
+
         Response::view('dashboard/student', [
             'title'      => 'Student Dashboard — Tamboli Samaj Portal',
             'studentName'=> Auth::userName(),
             'studentCode'=> Auth::studentCode(),
+            'student'    => $student,
         ]);
     }
 
@@ -107,17 +113,6 @@ class DashboardController
         });
 
         $activities = array_slice($activities, 0, 5);
-
-        // Fallbacks if empty
-        if (empty($activities)) {
-            $activities = [
-                ['type' => 'application', 'title' => 'नया आवेदन TSVS202600124 सबमिट किया गया', 'time' => '10:28 AM'],
-                ['type' => 'student', 'title' => 'उपयोगकर्ता Neha Sharma पंजीकृत हुआ', 'time' => '09:45 AM'],
-                ['type' => 'application', 'title' => 'छात्रवृत्ति आवेदन TSVS202600118 स्वीकृत किया गया', 'time' => '09:20 AM'],
-                ['type' => 'announcement', 'title' => "नई सूचना 'प्रतिभा सम्मान समारोह 2026' जारी की गई", 'time' => '08:30 AM'],
-                ['type' => 'event', 'title' => "कार्यक्रम 'करियर काउंसलिंग' अपडेट किया गया", 'time' => '08:05 AM'],
-            ];
-        }
 
         // 9. Get other counts
         $seniorCount = 198;

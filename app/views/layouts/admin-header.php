@@ -30,11 +30,10 @@ $adminEmail = $adminEmail ?? '';
     <div class="tsp-adm-header-center">
         <img src="/assets/images/logo/logo-placeholder.svg"
              alt="Tamboli Samaj Logo"
-             class="tsp-adm-logo">
-        <div class="tsp-adm-title-group">
-            <h1 class="tsp-adm-title-hi">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</h1>
-            <span class="tsp-adm-title-en">Tamboli Samaj Vikas Sanstha, Rajasthan</span>
-        </div>
+             class="tsp-top-header-logo"
+             style="width: 48px; height: 48px; margin-bottom: 2px; padding: 2px;">
+        <div class="tsp-top-header-title-hi" style="font-size: 1.7rem; line-height: 1.15;">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</div>
+        <div class="tsp-top-header-title-en" style="font-size: 1.05rem; margin-top: 0; letter-spacing: 0.05em;">TAMBOLI SAMAJ VIKAS SANSTHA, RAJASTHAN</div>
     </div>
 
     <!-- Right: User profile dropdown -->
@@ -45,8 +44,14 @@ $adminEmail = $adminEmail ?? '';
                  aria-expanded="false"
                  role="button"
                  tabindex="0">
-                <div class="tsp-adm-avatar">
-                    <i class="bi bi-person-fill"></i>
+                <div class="tsp-adm-avatar" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <?php 
+                    $headerPhoto = \App\Core\Auth::profilePhoto();
+                    if ($headerPhoto): ?>
+                        <img src="<?= $headerPhoto ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                    <?php else: ?>
+                        <i class="bi bi-person-fill"></i>
+                    <?php endif; ?>
                 </div>
                 <div class="tsp-adm-user-info d-none d-md-flex">
                     <span class="tsp-adm-user-name"><?= htmlspecialchars($adminName) ?></span>

@@ -46,16 +46,14 @@ function getHindiStatusInfo($app) {
     return ['text' => $app['status_name'] ?: 'लंबित', 'class' => 'tsp-bg-gold'];
 }
 
-// Map database values or fallbacks if data is empty (mocking the mockup view exactly)
-$displayTotalApps = ($totalApps === 0) ? 2458 : $totalApps;
-$displayTotalStudents = ($totalStudents === 0) ? 1789 : $totalStudents;
-$displayScholarshipApps = ($scholarshipApps === 0) ? 1246 : $scholarshipApps;
-$displayTotalAnnouncements = ($totalAnnouncements === 0) ? 12 : $totalAnnouncements;
-$displaySeniorCount = 198;
-$displayRetiredCount = 102;
-$displayNewlyCount = 56;
+// Map database values directly with no faked data fallbacks
+$displayTotalApps = $totalApps;
+$displayTotalStudents = $totalStudents;
+$displayScholarshipApps = $scholarshipApps;
+$displayTotalAnnouncements = $totalAnnouncements;
+$displayPratibhaApps = $pratibhaApps;
 
-// Split pending status counts for the chart/legend representational details
+// Split pending status counts
 $submittedCount = 0;
 $pendingCount = 0;
 $disputedCount = $statusCounts['disputed'] ?? 0;
@@ -63,17 +61,7 @@ $approvedCount = $statusCounts['approved'] ?? 0;
 $rejectedCount = $statusCounts['rejected'] ?? 0;
 
 if (($statusCounts['pending'] ?? 0) > 0) {
-    $submittedCount = (int) ceil($statusCounts['pending'] * 0.55);
-    $pendingCount = (int) ($statusCounts['pending'] - $submittedCount);
-}
-
-// Fallback to mockup data for the chart if no real records exist
-if ($totalApps === 0) {
-    $submittedCount = 1024;
-    $pendingCount = 856;
-    $disputedCount = 412;
-    $approvedCount = 128;
-    $rejectedCount = 38;
+    $pendingCount = (int) $statusCounts['pending'];
 }
 
 $chartTotal = $submittedCount + $pendingCount + $disputedCount + $approvedCount + $rejectedCount;
@@ -89,13 +77,17 @@ $deg2 = $deg1 + $pPending;
 $deg3 = $deg2 + $pDisputed;
 $deg4 = $deg3 + $pApproved;
 
-$conicGradient = "conic-gradient(
-    #10b981 0% {$deg1}%, 
-    #f59e0b {$deg1}% {$deg2}%, 
-    #3b82f6 {$deg2}% {$deg3}%, 
-    #34d399 {$deg3}% {$deg4}%, 
-    #ef4444 {$deg4}% 100%
-)";
+if ($chartTotal > 0) {
+    $conicGradient = "conic-gradient(
+        #10b981 0% {$deg1}%, 
+        #f59e0b {$deg1}% {$deg2}%, 
+        #3b82f6 {$deg2}% {$deg3}%, 
+        #34d399 {$deg3}% {$deg4}%, 
+        #ef4444 {$deg4}% 100%
+    )";
+} else {
+    $conicGradient = "conic-gradient(#e2e8f0 0% 100%)";
+}
 
 // Map Application List
 $displayApps = [];
@@ -117,25 +109,12 @@ if (!empty($recentApps)) {
             'date' => $date
         ];
     }
-} else {
-    // Exact representation of mockup recent applications
-    $displayApps = [
-        ['id' => 124, 'num' => 'TSVS202600124', 'name' => 'Lucky Yaduvanshi', 'type' => 'छात्रवृत्ति', 'status' => 'सबमिटिट', 'class' => 'tsp-bg-green', 'date' => '08 Dec 2025'],
-        ['id' => 123, 'num' => 'TSVS202600123', 'name' => 'Rakesh Kumawat', 'type' => 'प्रतिभा सम्मान', 'status' => 'जांचधीन', 'class' => 'tsp-bg-gold', 'date' => '08 Dec 2025'],
-        ['id' => 122, 'num' => 'TSVS202600122', 'name' => 'Neha Solanki', 'type' => 'छात्रवृत्ति', 'status' => 'दस्तावेज सत्यापन', 'class' => 'tsp-bg-blue', 'date' => '07 Dec 2025'],
-        ['id' => 121, 'num' => 'TSVS202600121', 'name' => 'Vikram Singh', 'type' => 'छात्रवृत्ति', 'status' => 'स्वीकृत', 'class' => 'tsp-bg-green', 'date' => '07 Dec 2025'],
-        ['id' => 120, 'num' => 'TSVS202600120', 'name' => 'Pooja Choudhary', 'type' => 'प्रतिभा सम्मान', 'status' => 'अस्वीकृत', 'class' => 'tsp-bg-red', 'date' => '06 Dec 2025']
-    ];
 }
 
 // Calculate percentages for categories progress bars relative to maximum count
-$displayPratibhaApps = ($pratibhaApps === 0) ? 856 : $pratibhaApps;
-$maxCategoryVal = max($displayScholarshipApps, $displayPratibhaApps, $displaySeniorCount, $displayRetiredCount, $displayNewlyCount);
+$maxCategoryVal = max($displayScholarshipApps, $displayPratibhaApps);
 $wScholarship = $maxCategoryVal > 0 ? ($displayScholarshipApps / $maxCategoryVal) * 100 : 0;
 $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 100 : 0;
-$wSenior = $maxCategoryVal > 0 ? ($displaySeniorCount / $maxCategoryVal) * 100 : 0;
-$wRetired = $maxCategoryVal > 0 ? ($displayRetiredCount / $maxCategoryVal) * 100 : 0;
-$wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0;
 ?>
 
 <!-- Outer full-viewport shell -->
@@ -174,7 +153,7 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                     </div>
                 </div>
 
-                <!-- 5 Metrics Cards Row -->
+                 <!-- 5 Metrics Cards Row -->
                 <div class="row g-3 mb-4">
                     <!-- Metrics Card 1 -->
                     <div class="col-xl col-md-4 col-sm-6">
@@ -185,7 +164,6 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             <div class="tsp-metric-content">
                                 <div class="tsp-metric-title">कुल आवेदन</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayTotalApps) ?></div>
-                                <span class="tsp-trend-badge tsp-trend-up"><i class="bi bi-graph-up-arrow"></i> +12% इस सप्ताह</span>
                                 <div class="tsp-metric-desc mt-2">सभी श्रेणियां</div>
                                 <a href="/admin/applications" class="tsp-metric-action tsp-color-red">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
@@ -200,7 +178,6 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             <div class="tsp-metric-content">
                                 <div class="tsp-metric-title">पंजीकृत उपयोगकर्ता</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayTotalStudents) ?></div>
-                                <span class="tsp-trend-badge tsp-trend-up"><i class="bi bi-graph-up-arrow"></i> +8% इस महीने</span>
                                 <div class="tsp-metric-desc mt-2">सभी उपयोगकर्ता</div>
                                 <a href="/admin/students" class="tsp-metric-action tsp-color-blue">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
@@ -215,9 +192,8 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             <div class="tsp-metric-content">
                                 <div class="tsp-metric-title">छात्रवृत्ति आवेदन</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayScholarshipApps) ?></div>
-                                <span class="tsp-trend-badge tsp-trend-up"><i class="bi bi-graph-up-arrow"></i> +15% नए</span>
                                 <div class="tsp-metric-desc mt-2">छात्रवृत्ति श्रेणी</div>
-                                <a href="/admin/applications?type=scholarship" class="tsp-metric-action tsp-color-green">विवरण देखें <i class="bi bi-arrow-right"></i></a>
+                                <a href="/admin/applications" class="tsp-metric-action tsp-color-green">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -225,14 +201,13 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                     <div class="col-xl col-md-4 col-sm-6">
                         <div class="tsp-metric-card">
                             <div class="tsp-metric-icon-wrapper tsp-bg-gold">
-                                <i class="bi bi-calendar-plus-fill"></i>
+                                <i class="bi bi-award-fill"></i>
                             </div>
                             <div class="tsp-metric-content">
-                                <div class="tsp-metric-title">कार्यक्रम / आयोजन</div>
-                                <div class="tsp-metric-value mb-1"><?= number_format($displaySeniorCount === 198 ? 6 : 0) ?></div>
-                                <span class="tsp-trend-badge tsp-trend-neutral"><i class="bi bi-dash-lg"></i> यथावत</span>
-                                <div class="tsp-metric-desc mt-2">आगामी कार्यक्रम</div>
-                                <a href="#" class="tsp-metric-action tsp-color-gold">विवरण देखें <i class="bi bi-arrow-right"></i></a>
+                                <div class="tsp-metric-title">प्रतिभा सम्मान आवेदन</div>
+                                <div class="tsp-metric-value mb-1"><?= number_format($displayPratibhaApps) ?></div>
+                                <div class="tsp-metric-desc mt-2">प्रतिभा सम्मान श्रेणी</div>
+                                <a href="/admin/applications" class="tsp-metric-action tsp-color-gold">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -243,15 +218,48 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                                 <i class="bi bi-megaphone-fill"></i>
                             </div>
                             <div class="tsp-metric-content">
-                                <div class="tsp-metric-title">सूचनाएं</div>
+                                <div class="tsp-metric-title">सक्रिय सूचनाएं</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayTotalAnnouncements) ?></div>
-                                <span class="tsp-trend-badge tsp-trend-up"><i class="bi bi-graph-up-arrow"></i> 2 नए आज</span>
                                 <div class="tsp-metric-desc mt-2">कुल सक्रिय सूचनाएं</div>
                                 <a href="/admin/announcements" class="tsp-metric-action tsp-color-purple">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <?php if (Auth::isSuperAdmin()): ?>
+                <!-- Super Admin Quick Console -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                    <div class="card-body p-4 text-white">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="p-2 bg-success rounded-3 text-white">
+                                <i class="bi bi-shield-lock-fill fs-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="h5 fw-bold mb-0 font-heading text-white">सुपर एडमिन कंट्रोल कंसोल</h3>
+                                <p class="text-light opacity-75 mb-0 small" style="font-size: 1.25rem;">सिस्टम-वाइड प्रबंधन सेटिंग्स, शैक्षणिक सत्र नियंत्रण और प्रतिनिधियों का प्रबंधन करें।</p>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <a href="/admin/reps" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
+                                    <i class="bi bi-people-fill text-success"></i> प्रतिनिधि प्रबंधन
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="/admin/settings" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
+                                    <i class="bi bi-gear-fill text-warning"></i> सिस्टम सेटिंग्स एवं सत्र
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="/admin/announcements/create" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
+                                    <i class="bi bi-megaphone-fill text-info"></i> नई सूचना जारी करें
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- Middle Section: Recent Applications & Quick Actions -->
                 <div class="row g-4 mb-4">
@@ -279,24 +287,30 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                                             </tr>
                                         </thead>
                                         <tbody class="border-top-0">
-                                            <?php foreach ($displayApps as $app): ?>
+                                            <?php if (!empty($displayApps)): ?>
+                                                <?php foreach ($displayApps as $app): ?>
+                                                    <tr>
+                                                        <td class="fw-bold text-dark py-3"><?= htmlspecialchars($app['num']) ?></td>
+                                                        <td class="fw-semibold text-secondary py-3"><?= htmlspecialchars($app['name']) ?></td>
+                                                        <td class="text-secondary py-3"><?= htmlspecialchars($app['type']) ?></td>
+                                                        <td class="py-3">
+                                                            <span class="badge rounded-pill px-3 py-2 fw-bold <?= $app['class'] ?>" style="font-size: 1.15rem; display: inline-block;">
+                                                                <?= htmlspecialchars($app['status']) ?>
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-muted py-3"><?= htmlspecialchars($app['date']) ?></td>
+                                                        <td class="text-center py-3">
+                                                            <a href="/admin/applications/<?= $app['id'] ?>" class="text-secondary hover-primary" aria-label="View Application Details" style="font-size: 1.4rem;">
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
                                                 <tr>
-                                                    <td class="fw-bold text-dark py-3"><?= htmlspecialchars($app['num']) ?></td>
-                                                    <td class="fw-semibold text-secondary py-3"><?= htmlspecialchars($app['name']) ?></td>
-                                                    <td class="text-secondary py-3"><?= htmlspecialchars($app['type']) ?></td>
-                                                    <td class="py-3">
-                                                        <span class="badge rounded-pill px-3 py-2 fw-bold <?= $app['class'] ?>" style="font-size: 1.15rem; display: inline-block;">
-                                                            <?= htmlspecialchars($app['status']) ?>
-                                                        </span>
-                                                    </td>
-                                                    <td class="text-muted py-3"><?= htmlspecialchars($app['date']) ?></td>
-                                                    <td class="text-center py-3">
-                                                        <a href="/admin/applications/<?= $app['id'] ?>" class="text-secondary hover-primary" aria-label="View Application Details" style="font-size: 1.4rem;">
-                                                            <i class="bi bi-eye"></i>
-                                                        </a>
-                                                    </td>
+                                                    <td colspan="6" class="text-center text-muted py-4 fw-bold">कोई हालिया आवेदन उपलब्ध नहीं है।</td>
                                                 </tr>
-                                            <?php endforeach; ?>
+                                            <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -304,7 +318,7 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                         </div>
                     </div>
 
-                    <!-- Right: Quick Actions 3x2 Grid -->
+                    <!-- Right: Quick Actions 2x2 Grid -->
                     <div class="col-lg-4">
                         <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
                             <div class="card-body p-4">
@@ -312,38 +326,26 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                                 <div class="row g-3">
                                     <div class="col-6">
                                         <a href="/admin/applications" class="tsp-quick-action-card">
-                                            <i class="bi bi-file-earmark-plus"></i>
-                                            <span>नया आवेदन देखें</span>
+                                            <i class="bi bi-file-earmark-text"></i>
+                                            <span>आवेदन प्रबंधन</span>
                                         </a>
                                     </div>
                                     <div class="col-6">
                                         <a href="/admin/students" class="tsp-quick-action-card">
-                                            <i class="bi bi-person-plus"></i>
-                                            <span>उपयोगकर्ता जोड़ें</span>
+                                            <i class="bi bi-people"></i>
+                                            <span>उपयोगकर्ता सूची</span>
                                         </a>
                                     </div>
                                     <div class="col-6">
                                         <a href="/admin/announcements" class="tsp-quick-action-card">
                                             <i class="bi bi-megaphone"></i>
-                                            <span>सूचना जारी करें</span>
+                                            <span>सूचनाएं सूची</span>
                                         </a>
                                     </div>
                                     <div class="col-6">
-                                        <a href="#" class="tsp-quick-action-card">
-                                            <i class="bi bi-calendar-event"></i>
-                                            <span>कार्यक्रम बनाएं</span>
-                                        </a>
-                                    </div>
-                                    <div class="col-6">
-                                        <a href="#" class="tsp-quick-action-card">
-                                            <i class="bi bi-bar-chart-line"></i>
-                                            <span>रिपोर्ट जनरेट करें</span>
-                                        </a>
-                                    </div>
-                                    <div class="col-6">
-                                        <a href="#" class="tsp-quick-action-card">
-                                            <i class="bi bi-envelope"></i>
-                                            <span>मेल / संदेश भेजें</span>
+                                        <a href="/admin/announcements/create" class="tsp-quick-action-card">
+                                            <i class="bi bi-plus-circle"></i>
+                                            <span>नई सूचना लिखें</span>
                                         </a>
                                     </div>
                                 </div>
@@ -418,36 +420,6 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                                             <div class="tsp-cat-progress-bar" style="width: <?= $wPratibha ?>%;"></div>
                                         </div>
                                     </div>
-                                    <!-- Progress Item 3 -->
-                                    <div class="tsp-cat-progress-item">
-                                        <div class="tsp-cat-progress-header">
-                                            <span>वरिष्ठ नागरिक सम्मान</span>
-                                            <span class="text-secondary font-heading"><?= number_format($displaySeniorCount) ?></span>
-                                        </div>
-                                        <div class="tsp-cat-progress-bar-wrapper">
-                                            <div class="tsp-cat-progress-bar" style="width: <?= $wSenior ?>%;"></div>
-                                        </div>
-                                    </div>
-                                    <!-- Progress Item 4 -->
-                                    <div class="tsp-cat-progress-item">
-                                        <div class="tsp-cat-progress-header">
-                                            <span>सेवानिवृत्त सदस्य सम्मान</span>
-                                            <span class="text-secondary font-heading"><?= number_format($displayRetiredCount) ?></span>
-                                        </div>
-                                        <div class="tsp-cat-progress-bar-wrapper">
-                                            <div class="tsp-cat-progress-bar" style="width: <?= $wRetired ?>%;"></div>
-                                        </div>
-                                    </div>
-                                    <!-- Progress Item 5 -->
-                                    <div class="tsp-cat-progress-item">
-                                        <div class="tsp-cat-progress-header">
-                                            <span>नवनियुक्त सम्मान</span>
-                                            <span class="text-secondary font-heading"><?= number_format($displayNewlyCount) ?></span>
-                                        </div>
-                                        <div class="tsp-cat-progress-bar-wrapper">
-                                            <div class="tsp-cat-progress-bar" style="width: <?= $wNewly ?>%;"></div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -459,47 +431,42 @@ $wNewly = $maxCategoryVal > 0 ? ($displayNewlyCount / $maxCategoryVal) * 100 : 0
                             <div class="card-body p-4 d-flex flex-column">
                                 <h3 class="h5 fw-bold text-dark mb-4 font-heading">महत्वपूर्ण गतिविधियां</h3>
                                 <div class="tsp-activity-list-container flex-grow-1">
-                                    <div class="tsp-activity-list">
-                                        <?php foreach ($activities as $act): 
-                                            $icon = 'bi-clock-fill';
-                                            $bgClass = 'tsp-bg-blue';
-                                            $txtClass = 'tsp-color-blue';
-                                            
-                                            $type = $act['type'] ?? '';
-                                            if ($type === 'application') {
-                                                $icon = 'bi-file-earmark-text-fill';
-                                                $bgClass = 'tsp-bg-red';
-                                                $txtClass = 'tsp-color-red';
-                                            } elseif ($type === 'student') {
-                                                $icon = 'bi-person-fill';
+                                    <?php if (!empty($activities)): ?>
+                                        <div class="tsp-activity-list">
+                                            <?php foreach ($activities as $act): 
+                                                $icon = 'bi-clock-fill';
                                                 $bgClass = 'tsp-bg-blue';
                                                 $txtClass = 'tsp-color-blue';
-                                            } elseif ($type === 'announcement') {
-                                                $icon = 'bi-megaphone-fill';
-                                                $bgClass = 'tsp-bg-purple';
-                                                $txtClass = 'tsp-color-purple';
-                                            } elseif ($type === 'event') {
-                                                $icon = 'bi-calendar-event-fill';
-                                                $bgClass = 'tsp-bg-gold';
-                                                $txtClass = 'tsp-color-gold';
-                                            }
-                                        ?>
-                                            <div class="tsp-activity-item">
-                                                <div class="tsp-activity-icon <?= $bgClass ?> <?= $txtClass ?>">
-                                                    <i class="bi <?= $icon ?>"></i>
+                                                
+                                                $type = $act['type'] ?? '';
+                                                if ($type === 'application') {
+                                                    $icon = 'bi-file-earmark-text-fill';
+                                                    $bgClass = 'tsp-bg-red';
+                                                    $txtClass = 'tsp-color-red';
+                                                } elseif ($type === 'student') {
+                                                    $icon = 'bi-person-fill';
+                                                    $bgClass = 'tsp-bg-blue';
+                                                    $txtClass = 'tsp-color-blue';
+                                                } elseif ($type === 'announcement') {
+                                                    $icon = 'bi-megaphone-fill';
+                                                    $bgClass = 'tsp-bg-purple';
+                                                    $txtClass = 'tsp-color-purple';
+                                                }
+                                            ?>
+                                                <div class="tsp-activity-item">
+                                                    <div class="tsp-activity-icon <?= $bgClass ?> <?= $txtClass ?>">
+                                                        <i class="bi <?= $icon ?>"></i>
+                                                    </div>
+                                                    <div class="tsp-activity-content">
+                                                        <p class="tsp-activity-text text-secondary mb-1" style="font-size: 1.2rem;"><?= htmlspecialchars($act['title']) ?></p>
+                                                        <span class="tsp-activity-time" style="font-size: 1.15rem; color: #94a3b8;"><?= htmlspecialchars($act['time']) ?></span>
+                                                    </div>
                                                 </div>
-                                                <div class="tsp-activity-content">
-                                                    <p class="tsp-activity-text text-secondary"><?= htmlspecialchars($act['title']) ?></p>
-                                                    <span class="tsp-activity-time"><?= htmlspecialchars($act['time']) ?></span>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                                <div class="mt-4 pt-2 text-center">
-                                    <a href="#" class="btn btn-outline-danger btn-sm px-4 rounded-pill fw-semibold w-100 py-2" style="font-size: 1.25rem; border-color: #fee2e2; color: #8b0000;">
-                                        सभी गतिविधियां देखें <i class="bi bi-arrow-right ms-1"></i>
-                                    </a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-center text-muted py-5 my-auto fw-bold" style="font-size: 1.25rem;">कोई हालिया गतिविधि नहीं।</div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

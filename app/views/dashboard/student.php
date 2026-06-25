@@ -13,29 +13,10 @@ require VIEW_PATH . '/layouts/flash-message.php';
 
 <!-- Dashboard Main Container -->
 <div class="tsp-dash-container">
-    <!-- Sidebar -->
-    <aside class="tsp-dash-sidebar" id="sidebar">
-        <a href="/dashboard" class="tsp-dash-sidebar-link active">
-            <i class="bi bi-house-door-fill"></i>
-            <span>डैशबोर्ड</span>
-        </a>
-        <a href="/applications/create" class="tsp-dash-sidebar-link">
-            <i class="bi bi-pencil-square"></i>
-            <span>आवेदन फॉर्म भरें</span>
-        </a>
-        <a href="/applications" class="tsp-dash-sidebar-link">
-            <i class="bi bi-file-earmark-text"></i>
-            <span>मेरे आवेदन</span>
-        </a>
-        <a href="/applications" class="tsp-dash-sidebar-link">
-            <i class="bi bi-clock-history"></i>
-            <span>आवेदन की स्थिति</span>
-        </a>
-        <a href="#help" class="tsp-dash-sidebar-link" id="helpSidebarLink">
-            <i class="bi bi-question-circle"></i>
-            <span>सहायता</span>
-        </a>
-    </aside>
+    <?php
+    $activeLink = 'dashboard';
+    require VIEW_PATH . '/layouts/student-sidebar.php';
+    ?>
 
     <!-- Main Content Area -->
     <main class="tsp-dash-content-area">

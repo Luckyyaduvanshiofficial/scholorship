@@ -162,6 +162,35 @@ class ProfileController
             Response::redirect('/profile/edit');
         }
 
+        // Check if cropped base64 image is submitted
+        $croppedData = Input::post('cropped_image', '');
+        if (!empty($croppedData) && str_starts_with($croppedData, 'data:image/')) {
+            $parts = explode(',', $croppedData);
+            if (count($parts) === 2) {
+                $base64 = $parts[1];
+                $data = base64_decode($base64);
+                if ($data !== false) {
+                    $storedName = 'profile_' . Auth::id() . '_' . time() . '.jpg';
+                    $uploadDir = PUBLIC_PATH . '/uploads/profiles';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+                    $filePath = $uploadDir . '/' . $storedName;
+                    file_put_contents($filePath, $data);
+
+                    $studentModel = new Student();
+                    $studentModel->update((int) Auth::id(), [
+                        'profile_photo' => $storedName,
+                    ]);
+                    \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
+
+                    Flash::set('success', 'Profile photo updated successfully.');
+                    Response::redirect('/profile');
+                    return;
+                }
+            }
+        }
+
         $uploader = new FileUploader();
         $file = Input::file('profile_photo');
 
@@ -188,8 +217,9 @@ class ProfileController
         $studentModel->update((int) Auth::id(), [
             'profile_photo' => $storedName,
         ]);
+        \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
 
         Flash::set('success', 'Profile photo updated successfully.');
-        Response::redirect('/profile');
+        Response::redirect($_SERVER['HTTP_REFERER'] ?? '/profile');
     }
 }

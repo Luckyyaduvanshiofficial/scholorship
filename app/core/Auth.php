@@ -198,6 +198,14 @@ class Auth
     }
 
     /**
+     * Check if current user is a super admin.
+     */
+    public static function isSuperAdmin(): bool
+    {
+        return self::userType() === 'super_admin';
+    }
+
+    /**
      * Check if current user is a representative.
      */
     public static function isRepresentative(): bool
@@ -235,5 +243,28 @@ class Auth
         } catch (\Throwable $e) {
             Logger::error('Error updating username: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get profile photo path if logged in as student.
+     */
+    public static function profilePhoto(): ?string
+    {
+        if (!self::isStudent()) {
+            return null;
+        }
+
+        if (!Session::has('profile_photo')) {
+            $studentModel = new Student();
+            $student = $studentModel->find((int) self::id());
+            if ($student && !empty($student['profile_photo'])) {
+                Session::set('profile_photo', '/uploads/profiles/' . $student['profile_photo']);
+            } else {
+                Session::set('profile_photo', '');
+            }
+        }
+
+        $photo = Session::get('profile_photo');
+        return !empty($photo) ? $photo : null;
     }
 }

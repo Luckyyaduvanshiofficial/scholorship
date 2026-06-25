@@ -72,6 +72,11 @@ a {
   --text-muted: #64748b;
   --w: #ffffff;
 
+  --bd: #cbd5e1;
+  --tx: #0f172a;
+  --mu: #64748b;
+  --g: #156b3c;
+
   --ra: 24px;
   --rs: 12px;
   --r-pill: 999px;
@@ -3097,5 +3102,251 @@ a {
   /* Compact Metrics Row on smaller viewports */
   .tsp-metric-card {
     padding: 1.8rem 1.4rem;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────
+   CUSTOM ADDITIONS FOR BRANDING, BORDERS, PREVIEWS & HIGH-FIDELITY PRINT
+   ──────────────────────────────────────────────────────────────────── */
+
+/* Form Input default borders visible without hover */
+.form-control,
+.form-select,
+input.form-control,
+select.form-select,
+textarea.form-control {
+  border: 1.5px solid #cbd5e1 !important;
+  border-style: solid !important;
+  border-width: 1.5px !important;
+  border-color: #cbd5e1 !important;
+  background-color: #ffffff !important;
+}
+.form-control:focus,
+.form-select:focus,
+input.form-control:focus,
+select.form-select:focus,
+textarea.form-control:focus {
+  border-color: var(--g) !important;
+  box-shadow: 0 0 0 0.25rem rgba(21, 107, 60, 0.15) !important;
+}
+
+/* Dashboard Profile Photo Upload styles */
+.tsp-dash-profile-upload-card {
+  background: #ffffff;
+  border-radius: var(--ra);
+  border: 1px solid #cbd5e1;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--sh);
+}
+
+/* Thumbnail preview for wizard step 4 and show page checklist */
+.tsp-thumbnail-preview {
+  max-height: 140px;
+  max-width: 100%;
+  object-fit: contain;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 4px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.d-none-screen {
+  display: none !important;
+}
+
+/* Print CSS Media query */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif !important;
+  }
+  
+  /* Hide all screen layouts, headers, sidebars, footers, alerts, buttons */
+  header,
+  nav,
+  aside,
+  footer,
+  .btn,
+  .alert,
+  .flash-msg-container,
+  .tsp-navbar-wrapper,
+  .tsp-top-header,
+  .tsp-pill-nav,
+  .tsp-marquee-cream,
+  .tsp-site-footer-v2,
+  .tsp-dash-header,
+  .tsp-dash-sidebar,
+  .tsp-dash-content-area > :not(#printableForm),
+  .d-flex.justify-content-between.align-items-center {
+    display: none !important;
+  }
+  
+  /* Reset container widths for page margins */
+  .tsp-dash-container,
+  .tsp-dash-content-area,
+  .card,
+  .card-body {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .d-none-screen {
+    display: block !important;
+  }
+  
+  #printableForm {
+    display: block !important;
+    width: 100% !important;
+    padding: 0.5cm !important;
+    box-sizing: border-box;
+    color: #000 !important;
+  }
+  
+  .print-header {
+    position: relative;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #000;
+  }
+  
+  .print-logo-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  
+  .print-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid #000;
+    padding: 2px;
+  }
+  
+  .print-org-title {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #000;
+    text-align: center;
+    margin: 0;
+    text-decoration: underline;
+  }
+  
+  .print-reg-no {
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 2px;
+  }
+  
+  .print-office-address,
+  .print-contact {
+    font-size: 1.15rem;
+    text-align: center;
+    margin-top: 1px;
+  }
+  
+  .print-form-title-underlined {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 1.6rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
+    margin-top: 12px;
+  }
+  
+  .print-photo-box-top-right {
+    position: absolute;
+    right: 0;
+    top: 15px;
+    width: 115px;
+    height: 145px;
+    border: 1px solid #000;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  .print-photo-box-top-right img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .print-photo-placeholder {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: bold;
+  }
+  
+  .print-form-fields {
+    margin-top: 20px;
+  }
+  
+  .print-field-row {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 1.1rem;
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+  
+  .print-field-label {
+    font-weight: bold;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+    color: #000 !important;
+  }
+  
+  .print-field-value {
+    flex-grow: 1;
+    border-bottom: 1px dotted #000 !important;
+    padding-left: 0.5rem;
+    min-height: 2.2rem;
+    font-weight: bold;
+    color: #000 !important;
+  }
+  
+  .print-note {
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: 1px solid #000;
+    padding: 6px;
+    display: inline-block;
+  }
+  
+  .print-signature-box {
+    width: 160px;
+    height: 50px;
+    border: 1px dotted #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  .print-signature-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .print-recommendation-box {
+    font-size: 1.25rem;
+    line-height: 1.6;
+  }
+
+  /* Force page breaks if necessary */
+  .page-break {
+    page-break-before: always;
   }
 }

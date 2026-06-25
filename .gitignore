@@ -10,3 +10,5 @@
 !/storage/temp/.gitkeep
 /uploads/*
 !/uploads/.gitkeep
+/public/uploads/*
+!/public/uploads/.gitkeep

@@ -64,7 +64,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     </div>
                 </div>
                 <div class="col-md-5 col-lg-4 text-center">
-                    <img src="/assets/images/hero_student.jpg" alt="Scholarship Illustration" class="tsp-hero-cream-illustration img-fluid">
+                    <img src="/assets/images/hero_student.png" alt="Scholarship Illustration" class="tsp-hero-cream-illustration img-fluid">
                 </div>
             </div>
         </div>
@@ -338,6 +338,64 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         </div>
                     <?php endif; ?>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── SECTION 5.5: DYNAMIC VERTICAL ANNOUNCEMENT MARQUEE ── -->
+<section class="py-5 bg-light border-top border-bottom" style="border-color: #e2e8f0 !important;">
+    <div class="container">
+        <div class="card border-0 shadow-sm" style="border-radius: 16px; background-color: #8B0000; overflow: hidden;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: rgba(255, 255, 255, 0.15);">
+                    <i class="bi bi-megaphone-fill fs-4 text-warning"></i>
+                    <h3 class="h5 fw-bold text-white m-0 font-heading" style="letter-spacing: 0.5px;">Announcements / घोषणाएं</h3>
+                </div>
+                
+                <?php
+                // Use database announcements, fallback if empty
+                $marqueeList = $announcements;
+                if (empty($marqueeList)) {
+                    $marqueeList = [
+                        [
+                            'title' => 'प्रतिभा सम्मान 2026 आवेदन खुला है। / Pratibha Samman 2026 Application Open.',
+                            'content' => 'योग्य छात्र अंतिम तिथि से पूर्व आवेदन करें। मार्कशीट एवं बैंक पासबुक अपलोड करना अनिवार्य है।',
+                            'created_at' => date('Y-m-d H:i:s')
+                        ],
+                        [
+                            'title' => 'दस्तावेज़ अपलोड निर्देश / Document Upload Guidelines',
+                            'content' => 'सभी फाइलें स्पष्ट एवं पठनीय होनी चाहिए। पीडीएफ या जेपीजी प्रारूप ही स्वीकार्य हैं।',
+                            'created_at' => date('Y-m-d H:i:s')
+                        ]
+                    ];
+                }
+                ?>
+                
+                <marquee direction="up" scrollamount="2" onmouseover="this.stop();" onmouseout="this.start();" style="height: 200px; cursor: pointer;">
+                    <div class="d-flex flex-column gap-3">
+                        <?php foreach ($marqueeList as $notice): 
+                            $isNew = (time() - strtotime($notice['created_at'] ?? 'now')) < (2 * 24 * 3600); // 48 hours
+                        ?>
+                            <div class="d-flex gap-3 align-items-start py-2">
+                                <div class="rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; background-color: rgba(255, 255, 255, 0.15);">
+                                    <i class="bi bi-chevron-right text-white fw-bold" style="font-size: 0.8rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h4 class="fw-bold mb-1 text-white" style="font-size: 1.25rem;">
+                                        <?= htmlspecialchars($notice['title'] ?? '') ?>
+                                        <?php if ($isNew): ?>
+                                            <span class="badge rounded-pill bg-warning text-dark py-1 px-2 ms-2 fw-bold" style="font-size: 0.8rem; vertical-align: middle;">NEW</span>
+                                        <?php endif; ?>
+                                    </h4>
+                                    <?php if (!empty($notice['content'])): ?>
+                                        <p class="small mb-0 mt-1" style="font-size: 1.15rem; color: #f8fafc; opacity: 0.85; line-height: 1.5;"><?= htmlspecialchars(strip_tags((string)$notice['content'])) ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </marquee>
             </div>
         </div>
     </div>
