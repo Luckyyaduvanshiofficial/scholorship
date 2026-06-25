@@ -87,7 +87,7 @@ class FileUploader
     {
         try {
             if (!is_dir($directory)) {
-                if (!@mkdir($directory, 0755, true) && !is_dir($directory)) {
+                if (!@mkdir($directory, 0777, true) && !is_dir($directory)) {
                     $this->errors[] = 'Could not create upload directory.';
                     return false;
                 }

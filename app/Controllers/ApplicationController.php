@@ -1182,87 +1182,93 @@ class ApplicationController
     {
         header('Content-Type: application/json');
 
-        if (!Auth::check()) {
-            echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
-            exit;
-        }
-
-        $appModel = new Application();
-        $app = $appModel->find((int)$id);
-
-        if (!$app || (!Auth::isAdmin() && !Auth::isRepresentative() && (int)$app['student_id'] !== (int)Auth::id())) {
-            echo json_encode(['success' => false, 'error' => 'Application not found or unauthorized']);
-            exit;
-        }
-
-        $documentType = Input::post('document_type', '');
-        if (!in_array($documentType, ['Photo', 'Marksheet', 'Passbook', 'Certificate', 'Signature'], true)) {
-            echo json_encode(['success' => false, 'error' => 'Invalid document type: ' . $documentType]);
-            exit;
-        }
-
-        $file = $_FILES['file'] ?? null;
-        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-            echo json_encode(['success' => false, 'error' => 'No file uploaded or upload error.']);
-            exit;
-        }
-
-        $uploader = new FileUploader();
-        if (!$uploader->validate($file)) {
-            echo json_encode(['success' => false, 'error' => $uploader->firstError()]);
-            exit;
-        }
-
-        $db = \App\Core\Database::getInstance();
-        $documentTypeId = $appModel->documentTypeId($documentType);
-
-        if ($documentTypeId === null) {
-            echo json_encode(['success' => false, 'error' => 'Invalid document type.']);
-            exit;
-        }
-
-        $directory = UPLOAD_PATH . '/applications/' . $id;
-
-        // Find and delete existing physical files for this document type
-        $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
-        $stmt->execute([$id, $documentTypeId]);
-        $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($existing as $doc) {
-            $oldPath = $directory . '/' . $doc['stored_name'];
-            if (file_exists($oldPath)) {
-                @unlink($oldPath);
+        try {
+            if (!Auth::check()) {
+                echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+                exit;
             }
-        }
 
-        // Delete records from database
-        $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
-        $stmt->execute([$id, $documentTypeId]);
+            $appModel = new Application();
+            $app = $appModel->find((int)$id);
 
-        // Upload and insert the new document
-        $storedName = $uploader->upload($file, $directory);
-        if ($storedName === false) {
-            echo json_encode(['success' => false, 'error' => $uploader->firstError()]);
+            if (!$app || (!Auth::isAdmin() && !Auth::isRepresentative() && (int)$app['student_id'] !== (int)Auth::id())) {
+                echo json_encode(['success' => false, 'error' => 'Application not found or unauthorized']);
+                exit;
+            }
+
+            $documentType = Input::post('document_type', '');
+            if (!in_array($documentType, ['Photo', 'Marksheet', 'Passbook', 'Certificate', 'Signature'], true)) {
+                echo json_encode(['success' => false, 'error' => 'Invalid document type: ' . $documentType]);
+                exit;
+            }
+
+            $file = $_FILES['file'] ?? null;
+            if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+                echo json_encode(['success' => false, 'error' => 'No file uploaded or upload error.']);
+                exit;
+            }
+
+            $uploader = new FileUploader();
+            if (!$uploader->validate($file)) {
+                echo json_encode(['success' => false, 'error' => $uploader->firstError()]);
+                exit;
+            }
+
+            $db = \App\Core\Database::getInstance();
+            $documentTypeId = $appModel->documentTypeId($documentType);
+
+            if ($documentTypeId === null) {
+                echo json_encode(['success' => false, 'error' => 'Invalid document type.']);
+                exit;
+            }
+
+            $directory = UPLOAD_PATH . '/applications/' . $id;
+
+            // Find and delete existing physical files for this document type
+            $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+            $stmt->execute([$id, $documentTypeId]);
+            $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($existing as $doc) {
+                $oldPath = $directory . '/' . $doc['stored_name'];
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+
+            // Delete records from database
+            $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+            $stmt->execute([$id, $documentTypeId]);
+
+            // Upload and insert the new document
+            $storedName = $uploader->upload($file, $directory);
+            if ($storedName === false) {
+                echo json_encode(['success' => false, 'error' => $uploader->firstError()]);
+                exit;
+            }
+
+            $appModel->addDocument((int)$id, $documentType, $file, $storedName);
+
+            // Update student profile photo if updated photo
+            if ($documentType === 'Photo') {
+                $profilePhotoPath = '/uploads/applications/' . $id . '/' . $storedName;
+                $studentModel = new \App\Models\Student();
+                $studentModel->update((int)$app['student_id'], ['profile_photo' => $profilePhotoPath]);
+                \App\Core\Session::set('profile_photo', $profilePhotoPath);
+            }
+
+            echo json_encode([
+                'success' => true,
+                'stored_name' => $storedName,
+                'original_name' => $file['name'],
+                'url' => '/uploads/applications/' . $id . '/' . $storedName
+            ]);
+            exit;
+        } catch (\Throwable $e) {
+            Logger::error('AJAX Document upload error: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'Server Error: ' . $e->getMessage()]);
             exit;
         }
-
-        $appModel->addDocument((int)$id, $documentType, $file, $storedName);
-
-        // Update student profile photo if updated photo
-        if ($documentType === 'Photo') {
-            $profilePhotoPath = '/uploads/applications/' . $id . '/' . $storedName;
-            $studentModel = new \App\Models\Student();
-            $studentModel->update((int)$app['student_id'], ['profile_photo' => $profilePhotoPath]);
-            \App\Core\Session::set('profile_photo', $profilePhotoPath);
-        }
-
-        echo json_encode([
-            'success' => true,
-            'stored_name' => $storedName,
-            'original_name' => $file['name'],
-            'url' => '/uploads/applications/' . $id . '/' . $storedName
-        ]);
-        exit;
     }
 
     /**
@@ -1272,59 +1278,65 @@ class ApplicationController
     {
         header('Content-Type: application/json');
 
-        if (!Auth::check()) {
-            echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
-            exit;
-        }
-
-        $appModel = new Application();
-        $app = $appModel->find((int)$id);
-
-        if (!$app || (!Auth::isAdmin() && !Auth::isRepresentative() && (int)$app['student_id'] !== (int)Auth::id())) {
-            echo json_encode(['success' => false, 'error' => 'Application not found or unauthorized']);
-            exit;
-        }
-
-        $documentType = Input::post('document_type', '');
-        if (!in_array($documentType, ['Photo', 'Marksheet', 'Passbook', 'Certificate', 'Signature'], true)) {
-            echo json_encode(['success' => false, 'error' => 'Invalid document type']);
-            exit;
-        }
-
-        $db = \App\Core\Database::getInstance();
-        $documentTypeId = $appModel->documentTypeId($documentType);
-
-        if ($documentTypeId === null) {
-            echo json_encode(['success' => false, 'error' => 'Invalid document type.']);
-            exit;
-        }
-
-        $directory = UPLOAD_PATH . '/applications/' . $id;
-
-        // Find and delete physical files
-        $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
-        $stmt->execute([$id, $documentTypeId]);
-        $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($existing as $doc) {
-            $oldPath = $directory . '/' . $doc['stored_name'];
-            if (file_exists($oldPath)) {
-                @unlink($oldPath);
+        try {
+            if (!Auth::check()) {
+                echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+                exit;
             }
+
+            $appModel = new Application();
+            $app = $appModel->find((int)$id);
+
+            if (!$app || (!Auth::isAdmin() && !Auth::isRepresentative() && (int)$app['student_id'] !== (int)Auth::id())) {
+                echo json_encode(['success' => false, 'error' => 'Application not found or unauthorized']);
+                exit;
+            }
+
+            $documentType = Input::post('document_type', '');
+            if (!in_array($documentType, ['Photo', 'Marksheet', 'Passbook', 'Certificate', 'Signature'], true)) {
+                echo json_encode(['success' => false, 'error' => 'Invalid document type']);
+                exit;
+            }
+
+            $db = \App\Core\Database::getInstance();
+            $documentTypeId = $appModel->documentTypeId($documentType);
+
+            if ($documentTypeId === null) {
+                echo json_encode(['success' => false, 'error' => 'Invalid document type.']);
+                exit;
+            }
+
+            $directory = UPLOAD_PATH . '/applications/' . $id;
+
+            // Find and delete physical files
+            $stmt = $db->prepare("SELECT stored_name FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+            $stmt->execute([$id, $documentTypeId]);
+            $existing = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($existing as $doc) {
+                $oldPath = $directory . '/' . $doc['stored_name'];
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+
+            // Delete records from database
+            $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
+            $stmt->execute([$id, $documentTypeId]);
+
+            // Reset profile photo if student photo deleted
+            if ($documentType === 'Photo') {
+                $studentModel = new \App\Models\Student();
+                $studentModel->update((int)$app['student_id'], ['profile_photo' => null]);
+                \App\Core\Session::remove('profile_photo');
+            }
+
+            echo json_encode(['success' => true]);
+            exit;
+        } catch (\Throwable $e) {
+            Logger::error('AJAX Document delete error: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'Server Error: ' . $e->getMessage()]);
+            exit;
         }
-
-        // Delete records from database
-        $stmt = $db->prepare("DELETE FROM application_documents WHERE application_id = ? AND document_type_id = ?");
-        $stmt->execute([$id, $documentTypeId]);
-
-        // Reset profile photo if student photo deleted
-        if ($documentType === 'Photo') {
-            $studentModel = new \App\Models\Student();
-            $studentModel->update((int)$app['student_id'], ['profile_photo' => null]);
-            \App\Core\Session::remove('profile_photo');
-        }
-
-        echo json_encode(['success' => true]);
-        exit;
     }
 }

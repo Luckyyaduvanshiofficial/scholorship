@@ -183,7 +183,7 @@ class ProfileController
                         $storedName = 'profile_' . Auth::id() . '_' . time() . '.' . $ext;
                         $uploadDir = PUBLIC_PATH . '/uploads/profiles';
                         if (!is_dir($uploadDir)) {
-                            if (!@mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+                            if (!@mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
                                 Flash::set('error', 'Could not create upload directory. Please contact support.');
                                 Response::redirect('/profile/edit');
                             }

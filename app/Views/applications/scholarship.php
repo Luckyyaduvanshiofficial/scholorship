@@ -753,7 +753,24 @@ async function uploadDocAjax(docType, inputId) {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        const result = await response.json();
+        
+        let result;
+        const responseText = await response.text();
+        try {
+            result = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Non-JSON response received:', responseText);
+            let errMsg = 'Invalid response format from server.';
+            if (responseText.includes('<title>')) {
+                const match = responseText.match(/<title>(.*?)<\/title>/i);
+                if (match && match[1]) {
+                    errMsg = match[1];
+                }
+            } else if (responseText.trim().length > 0 && responseText.trim().length < 150) {
+                errMsg = responseText.trim();
+            }
+            throw new Error(`${errMsg} (HTTP ${response.status})`);
+        }
         
         if (result.success) {
             uploadedDocs[docType] = {
@@ -789,7 +806,7 @@ async function uploadDocAjax(docType, inputId) {
         }
     } catch (error) {
         console.error('Error uploading document:', error);
-        alert('नेटवर्क त्रुटि: फ़ाइल अपलोड करने में असमर्थ।');
+        alert('नेटवर्क त्रुटि: फ़ाइल अपलोड करने में असमर्थ।\nविवरण (Detail): ' + error.message);
     } finally {
         uploadBtn.disabled = false;
         uploadBtn.innerHTML = `<i class="bi bi-cloud-arrow-up-fill"></i> अपलोड / Upload`;
@@ -823,7 +840,24 @@ async function deleteDocAjax(docType, inputId) {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        const result = await response.json();
+        
+        let result;
+        const responseText = await response.text();
+        try {
+            result = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Non-JSON response received:', responseText);
+            let errMsg = 'Invalid response format from server.';
+            if (responseText.includes('<title>')) {
+                const match = responseText.match(/<title>(.*?)<\/title>/i);
+                if (match && match[1]) {
+                    errMsg = match[1];
+                }
+            } else if (responseText.trim().length > 0 && responseText.trim().length < 150) {
+                errMsg = responseText.trim();
+            }
+            throw new Error(`${errMsg} (HTTP ${response.status})`);
+        }
         
         if (result.success) {
             delete uploadedDocs[docType];
@@ -842,7 +876,7 @@ async function deleteDocAjax(docType, inputId) {
         }
     } catch (error) {
         console.error('Error deleting document:', error);
-        alert('नेटवर्क त्रुटि: दस्तावेज़ हटाने में असमर्थ।');
+        alert('नेटवर्क त्रुटि: दस्तावेज़ हटाने में असमर्थ।\nविवरण (Detail): ' + error.message);
     }
 }
 

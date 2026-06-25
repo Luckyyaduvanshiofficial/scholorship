@@ -28,7 +28,7 @@ class Logger
         self::$minLevel = APP_DEBUG ? 0 : 1;
 
         if (!is_dir(self::$logDir)) {
-            @mkdir(self::$logDir, 0755, true);
+            @mkdir(self::$logDir, 0777, true);
         }
 
         self::$initialized = true;
