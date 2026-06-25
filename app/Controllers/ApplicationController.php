@@ -16,6 +16,7 @@ use App\Core\Validator;
 use App\Models\AcademicSession;
 use App\Models\Application;
 use App\Models\ApplicationType;
+use PDO;
 
 class ApplicationController
 {
