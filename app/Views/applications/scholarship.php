@@ -460,7 +460,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-semibold d-none" id="btnPrev" onclick="moveStep(-1);">
                                 <i class="bi bi-chevron-left"></i> पिछला चरण / Previous
                             </button>
-                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="location.href='/applications/create';">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('scholarship_form_draft_new'); localStorage.removeItem('scholarship_form_draft_<?= $application['id'] ?? '' ?>'); location.href='/applications/create';">
                                 रद्द करें / Cancel
                             </button>
                             <button type="button" class="btn tsp-dash-welcome-btn shadow-sm rounded-pill px-4 py-2 fw-semibold ms-auto" id="btnNext" onclick="moveStep(1);">
@@ -722,6 +722,88 @@ function compileFormPreview() {
         <?php endif; ?>
     }
 }
+
+// ─── Unsaved Progress Auto-Save and Navigation Warn ───
+(function () {
+    const isEditMode = <?= $isEdit ? 'true' : 'false' ?>;
+    const FORM_DRAFT_KEY = 'scholarship_form_draft_' + (isEditMode ? '<?= $application['id'] ?? '' ?>' : 'new');
+    const wizardForm = document.getElementById('scholarshipWizardForm');
+    if (!wizardForm) return;
+
+    // Save form data to localStorage
+    function saveFormDraft() {
+        const formData = {};
+        wizardForm.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([name="csrf_token"]), select, textarea').forEach(input => {
+            if (input.name) {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    if (input.checked) {
+                        formData[input.name] = input.value;
+                    }
+                } else {
+                    formData[input.name] = input.value;
+                }
+            }
+        });
+        localStorage.setItem(FORM_DRAFT_KEY, JSON.stringify(formData));
+    }
+
+    // Restore form data from localStorage
+    function restoreFormDraft() {
+        const savedData = localStorage.getItem(FORM_DRAFT_KEY);
+        if (savedData) {
+            try {
+                const formData = JSON.parse(savedData);
+                Object.keys(formData).forEach(name => {
+                    const value = formData[name];
+                    const inputs = wizardForm.querySelectorAll(`[name="${name}"]`);
+                    inputs.forEach(input => {
+                        if (input.type === 'checkbox' || input.type === 'radio') {
+                            if (input.value === value) {
+                                input.checked = true;
+                            }
+                        } else {
+                            input.value = value;
+                            // Trigger event to compile preview properly if values are restored
+                            input.dispatchEvent(new Event('input'));
+                        }
+                    });
+                });
+            } catch (e) {
+                console.error('Error restoring form draft:', e);
+            }
+        }
+    }
+
+    // Setup listeners on inputs to auto-save as user types/modifies
+    wizardForm.querySelectorAll('input:not([type="file"]), select, textarea').forEach(input => {
+        input.addEventListener('input', saveFormDraft);
+        input.addEventListener('change', saveFormDraft);
+    });
+
+    // Clear localStorage on successful form submit
+    wizardForm.addEventListener('submit', () => {
+        localStorage.removeItem(FORM_DRAFT_KEY);
+        window.removeEventListener('beforeunload', beforeUnloadHandler);
+    });
+
+    // Unsaved changes navigation warning
+    let isFormModified = false;
+    wizardForm.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('change', () => { isFormModified = true; });
+        input.addEventListener('input', () => { isFormModified = true; });
+    });
+
+    function beforeUnloadHandler(e) {
+        if (isFormModified) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    }
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+
+    // Initial restore draft on page load
+    restoreFormDraft();
+})();
 </script>
 
 <!-- Responsive Sidebar toggle control -->
