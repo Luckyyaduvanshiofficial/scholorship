@@ -67,7 +67,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <div class="input-group">
                                     <input type="file" id="profilePhotoInput" class="form-control form-control-sm"
                                            accept="image/jpeg,image/png" required>
-                                    <button type="button" class="btn btn-sm tsp-btn" id="fakeUploadBtn" style="background: var(--nav-red); color: white;">
+                                    <button type="button" class="btn btn-sm tsp-btn-primary" id="fakeUploadBtn">
                                         <i class="bi bi-cloud-arrow-up me-1"></i> Crop & Upload
                                     </button>
                                 </div>
