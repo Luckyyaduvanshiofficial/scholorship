@@ -24,15 +24,15 @@ use App\Core\Csrf;
             <i class="bi bi-house-door-fill"></i>
             <span>डैशबोर्ड</span>
         </a>
-        <a href="/applications/create" class="tsp-dash-sidebar-link <?= ($activeLink === 'apply') ? 'active' : '' ?>">
+        <a href="/dashboard/applications/create" class="tsp-dash-sidebar-link <?= ($activeLink === 'apply') ? 'active' : '' ?>">
             <i class="bi bi-pencil-square"></i>
             <span>आवेदन फॉर्म भरें</span>
         </a>
-        <a href="/applications" class="tsp-dash-sidebar-link <?= ($activeLink === 'applications') ? 'active' : '' ?>">
+        <a href="/dashboard/applications" class="tsp-dash-sidebar-link <?= ($activeLink === 'applications') ? 'active' : '' ?>">
             <i class="bi bi-file-earmark-text"></i>
             <span>मेरे आवेदन</span>
         </a>
-        <a href="/profile" class="tsp-dash-sidebar-link <?= ($activeLink === 'profile') ? 'active' : '' ?>">
+        <a href="/dashboard/profile" class="tsp-dash-sidebar-link <?= ($activeLink === 'profile') ? 'active' : '' ?>">
             <i class="bi bi-person-fill"></i>
             <span>प्रोफाइल</span>
         </a>

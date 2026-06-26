@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Controllers\Student;
 
 use App\Core\Auth;
 use App\Core\Csrf;
@@ -52,7 +52,7 @@ class ApplicationController
 
         if (!$activeSession) {
             Flash::set('error', 'No active academic session. Applications are closed.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         $appModel = new Application();
@@ -91,7 +91,7 @@ class ApplicationController
 
         if (!$activeSession) {
             Flash::set('error', 'Applications are currently closed.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         $step = (int) Input::get('step', 1);
@@ -114,7 +114,7 @@ class ApplicationController
             if ($existing) {
                 if ($existing['submitted_at'] !== null) {
                     Flash::set('error', 'You have already applied for Scholarship in this session.');
-                    Response::redirect('/applications');
+                    Response::redirect('/dashboard/applications');
                 } else {
                     $application = $appModel->find((int) $existing['id']);
                 }
@@ -160,7 +160,7 @@ class ApplicationController
 
         if (!$activeSession) {
             Flash::set('error', 'Applications are currently closed.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         $step = (int) Input::get('step', 1);
@@ -183,7 +183,7 @@ class ApplicationController
             if ($existing) {
                 if ($existing['submitted_at'] !== null) {
                     Flash::set('error', 'You have already registered for Pratibha Samman in this session.');
-                    Response::redirect('/applications');
+                    Response::redirect('/dashboard/applications');
                 } else {
                     $application = $appModel->find((int) $existing['id']);
                 }
@@ -226,7 +226,7 @@ class ApplicationController
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         $appModel = new Application();
@@ -239,12 +239,12 @@ class ApplicationController
 
         if (!$app || (int) $app['student_id'] !== (int) Auth::id()) {
             Flash::set('error', 'Application not found or unauthorized.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         $appId = (int) $app['id'];
         $type = $app['type']; // 'scholarship' or 'pratibha'
-        $redirectUrl = ($type === 'scholarship') ? '/applications/scholarship' : '/applications/pratibha';
+        $redirectUrl = ($type === 'scholarship') ? '/dashboard/applications/scholarship' : '/dashboard/applications/pratibha';
 
         $action = Input::post('action'); // 'save_draft', 'next', 'final_submit'
 
@@ -639,7 +639,7 @@ class ApplicationController
             \App\Core\Session::remove('draft_id');
 
             Flash::set('success', 'आवेदन सफलतापूर्वक सबमिट कर दिया गया है! / Application submitted successfully!');
-            Response::redirect("/applications/{$appId}/acknowledgment");
+            Response::redirect("/dashboard/applications/{$appId}/acknowledgment");
         }
     }
 
@@ -666,12 +666,12 @@ class ApplicationController
 
         if (!$app || (int) $app['student_id'] !== (int) Auth::id()) {
             Flash::set('error', 'Application not found.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         if ($app['submitted_at'] === null) {
             Flash::set('error', 'Please submit the application first.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         Response::view('applications/acknowledgment', [
@@ -691,7 +691,7 @@ class ApplicationController
 
         if (!$app || (int) $app['student_id'] !== (int) Auth::id()) {
             Flash::set('error', 'Application not found.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         Response::view('applications/show', [
@@ -702,7 +702,7 @@ class ApplicationController
 
     public function resubmit(int $id): void
     {
-        Response::redirect("/applications/{$id}/edit");
+        Response::redirect("/dashboard/applications/{$id}/edit");
     }
 
     public function edit(string $id): void
@@ -716,14 +716,14 @@ class ApplicationController
 
         if (!$app || (int) $app['student_id'] !== (int) Auth::id()) {
             Flash::set('error', 'Application not found.');
-            Response::redirect('/applications');
+            Response::redirect('/dashboard/applications');
         }
 
         $statusName = $app['status_name'] ?? '';
         
         if (in_array($statusName, ['Submitted', 'Under Review', 'Approved', 'Resubmitted'], true)) {
             Flash::set('error', 'Submitted applications cannot be edited.');
-            Response::redirect('/applications/' . $id);
+            Response::redirect('/dashboard/applications/' . $id);
         }
 
         if ($statusName === 'Rejected') {
@@ -732,7 +732,7 @@ class ApplicationController
             
             if ($count > 1 || $deadline < time()) {
                 Flash::set('error', 'Correction deadline has passed or limit exceeded.');
-                Response::redirect('/applications/' . $id);
+                Response::redirect('/dashboard/applications/' . $id);
             }
 
             // Transition to Pending Correction
@@ -741,13 +741,13 @@ class ApplicationController
         }
 
         \App\Core\Session::set('draft_id', $app['id']);
-        $url = ($app['type'] === 'scholarship') ? '/applications/scholarship' : '/applications/pratibha';
+        $url = ($app['type'] === 'scholarship') ? '/dashboard/applications/scholarship' : '/dashboard/applications/pratibha';
         Response::redirect($url . '?step=1');
     }
 
     public function update(string $id): void
     {
-        Response::redirect("/applications/{$id}/edit");
+        Response::redirect("/dashboard/applications/{$id}/edit");
     }
 
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Controllers\Auth;
 
 use App\Core\Auth;
 use App\Core\Csrf;

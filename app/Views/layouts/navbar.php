@@ -32,7 +32,7 @@ $uri = $_SERVER['REQUEST_URI'] ?? '/';
                 </a>
             </li>
             <li class="nav-pill-item">
-                <a href="/applications/create" class="<?= str_starts_with($uri, '/applications/create') ? 'active' : '' ?>">
+                <a href="/dashboard/applications/create" class="<?= str_starts_with($uri, '/dashboard/applications/create') ? 'active' : '' ?>">
                     <i class="bi bi-file-earmark-plus-fill"></i><span>आवेदन</span>
                 </a>
             </li>

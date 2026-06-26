@@ -9,82 +9,79 @@ declare(strict_types=1);
  */
 
 // ─── Public Routes ────────────────────────────────────────
-$router->get('/', 'HomeController@index');
-$router->get('/home', 'HomeController@index');
+$router->get('/', 'Public\HomeController@index');
+$router->get('/home', 'Public\HomeController@index');
 
 // ─── Auth Routes ──────────────────────────────────────────
-$router->get('/login', 'AuthController@showLogin');
-$router->post('/login', 'AuthController@login');
-$router->get('/register', 'AuthController@showRegister');
-$router->post('/register', 'AuthController@register');
-$router->get('/forgot-password', 'AuthController@showForgotPassword');
-$router->post('/forgot-password', 'AuthController@forgotPassword');
-$router->get('/reset-password', 'AuthController@showResetPassword');
-$router->post('/reset-password', 'AuthController@resetPassword');
-$router->post('/logout', 'AuthController@logout');
+$router->get('/login', 'Auth\AuthController@showLogin');
+$router->post('/login', 'Auth\AuthController@login');
+$router->get('/register', 'Auth\AuthController@showRegister');
+$router->post('/register', 'Auth\AuthController@register');
+$router->get('/forgot-password', 'Auth\AuthController@showForgotPassword');
+$router->post('/forgot-password', 'Auth\AuthController@forgotPassword');
+$router->get('/reset-password', 'Auth\AuthController@showResetPassword');
+$router->post('/reset-password', 'Auth\AuthController@resetPassword');
+$router->post('/logout', 'Auth\AuthController@logout');
 
 // ─── Student Dashboard ────────────────────────────────────
-$router->get('/dashboard', 'DashboardController@student');
+$router->get('/dashboard', 'Student\DashboardController@index');
 
-// ─── Profile Routes ───────────────────────────────────────
-$router->get('/profile', 'ProfileController@show');
-$router->get('/profile/edit', 'ProfileController@edit');
-$router->post('/profile', 'ProfileController@update');
-$router->post('/profile/photo', 'ProfileController@uploadPhoto');
+// ─── Profile Routes (under /dashboard) ────────────────────
+$router->get('/dashboard/profile', 'Student\ProfileController@show');
+$router->get('/dashboard/profile/edit', 'Student\ProfileController@edit');
+$router->post('/dashboard/profile', 'Student\ProfileController@update');
+$router->post('/dashboard/profile/photo', 'Student\ProfileController@uploadPhoto');
 
-// ─── Student Application Routes ───────────────────────────
-$router->get('/applications', 'ApplicationController@index');
-$router->get('/applications/create', 'ApplicationController@create');
-$router->get('/applications/scholarship', 'ApplicationController@scholarship');
-$router->post('/applications/scholarship', 'ApplicationController@storeScholarship');
-$router->get('/applications/pratibha', 'ApplicationController@pratibha');
-$router->post('/applications/pratibha', 'ApplicationController@storePratibha');
-$router->get('/applications/{id}', 'ApplicationController@show');
-$router->get('/applications/{id}/edit', 'ApplicationController@edit');
-$router->post('/applications/{id}/edit', 'ApplicationController@update');
-$router->post('/applications/{id}/upload-document', 'ApplicationController@uploadDocumentAjax');
-$router->post('/applications/{id}/delete-document', 'ApplicationController@deleteDocumentAjax');
-$router->get('/uploads/applications/{id}/{filename}', 'ApplicationController@viewUpload');
-$router->post('/applications/step/{step}', 'ApplicationController@storeStep');
-$router->get('/applications/{id}/acknowledgment', 'ApplicationController@acknowledgment');
+// ─── Student Application Routes (under /dashboard) ────────
+$router->get('/dashboard/applications', 'Student\ApplicationController@index');
+$router->get('/dashboard/applications/create', 'Student\ApplicationController@create');
+$router->get('/dashboard/applications/scholarship', 'Student\ApplicationController@scholarship');
+$router->post('/dashboard/applications/scholarship', 'Student\ApplicationController@storeScholarship');
+$router->get('/dashboard/applications/pratibha', 'Student\ApplicationController@pratibha');
+$router->post('/dashboard/applications/pratibha', 'Student\ApplicationController@storePratibha');
+$router->get('/dashboard/applications/{id}', 'Student\ApplicationController@show');
+$router->get('/dashboard/applications/{id}/edit', 'Student\ApplicationController@edit');
+$router->post('/dashboard/applications/{id}/edit', 'Student\ApplicationController@update');
+$router->post('/dashboard/applications/{id}/upload-document', 'Student\ApplicationController@uploadDocumentAjax');
+$router->post('/dashboard/applications/{id}/delete-document', 'Student\ApplicationController@deleteDocumentAjax');
+$router->post('/dashboard/applications/step/{step}', 'Student\ApplicationController@storeStep');
+$router->get('/dashboard/applications/{id}/acknowledgment', 'Student\ApplicationController@acknowledgment');
+$router->post('/dashboard/applications/{id}/resubmit', 'Student\ApplicationController@resubmit');
 
 // ─── Admin Application Routes ─────────────────────────────
-$router->get('/admin/applications', 'AdminApplicationController@index');
-$router->get('/admin/applications/{id}', 'AdminApplicationController@show');
-$router->post('/admin/applications/{id}/approve', 'AdminApplicationController@approve');
-$router->post('/admin/applications/{id}/reject', 'AdminApplicationController@reject');
-$router->post('/admin/applications/{id}/dispute', 'AdminApplicationController@dispute');
+$router->get('/admin/applications', 'Admin\ApplicationController@index');
+$router->get('/admin/applications/{id}', 'Admin\ApplicationController@show');
+$router->post('/admin/applications/{id}/approve', 'Admin\ApplicationController@approve');
+$router->post('/admin/applications/{id}/reject', 'Admin\ApplicationController@reject');
+$router->post('/admin/applications/{id}/dispute', 'Admin\ApplicationController@dispute');
 
 // ─── Admin Dashboard ──────────────────────────────────────
-$router->get('/admin', 'DashboardController@admin');
+$router->get('/admin', 'Admin\DashboardController@index');
 
 // ─── Representative Dashboard ─────────────────────────────
-$router->get('/representative', 'DashboardController@representative');
+$router->get('/representative', 'Representative\DashboardController@index');
 
 // ─── Super Admin / Admin User Management Routes ───────────
-$router->get('/admin/students', 'AdminUserController@students');
-$router->post('/admin/students/{id}/toggle-status', 'AdminUserController@toggleStudentStatus');
-$router->post('/admin/students/{id}/delete', 'AdminUserController@deleteStudent');
+$router->get('/admin/students', 'Admin\UserController@students');
+$router->post('/admin/students/{id}/toggle-status', 'Admin\UserController@toggleStudentStatus');
+$router->post('/admin/students/{id}/delete', 'Admin\UserController@deleteStudent');
 
 // ─── Super Admin Representative Management Routes ─────────
-$router->get('/admin/reps', 'AdminUserController@reps');
-$router->post('/admin/reps/create', 'AdminUserController@createRep');
-$router->post('/admin/reps/{id}/toggle-status', 'AdminUserController@toggleRepStatus');
-$router->post('/admin/reps/{id}/delete', 'AdminUserController@deleteRep');
+$router->get('/admin/reps', 'Admin\UserController@reps');
+$router->post('/admin/reps/create', 'Admin\UserController@createRep');
+$router->post('/admin/reps/{id}/toggle-status', 'Admin\UserController@toggleRepStatus');
+$router->post('/admin/reps/{id}/delete', 'Admin\UserController@deleteRep');
 
 // ─── Announcements Management Routes ──────────────────────
-$router->get('/admin/announcements', 'AdminAnnouncementController@index');
-$router->get('/admin/announcements/create', 'AdminAnnouncementController@create');
-$router->post('/admin/announcements/create', 'AdminAnnouncementController@store');
-$router->get('/admin/announcements/{id}/edit', 'AdminAnnouncementController@edit');
-$router->post('/admin/announcements/{id}/edit', 'AdminAnnouncementController@update');
-$router->post('/admin/announcements/{id}/delete', 'AdminAnnouncementController@delete');
+$router->get('/admin/announcements', 'Admin\AnnouncementController@index');
+$router->get('/admin/announcements/create', 'Admin\AnnouncementController@create');
+$router->post('/admin/announcements/create', 'Admin\AnnouncementController@store');
+$router->get('/admin/announcements/{id}/edit', 'Admin\AnnouncementController@edit');
+$router->post('/admin/announcements/{id}/edit', 'Admin\AnnouncementController@update');
+$router->post('/admin/announcements/{id}/delete', 'Admin\AnnouncementController@delete');
 
 // ─── Settings / Session Management Routes ─────────────────
-$router->get('/admin/settings', 'AdminSettingsController@index');
-$router->post('/admin/settings/update', 'AdminSettingsController@update');
-$router->post('/admin/settings/session/create', 'AdminSettingsController@createSession');
-$router->post('/admin/settings/session/{id}/activate', 'AdminSettingsController@activateSession');
-
-// ─── Application Resubmission ─────────────────────────────
-$router->post('/applications/{id}/resubmit', 'ApplicationController@resubmit');
+$router->get('/admin/settings', 'Admin\SettingsController@index');
+$router->post('/admin/settings/update', 'Admin\SettingsController@update');
+$router->post('/admin/settings/session/create', 'Admin\SettingsController@createSession');
+$router->post('/admin/settings/session/{id}/activate', 'Admin\SettingsController@activateSession');

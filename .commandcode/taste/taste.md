@@ -11,3 +11,6 @@
 # git
 - Always push code to remote after making major changes. Confidence: 0.85
 
+# architecture
+- Organize student feature routes under a grouped prefix like `/dashboard` (e.g., `/dashboard/profile`, `/dashboard/applications`) instead of flat root-level routes for better URL hierarchy. Confidence: 0.70
+

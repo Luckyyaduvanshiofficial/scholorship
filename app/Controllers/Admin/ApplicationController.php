@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Controllers\Admin;
 
 use App\Core\Auth;
 use App\Core\Csrf;
@@ -11,7 +11,7 @@ use App\Core\Input;
 use App\Core\Response;
 use App\Models\Application;
 
-class AdminApplicationController
+class ApplicationController
 {
     /**
      * List all applications.

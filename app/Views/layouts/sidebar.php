@@ -30,9 +30,9 @@ $menus = [
         'label' => 'Student Portal',
         'links' => [
             ['href' => '/dashboard',     'icon' => 'bi-speedometer2',      'label' => 'Dashboard'],
-            ['href' => '/profile',       'icon' => 'bi-person',            'label' => 'My Profile'],
+            ['href' => '/dashboard/profile',       'icon' => 'bi-person',            'label' => 'My Profile'],
             ['href' => '/academics',     'icon' => 'bi-book',              'label' => 'Academics'],
-            ['href' => '/applications',  'icon' => 'bi-file-earmark-text', 'label' => 'Applications'],
+            ['href' => '/dashboard/applications',  'icon' => 'bi-file-earmark-text', 'label' => 'Applications'],
             ['href' => '/announcements', 'icon' => 'bi-megaphone',         'label' => 'Announcements'],
         ],
     ],

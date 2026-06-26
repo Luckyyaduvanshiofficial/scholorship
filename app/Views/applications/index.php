@@ -45,7 +45,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <h2 class="tsp-dash-welcome-title fs-3 mb-1">मेरे आवेदन (My Applications)</h2>
                     <p class="text-muted small mb-0">अपने छात्रवृत्ति एवं प्रतिभा सम्मान आवेदनों की स्थिति यहाँ ट्रैक करें।</p>
                 </div>
-                <a href="/applications/create" class="btn tsp-dash-welcome-btn shadow-sm py-2 px-3">
+                <a href="/dashboard/applications/create" class="btn tsp-dash-welcome-btn shadow-sm py-2 px-3">
                     <i class="bi bi-plus-lg me-1"></i> नया आवेदन करें
                 </a>
             </div>
@@ -63,7 +63,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         आपने अभी तक प्रतिभा सम्मान या छात्रवृत्ति के लिए कोई आवेदन नहीं किया है। शुरू करने के लिए नीचे दिए गए बटन पर क्लिक करें।
                     </p>
                     <div>
-                        <a href="/applications/create" class="btn tsp-dash-welcome-btn shadow-sm py-2 px-4">
+                        <a href="/dashboard/applications/create" class="btn tsp-dash-welcome-btn shadow-sm py-2 px-4">
                             <i class="bi bi-pencil-square me-1"></i> आवेदन फॉर्म भरें
                         </a>
                     </div>
@@ -121,7 +121,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
 
                                     <!-- Action Button footer in card -->
                                     <div class="mt-4 pt-3 border-top d-flex justify-content-end align-items-center">
-                                        <a href="/applications/<?= (int) $app['id'] ?>" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1">
+                                        <a href="/dashboard/applications/<?= (int) $app['id'] ?>" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1">
                                             <span>विवरण देखें / View Details</span>
                                             <i class="bi bi-arrow-right"></i>
                                         </a>

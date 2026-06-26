@@ -36,14 +36,14 @@ $dashHref = Auth::isAdmin()
                 <h2 class="tsp-footer-heading">त्वरित लिंक / Quick Links</h2>
                 <ul class="tsp-footer-links">
                     <li><a href="/">मुख्य पृष्ठ / Home</a></li>
-                    <li><a href="/applications/create">आवेदन करें / Apply</a></li>
+                    <li><a href="/dashboard/applications/create">आवेदन करें / Apply</a></li>
                     <li><a href="#status-tracker">स्थिति खोजें / Track Status</a></li>
                     <?php if (Auth::guest()): ?>
                         <li><a href="/login">लॉगिन / Login</a></li>
                         <li><a href="/register">पंजीकरण / Register</a></li>
                     <?php else: ?>
                         <li><a href="<?= Helpers::esc($dashHref) ?>">डैशबोर्ड / Dashboard</a></li>
-                        <li><a href="/profile">प्रोफाइल / Profile</a></li>
+                        <li><a href="/dashboard/profile">प्रोफाइल / Profile</a></li>
                     <?php endif; ?>
                 </ul>
             </div>

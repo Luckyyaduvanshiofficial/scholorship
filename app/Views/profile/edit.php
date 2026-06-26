@@ -42,7 +42,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
         <div class="container-fluid px-0">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
                     <h2 class="h4 fw-bold mb-0">Edit Profile</h2>
-                    <a href="/profile" class="btn btn-outline-secondary">
+                    <a href="/dashboard/profile" class="btn btn-outline-secondary">
                         <i class="bi bi-eye me-1"></i> View Profile
                     </a>
                 </div>
@@ -61,7 +61,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <i class="bi bi-person-fill fs-3" style="color: var(--tsp-muted);"></i>
                                 </div>
                             <?php endif; ?>
-                            <form action="/profile/photo" method="post" enctype="multipart/form-data" class="flex-fill" id="photoUploadForm">
+                            <form action="/dashboard/profile/photo" method="post" enctype="multipart/form-data" class="flex-fill" id="photoUploadForm">
                                 <?= Csrf::field() ?>
                                 <input type="hidden" name="cropped_image" id="croppedImageInput">
                                 <div class="input-group">
@@ -80,7 +80,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 <!-- Personal Details -->
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-3 p-md-4">
-                        <form action="/profile" method="post">
+                        <form action="/dashboard/profile" method="post">
                             <?= Csrf::field() ?>
 
                             <h5 class="fw-bold mb-3">Personal Details</h5>
@@ -176,7 +176,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             </div>
 
                             <div class="d-flex gap-2 justify-content-end">
-                                <a href="/profile" class="btn btn-outline-secondary">Cancel</a>
+                                <a href="/dashboard/profile" class="btn btn-outline-secondary">Cancel</a>
                                 <button type="submit" class="btn tsp-btn px-4">
                                     <i class="bi bi-check-lg me-1"></i> Save Changes
                                 </button>
@@ -338,3 +338,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <?php require VIEW_PATH . '/layouts/admin-sidebar-script.php'; ?>
 <?php require VIEW_PATH . '/layouts/dash-footer.php'; ?>
+.php'; ?>

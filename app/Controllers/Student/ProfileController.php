@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Controllers\Student;
 
 use App\Core\Auth;
 use App\Core\Csrf;
@@ -74,7 +74,7 @@ class ProfileController
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
-            Response::redirect('/profile/edit');
+            Response::redirect('/dashboard/profile/edit');
         }
 
         $studentModel = new Student();
@@ -108,13 +108,13 @@ class ProfileController
         if (!empty($data['pincode']) && !preg_match('/^\d{6}$/', $data['pincode'])) {
             Flash::set('error', 'Pincode must be a valid 6-digit number.');
             Flash::set('old', $data);
-            Response::redirect('/profile/edit');
+            Response::redirect('/dashboard/profile/edit');
         }
 
         if ($v->fails()) {
             Flash::set('error', $v->first('first_name') ?? $v->first('last_name') ?? $v->first('mobile'));
             Flash::set('old', $data);
-            Response::redirect('/profile/edit');
+            Response::redirect('/dashboard/profile/edit');
         }
 
         // Check mobile uniqueness (ignore self)
@@ -122,7 +122,7 @@ class ProfileController
         if ($existing && (int) $existing['id'] !== $studentId) {
             Flash::set('error', 'This mobile number is already registered.');
             Flash::set('old', $data);
-            Response::redirect('/profile/edit');
+            Response::redirect('/dashboard/profile/edit');
         }
 
         $updateData = [
@@ -147,14 +147,14 @@ class ProfileController
             Auth::updateSessionName($data['first_name'] . ' ' . $data['last_name']);
 
             Flash::set('success', 'Profile updated successfully.');
-            Response::redirect('/profile');
+            Response::redirect('/dashboard/profile');
         } catch (\Throwable $e) {
             Logger::error('Profile update failed', [
                 'student_id' => $studentId,
                 'error'      => $e->getMessage(),
             ]);
             Flash::set('error', 'प्रोफ़ाइल अपडेट करने में त्रुटि। कृपया पुनः प्रयास करें।');
-            Response::redirect('/profile/edit');
+            Response::redirect('/dashboard/profile/edit');
         }
     }
 
@@ -169,7 +169,7 @@ class ProfileController
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
-            Response::redirect('/profile/edit');
+            Response::redirect('/dashboard/profile/edit');
         }
 
         try {
@@ -186,7 +186,7 @@ class ProfileController
                         $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
                         if (!in_array($mimeType, $allowedMimes, true)) {
                             Flash::set('error', 'Invalid image format. Only JPEG and PNG are allowed.');
-                            Response::redirect('/profile/edit');
+                            Response::redirect('/dashboard/profile/edit');
                         }
 
                         $ext = ($mimeType === 'image/png') ? 'png' : 'jpg';
@@ -195,13 +195,13 @@ class ProfileController
                         if (!is_dir($uploadDir)) {
                             if (!@mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
                                 Flash::set('error', 'Could not create upload directory. Please contact support.');
-                                Response::redirect('/profile/edit');
+                                Response::redirect('/dashboard/profile/edit');
                             }
                         }
                         $filePath = $uploadDir . '/' . $storedName;
                         if (file_put_contents($filePath, $decoded) === false) {
                             Flash::set('error', 'Failed to save photo. Please try again.');
-                            Response::redirect('/profile/edit');
+                            Response::redirect('/dashboard/profile/edit');
                         }
 
                         $studentModel = new Student();
@@ -211,7 +211,7 @@ class ProfileController
                         \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
 
                         Flash::set('success', 'Profile photo updated successfully.');
-                        Response::redirect('/profile');
+                        Response::redirect('/dashboard/profile');
                         return;
                     }
                 }
@@ -222,12 +222,12 @@ class ProfileController
 
             if (!$file || $file['error'] === UPLOAD_ERR_NO_FILE) {
                 Flash::set('error', 'Please select a photo to upload.');
-                Response::redirect('/profile/edit');
+                Response::redirect('/dashboard/profile/edit');
             }
 
             if (!$uploader->validate($file)) {
                 Flash::set('error', $uploader->firstError());
-                Response::redirect('/profile/edit');
+                Response::redirect('/dashboard/profile/edit');
             }
 
             $uploadDir = PUBLIC_PATH . '/uploads/profiles';
@@ -235,7 +235,7 @@ class ProfileController
 
             if ($storedName === false) {
                 Flash::set('error', $uploader->firstError());
-                Response::redirect('/profile/edit');
+                Response::redirect('/dashboard/profile/edit');
             }
 
             $studentModel = new Student();
@@ -245,7 +245,7 @@ class ProfileController
             \App\Core\Session::set('profile_photo', '/uploads/profiles/' . $storedName);
 
             Flash::set('success', 'Profile photo updated successfully.');
-            Response::redirect('/profile');
+            Response::redirect('/dashboard/profile');
 
         } catch (\Throwable $e) {
             Logger::error('Profile photo upload failed', [
@@ -253,7 +253,7 @@ class ProfileController
                 'error'      => $e->getMessage(),
             ]);
             Flash::set('error', 'A temporary error occurred while uploading. Please try again.');
-            Response::redirect('/profile/edit');
+            Response::redirect('/dashboard/profile/edit');
         }
     }
 }

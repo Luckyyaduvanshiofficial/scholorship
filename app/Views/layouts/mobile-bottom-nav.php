@@ -25,9 +25,9 @@ $items = [];
 if ($role === 'student') {
     $items = [
         ['href' => '/dashboard', 'icon' => 'bi-house-door-fill', 'label' => 'होम', 'active' => $uri === '/dashboard'],
-        ['href' => '/applications/create', 'icon' => 'bi-pencil-square', 'label' => 'आवेदन', 'active' => str_starts_with($uri, '/applications/create')],
-        ['href' => '/applications', 'icon' => 'bi-file-earmark-text', 'label' => 'आवेदन', 'active' => $uri === '/applications' || str_starts_with($uri, '/applications/') && !str_starts_with($uri, '/applications/create')],
-        ['href' => '/profile', 'icon' => 'bi-person-fill', 'label' => 'प्रोफाइल', 'active' => str_starts_with($uri, '/profile')],
+        ['href' => '/dashboard/applications/create', 'icon' => 'bi-pencil-square', 'label' => 'आवेदन', 'active' => str_starts_with($uri, '/dashboard/applications/create')],
+        ['href' => '/dashboard/applications', 'icon' => 'bi-file-earmark-text', 'label' => 'आवेदन', 'active' => $uri === '/dashboard/applications' || str_starts_with($uri, '/dashboard/applications/') && !str_starts_with($uri, '/dashboard/applications/create')],
+        ['href' => '/dashboard/profile', 'icon' => 'bi-person-fill', 'label' => 'प्रोफाइल', 'active' => str_starts_with($uri, '/dashboard/profile')],
     ];
 } elseif ($role === 'admin') {
     $items = [
@@ -40,9 +40,9 @@ if ($role === 'student') {
     // representative
     $items = [
         ['href' => '/representative', 'icon' => 'bi-speedometer2', 'label' => 'डैशबोर्ड', 'active' => $uri === '/representative'],
-        ['href' => '/applications/create', 'icon' => 'bi-pencil-square', 'label' => 'आवेदन', 'active' => str_starts_with($uri, '/applications/create')],
-        ['href' => '/applications', 'icon' => 'bi-file-earmark-text', 'label' => 'आवेदन', 'active' => $uri === '/applications'],
-        ['href' => '/profile', 'icon' => 'bi-person-fill', 'label' => 'प्रोफाइल', 'active' => str_starts_with($uri, '/profile')],
+        ['href' => '/dashboard/applications/create', 'icon' => 'bi-pencil-square', 'label' => 'आवेदन', 'active' => str_starts_with($uri, '/dashboard/applications/create')],
+        ['href' => '/dashboard/applications', 'icon' => 'bi-file-earmark-text', 'label' => 'आवेदन', 'active' => $uri === '/dashboard/applications'],
+        ['href' => '/dashboard/profile', 'icon' => 'bi-person-fill', 'label' => 'प्रोफाइल', 'active' => str_starts_with($uri, '/dashboard/profile')],
     ];
 }
 ?>

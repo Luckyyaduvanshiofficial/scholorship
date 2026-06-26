@@ -12,15 +12,15 @@ if (Auth::guest()) {
     $quickLinks = [
         ['label' => 'लॉगिन / Login', 'sublabel' => 'पोर्टल में प्रवेश', 'icon' => 'bi-box-arrow-in-right', 'href' => '/login'],
         ['label' => 'पंजीकरण / Register', 'sublabel' => 'नया खाता बनाएं', 'icon' => 'bi-person-plus-fill', 'href' => '/register'],
-        ['label' => 'आवेदन / Apply Online', 'sublabel' => 'ऑनलाइन आवेदन करें', 'icon' => 'bi-file-earmark-plus-fill', 'href' => '/applications/create'],
+        ['label' => 'लॉगिन / Login', 'sublabel' => 'आवेदन करने के लिए लॉगिन करें', 'icon' => 'bi-box-arrow-in-right', 'href' => '/login'],
         ['label' => 'स्थिति / Track Status', 'sublabel' => 'आवेदन की स्थिति देखें', 'icon' => 'bi-search', 'href' => '#status-tracker'],
     ];
 } else {
     $quickLinks = [
         ['label' => 'डैशबोर्ड / Dashboard', 'sublabel' => 'अपना पैनल देखें', 'icon' => 'bi-speedometer2', 'href' => Auth::isAdmin() ? '/admin' : (Auth::isRepresentative() ? '/representative' : '/dashboard')],
-        ['label' => 'नया आवेदन / New Apply', 'sublabel' => 'नया आवेदन भरें', 'icon' => 'bi-file-earmark-plus-fill', 'href' => '/applications/create'],
-        ['label' => 'आवेदन सूची / My Applies', 'sublabel' => 'सभी आवेदन देखें', 'icon' => 'bi-list-ul', 'href' => '/applications'],
-        ['label' => 'प्रोफाइल / Profile', 'sublabel' => 'प्रोफाइल प्रबंधित करें', 'icon' => 'bi-person-fill', 'href' => '/profile'],
+        ['label' => 'नया आवेदन / New Apply', 'sublabel' => 'नया आवेदन भरें', 'icon' => 'bi-file-earmark-plus-fill', 'href' => '/dashboard/applications/create'],
+        ['label' => 'आवेदन सूची / My Applies', 'sublabel' => 'सभी आवेदन देखें', 'icon' => 'bi-list-ul', 'href' => '/dashboard/applications'],
+        ['label' => 'प्रोफाइल / Profile', 'sublabel' => 'प्रोफाइल प्रबंधित करें', 'icon' => 'bi-person-fill', 'href' => '/dashboard/profile'],
     ];
 }
 
@@ -94,7 +94,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     </p>
                     <div class="tsp-hero-actions">
                         <?php if (Auth::guest()): ?>
-                            <a href="/applications/create" class="tsp-btn tsp-btn-primary tsp-btn-lg">
+                            <a href="/dashboard/applications/create" class="tsp-btn tsp-btn-primary tsp-btn-lg">
                                 <i class="bi bi-pencil-square"></i>
                                 <span>आवेदन करें / Apply</span>
                             </a>
@@ -107,7 +107,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <i class="bi bi-speedometer2"></i>
                                 <span>डैशबोर्ड / Dashboard</span>
                             </a>
-                            <a href="/applications/create" class="tsp-btn tsp-btn-outline tsp-btn-lg">
+                            <a href="/dashboard/applications/create" class="tsp-btn tsp-btn-outline tsp-btn-lg">
                                 <i class="bi bi-file-earmark-plus-fill"></i>
                                 <span>नया आवेदन / New Apply</span>
                             </a>
@@ -522,3 +522,4 @@ require VIEW_PATH . '/layouts/flash-message.php';
 </section>
 
 <?php require VIEW_PATH . '/layouts/footer.php'; ?>
+. '/layouts/footer.php'; ?>

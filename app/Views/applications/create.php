@@ -85,7 +85,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                         <span>आप पहले ही आवेदन कर चुके हैं</span>
                                     </div>
                                 <?php else: ?>
-                                    <a href="/applications/<?= $isScholarship ? 'scholarship' : 'pratibha' ?>" 
+                                    <a href="/dashboard/applications/<?= $isScholarship ? 'scholarship' : 'pratibha' ?>" 
                                        class="btn tsp-dash-welcome-btn shadow-sm py-2.5 px-4 w-100 rounded-pill fw-semibold">
                                         <span>आवेदन शुरू करें / Apply Now</span>
                                         <i class="bi bi-arrow-right ms-1"></i>

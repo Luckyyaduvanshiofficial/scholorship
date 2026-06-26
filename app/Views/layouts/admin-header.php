@@ -65,7 +65,7 @@ $adminEmail = $adminEmail ?? '';
 
             <ul class="dropdown-menu dropdown-menu-end tsp-adm-dropdown shadow border-0">
                 <li>
-                    <a class="dropdown-item tsp-adm-dropdown-item" href="/profile">
+                    <a class="dropdown-item tsp-adm-dropdown-item" href="/dashboard/profile">
                         <i class="bi bi-person"></i>
                         <span>प्रोफाइल (Profile)</span>
                     </a>

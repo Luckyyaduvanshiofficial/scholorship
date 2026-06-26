@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Controllers\Admin;
 
 use App\Core\Auth;
 use App\Core\Database;
@@ -13,7 +13,7 @@ use App\Core\Response;
 use App\Core\Validator;
 use PDO;
 
-class AdminAnnouncementController
+class AnnouncementController
 {
     /**
      * List all announcements.

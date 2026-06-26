@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Controllers\Admin;
 
 use App\Core\Auth;
 use App\Core\Database;
@@ -13,7 +13,7 @@ use App\Core\Validator;
 use Delight\Auth\Role;
 use PDO;
 
-class AdminUserController
+class UserController
 {
     /**
      * List all students.
@@ -72,11 +72,6 @@ class AdminUserController
             Response::redirect('/');
         }
 
-        if (!Csrf::validate()) {
-            Flash::set('error', 'Invalid security token.');
-            Response::redirect('/admin/students');
-        }
-
         $db = Database::getInstance();
 
         // Fetch current status
@@ -122,11 +117,6 @@ class AdminUserController
         if (!Auth::isAdmin()) {
             Flash::set('error', 'Access denied.');
             Response::redirect('/');
-        }
-
-        if (!Csrf::validate()) {
-            Flash::set('error', 'Invalid security token.');
-            Response::redirect('/admin/students');
         }
 
         $db = Database::getInstance();
@@ -195,11 +185,6 @@ class AdminUserController
             Response::redirect('/');
         }
 
-        if (!Csrf::validate()) {
-            Flash::set('error', 'Invalid security token.');
-            Response::redirect('/admin/reps');
-        }
-
         $username = trim(Input::post('username', ''));
         $email = trim(Input::post('email', ''));
         $password = Input::post('password', '');
@@ -253,11 +238,6 @@ class AdminUserController
             Response::redirect('/');
         }
 
-        if (!Csrf::validate()) {
-            Flash::set('error', 'Invalid security token.');
-            Response::redirect('/admin/reps');
-        }
-
         $db = Database::getInstance();
 
         $stmt = $db->prepare("SELECT status FROM users WHERE id = ? LIMIT 1");
@@ -287,11 +267,6 @@ class AdminUserController
         if (!Auth::isSuperAdmin()) {
             Flash::set('error', 'Access denied.');
             Response::redirect('/');
-        }
-
-        if (!Csrf::validate()) {
-            Flash::set('error', 'Invalid security token.');
-            Response::redirect('/admin/reps');
         }
 
         $db = Database::getInstance();

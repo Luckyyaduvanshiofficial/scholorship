@@ -10,8 +10,8 @@
     $isAuthPage = \App\Core\Auth::check() || 
                   str_contains($requestUri, '/admin') || 
                   str_contains($requestUri, '/dashboard') || 
-                  str_contains($requestUri, '/profile') || 
-                  str_contains($requestUri, '/applications');
+                  str_contains($requestUri, '/dashboard/profile') || 
+                  str_contains($requestUri, '/dashboard/applications');
     if ($isAuthPage): ?>
         <meta name="robots" content="noindex, nofollow">
     <?php endif; ?>

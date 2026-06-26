@@ -27,7 +27,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
             
             <!-- Breadcrumbs and Header (Hidden in Print) -->
             <div class="mb-4 no-print d-flex justify-content-between align-items-center">
-                <a href="/applications" class="text-decoration-none small text-muted d-inline-flex align-items-center gap-1">
+                <a href="/dashboard/applications" class="text-decoration-none small text-muted d-inline-flex align-items-center gap-1">
                     <i class="bi bi-arrow-left"></i>
                     <span>आवेदन सूची पर वापस जाएं / Back to Applications</span>
                 </a>

@@ -53,15 +53,15 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     </div>
                     <div class="tsp-stu-hero-action">
                         <?php if ($totalApps === 0): ?>
-                            <a href="/applications/create" class="btn tsp-btn-primary">
+                            <a href="/dashboard/applications/create" class="btn tsp-btn-primary">
                                 <i class="bi bi-plus-lg"></i> नया आवेदन
                             </a>
                         <?php elseif ($draftApps > 0): ?>
-                            <a href="/applications" class="btn tsp-btn-secondary">
+                            <a href="/dashboard/applications" class="btn tsp-btn-secondary">
                                 <i class="bi bi-pencil"></i> ड्राफ्ट जारी रखें
                             </a>
                         <?php else: ?>
-                            <a href="/applications" class="btn tsp-btn-secondary">
+                            <a href="/dashboard/applications" class="btn tsp-btn-secondary">
                                 <i class="bi bi-file-earmark-text"></i> मेरे आवेदन
                             </a>
                         <?php endif; ?>
@@ -119,7 +119,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
             <!-- ════════════════════════════════════ -->
             <div class="tsp-stu-section-header">
                 <h2 class="tsp-stu-section-title"><i class="bi bi-file-earmark-text me-2"></i>मेरे आवेदन</h2>
-                <a href="/applications" class="tsp-stu-section-link">सभी देखें <i class="bi bi-arrow-right"></i></a>
+                <a href="/dashboard/applications" class="tsp-stu-section-link">सभी देखें <i class="bi bi-arrow-right"></i></a>
             </div>
 
             <?php if (count($applications) > 0): ?>
@@ -230,11 +230,11 @@ require VIEW_PATH . '/layouts/flash-message.php';
 
                                 <div class="tsp-stu-app-actions mt-3">
                                     <?php if ($isDraft || in_array($status, ['Rejected', 'Pending Correction'], true)): ?>
-                                        <a href="/applications/<?= (int) $app['id'] ?>/edit" class="btn tsp-btn-sm tsp-btn-warning w-100 mt-2">
+                                        <a href="/dashboard/applications/<?= (int) $app['id'] ?>/edit" class="btn tsp-btn-sm tsp-btn-warning w-100 mt-2">
                                             <i class="bi bi-pencil"></i> <?= ($status === 'Rejected' || $status === 'Pending Correction') ? 'सुधार करें / Correct' : 'जारी रखें / Continue' ?>
                                         </a>
                                     <?php else: ?>
-                                        <a href="/applications/<?= (int) $app['id'] ?>" class="btn tsp-btn-sm tsp-btn-outline w-100 mt-2">
+                                        <a href="/dashboard/applications/<?= (int) $app['id'] ?>" class="btn tsp-btn-sm tsp-btn-outline w-100 mt-2">
                                             <i class="bi bi-eye"></i> देखें / View
                                         </a>
                                     <?php endif; ?>
@@ -253,7 +253,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <p class="tsp-stu-empty-desc">
                         प्रतिभा सम्मान समारोह 2026 के लिए आवेदन करना शुरू करें। सभी पात्र छात्र आवेदन कर सकते हैं।
                     </p>
-                    <a href="/applications/create" class="btn tsp-btn-primary tsp-btn-lg">
+                    <a href="/dashboard/applications/create" class="btn tsp-btn-primary tsp-btn-lg">
                         <i class="bi bi-plus-lg"></i> आवेदन फॉर्म भरना शुरू करें
                     </a>
                 </div>

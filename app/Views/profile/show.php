@@ -27,7 +27,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         <h2 class="h4 fw-bold mb-1">My Profile</h2>
                         <p class="text-muted small mb-0">Student Code: <strong><?= Helpers::esc($student['student_code'] ?? '') ?></strong></p>
                     </div>
-                    <a href="/profile/edit" class="btn tsp-btn">
+                    <a href="/dashboard/profile/edit" class="btn tsp-btn">
                         <i class="bi bi-pencil me-1"></i> Edit Profile
                     </a>
                 </div>
@@ -50,7 +50,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 </div>
                                 <h5 class="fw-bold mb-1"><?= Helpers::esc($fullName) ?></h5>
                                 <p class="small text-muted mb-3"><?= Helpers::esc($student['email'] ?? '') ?></p>
-                                <a href="/profile/edit" class="btn btn-sm btn-outline-secondary">
+                                <a href="/dashboard/profile/edit" class="btn btn-sm btn-outline-secondary">
                                     <i class="bi bi-camera me-1"></i> Change Photo
                                 </a>
                             </div>

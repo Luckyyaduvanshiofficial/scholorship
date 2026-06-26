@@ -415,7 +415,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
             
             <!-- Breadcrumbs and Action Header -->
             <div class="mb-4">
-                <a href="/applications" class="text-decoration-none small text-muted d-inline-flex align-items-center gap-1">
+                <a href="/dashboard/applications" class="text-decoration-none small text-muted d-inline-flex align-items-center gap-1">
                     <i class="bi bi-arrow-left"></i>
                     <span>आवेदनों की सूची पर वापस जाएं / Back to Applications</span>
                 </a>
@@ -450,13 +450,13 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     
                     <div class="d-flex gap-2 align-items-center">
                         <?php if (in_array($app['status_name'] ?? '', ['Draft', 'Rejected', 'Pending Correction'], true)): ?>
-                            <a href="/applications/<?= (int) $app['id'] ?>/edit" class="btn btn-warning rounded-pill d-inline-flex align-items-center gap-2 shadow-sm px-3.5 py-2 fw-semibold hover-scale">
+                            <a href="/dashboard/applications/<?= (int) $app['id'] ?>/edit" class="btn btn-warning rounded-pill d-inline-flex align-items-center gap-2 shadow-sm px-3.5 py-2 fw-semibold hover-scale">
                                 <i class="bi bi-pencil-fill"></i>
                                 <span>संशोधन / Edit</span>
                             </a>
                         <?php endif; ?>
                         <?php if (in_array($app['status_name'] ?? '', ['Submitted', 'Resubmitted', 'Under Review', 'Approved'], true)): ?>
-                            <a href="/applications/<?= (int) $app['id'] ?>/acknowledgment" class="btn btn-success rounded-pill d-inline-flex align-items-center gap-2 shadow-sm px-3.5 py-2 fw-semibold hover-scale">
+                            <a href="/dashboard/applications/<?= (int) $app['id'] ?>/acknowledgment" class="btn btn-success rounded-pill d-inline-flex align-items-center gap-2 shadow-sm px-3.5 py-2 fw-semibold hover-scale">
                                 <i class="bi bi-file-earmark-check-fill"></i>
                                 <span>पावती पत्र / Acknowledgment</span>
                             </a>
