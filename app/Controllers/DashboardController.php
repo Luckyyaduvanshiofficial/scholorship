@@ -70,15 +70,15 @@ class DashboardController
         // Upcoming deadlines — from settings if available, else defaults
         $appDeadline = '30 जून 2026';
         $ceremonyDate = '09 अगस्त 2026';
-        $stmt = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'application_end_date' LIMIT 1");
+        $stmt = $db->query("SELECT value FROM settings WHERE `key` = 'application_end_date' LIMIT 1");
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if ($row && !empty($row['setting_value'])) {
-            $appDeadline = $row['setting_value'];
+        if ($row && !empty($row['value'])) {
+            $appDeadline = $row['value'];
         }
-        $stmt = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'ceremony_date' LIMIT 1");
+        $stmt = $db->query("SELECT value FROM settings WHERE `key` = 'ceremony_date' LIMIT 1");
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if ($row && !empty($row['setting_value'])) {
-            $ceremonyDate = $row['setting_value'];
+        if ($row && !empty($row['value'])) {
+            $ceremonyDate = $row['value'];
         }
 
         Response::view('dashboard/student', [

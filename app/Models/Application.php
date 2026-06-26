@@ -92,8 +92,8 @@ class Application
         $stmt = $this->db->prepare(
             "SELECT a.*, 
                     s.first_name, s.last_name, s.student_code, s.father_name, s.mother_name, 
-                    s.dob, s.gender, s.mobile, s.email, s.address, s.city, s.district, s.state, s.pincode,
-                    sa.class_year, sa.college_name, sa.board_university, sa.marks_obtained, sa.max_marks, sa.percentage,
+                    s.dob, s.gender, s.mobile, s.email, s.address, s.city, s.district, s.state, s.pincode, s.profile_photo,
+                    sa.class_year, sa.course_name, sa.college_name, sa.board_university, sa.marks_obtained, sa.max_marks, sa.percentage,
                     ac.session_name, atp.name AS app_type_name, ast.name AS status_name
              FROM applications a
              LEFT JOIN students s ON a.student_id = s.id

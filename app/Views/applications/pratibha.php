@@ -24,22 +24,8 @@ if ($isEdit && !empty($application['documents'])) {
     }
 }
 
-require VIEW_PATH . '/layouts/header.php';
-require VIEW_PATH . '/layouts/flash-message.php';
+ob_start();
 ?>
-
-<?php require VIEW_PATH . '/layouts/admin-header.php'; ?>
-
-<!-- Dashboard Main Container -->
-<div class="tsp-dash-container">
-    <?php
-    $activeLink = 'apply';
-    require VIEW_PATH . '/layouts/student-sidebar.php';
-    ?>
-
-    <!-- Main Content Area -->
-    <main class="tsp-dash-content-area">
-        <div class="container-fluid px-0">
             
             <!-- Back button & session indicator -->
             <div class="mb-4 d-flex justify-content-between align-items-center">
@@ -543,10 +529,6 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     </form>
                 </div>
             </div>
-
-        </div>
-    </main>
-</div>
 
 <!-- Stepper Navigation & Preview Script -->
 <script>
@@ -1080,7 +1062,7 @@ function compileFormPreview() {
 })();
 </script>
 
-<!-- Responsive Sidebar toggle control -->
-<?php require VIEW_PATH . '/layouts/admin-sidebar-script.php'; ?>
-
-<?php require VIEW_PATH . '/layouts/footer.php'; ?>
+<?php
+$content = ob_get_clean();
+require VIEW_PATH . '/layouts/FormLayout.php';
+?>
