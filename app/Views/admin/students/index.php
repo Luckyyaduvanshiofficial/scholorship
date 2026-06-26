@@ -67,7 +67,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 <!-- Students Table Card -->
                 <div class="card border-0 shadow-sm" style="border-radius: 16px;">
                     <div class="card-body p-4">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-responsive-card">
                             <table class="table align-middle admin-table" style="font-size: 1.3rem;">
                                 <thead>
                                     <tr>
@@ -86,22 +86,22 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                             $isSuspended = (int) $student['user_status'] === 2;
                                         ?>
                                             <tr>
-                                                <td class="fw-bold text-dark py-3">
+                                                <td class="fw-bold text-dark py-3" data-label="छात्र कोड">
                                                     <?= htmlspecialchars($student['student_code']) ?>
                                                 </td>
-                                                <td class="fw-semibold text-secondary py-3">
+                                                <td class="fw-semibold text-secondary py-3" data-label="नाम">
                                                     <?= htmlspecialchars($student['first_name'] . ' ' . $student['last_name']) ?>
                                                 </td>
-                                                <td class="text-secondary py-3">
+                                                <td class="text-secondary py-3" data-label="ईमेल">
                                                     <?= htmlspecialchars($student['email']) ?>
                                                 </td>
-                                                <td class="text-secondary py-3">
+                                                <td class="text-secondary py-3" data-label="मोबाइल">
                                                     <?= htmlspecialchars($student['mobile']) ?>
                                                 </td>
-                                                <td class="text-muted py-3">
+                                                <td class="text-muted py-3" data-label="पंजीकरण तिथि">
                                                     <?= date('d M Y', strtotime($student['created_at'])) ?>
                                                 </td>
-                                                <td class="py-3">
+                                                <td class="py-3" data-label="स्थिति">
                                                     <?php if ($isSuspended): ?>
                                                         <span class="badge rounded-pill px-3 py-2 fw-bold bg-danger text-white" style="font-size: 1.15rem;">
                                                             निलंबित
@@ -112,7 +112,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                         </span>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td class="py-3 text-end">
+                                                <td class="py-3 text-end" data-label="कार्रवाई">
                                                     <div class="d-inline-flex gap-2">
                                                         <!-- Toggle Status Button -->
                                                         <form action="/admin/students/<?= $student['id'] ?>/toggle-status" method="post" class="m-0">

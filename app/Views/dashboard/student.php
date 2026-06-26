@@ -35,7 +35,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
-                <img src="/assets/images/dashboard_welcome_illustration.png" alt="Welcome Illustration" class="tsp-dash-welcome-illustration d-none d-lg-block">
+                <img src="/assets/images/dashboard_welcome_illustration.png" alt="Welcome Illustration" class="tsp-dash-welcome-illustration d-none d-lg-block" width="1024" height="1024" loading="lazy">
             </div>
 
             <!-- Cards Grid (How it works, Dates, Contact) -->

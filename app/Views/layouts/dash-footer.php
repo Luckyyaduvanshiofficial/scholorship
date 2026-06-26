@@ -16,3 +16,7 @@
         </div>
     </div>
 </footer>
+
+<?php if (\App\Core\Auth::check()): ?>
+    <?php require VIEW_PATH . '/layouts/mobile-bottom-nav.php'; ?>
+<?php endif; ?>

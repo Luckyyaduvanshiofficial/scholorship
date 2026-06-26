@@ -43,7 +43,8 @@ $adminEmail = $adminEmail ?? '';
                  data-bs-toggle="dropdown"
                  aria-expanded="false"
                  role="button"
-                 tabindex="0">
+                 tabindex="0"
+                 aria-label="User profile menu">
                 <div class="tsp-adm-avatar" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
                     <?php 
                     $headerPhoto = \App\Core\Auth::profilePhoto();

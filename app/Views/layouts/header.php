@@ -2,7 +2,7 @@
 <html lang="hi">  <!-- "en" → "hi" since primary content is Hindi -->
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <meta name="description" content="तम्बोली समाज विकास संस्था — प्रतिभा सम्मान एवं छात्रवृत्ति आवेदन पोर्टल">
     <meta name="theme-color" content="#8B0000">  <!-- maroon brand color, mobile browser bar -->
     <?php
@@ -17,9 +17,13 @@
     <?php endif; ?>
     <title><?= \App\Core\Helpers::esc($title ?? 'Tamboli Samaj Portal') ?></title>
 
-    <!-- Favicon -->
+    <!-- Favicon / PWA -->
     <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="apple-touch-icon" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/assets/images/icons/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tamboli Portal">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="<?= APP_URL . parse_url($requestUri, PHP_URL_PATH) ?>">
@@ -38,23 +42,32 @@
     <meta name="twitter:description" content="तम्बोली समाज विकास संस्था — प्रतिभा सम्मान एवं छात्रवृत्ति आवेदन पोर्टल">
     <meta name="twitter:image" content="<?= APP_URL ?>/assets/images/share_banner.png">
 
-    <!-- Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preconnect to CDNs -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
-    <!-- Google Fonts: Inter + Manrope + Noto Sans Devanagari + Saira + Saira Stencil One -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Manrope:wght@300..800&family=Noto+Sans+Devanagari:wght@100..900&family=Saira+Stencil+One&family=Saira:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap 5 -->
+    <!-- Bootstrap 5 (critical, keep in head) -->
     <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <!-- Self-hosted Google Fonts (same-origin, production-cacheable) -->
+    <link href="/assets/fonts/fonts.css" rel="stylesheet">
+
     <!-- Custom CSS -->
-    <link href="/assets/css/style.css?v=1.0.6" rel="stylesheet">
+    <link href="/assets/css/style.css?v=2.1.0" rel="stylesheet">
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="/assets/js/bootstrap.bundle.min.js" defer></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+    </script>
+<?php $bodyClass = $bodyClass ?? ''; ?>
 </head>
-<body>
+<body class="<?= \App\Core\Helpers::esc($bodyClass) ?>">

@@ -131,7 +131,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     सत्र सूची (Academic Sessions)
                                 </h3>
                                 
-                                <div class="table-responsive">
+                                <div class="table-responsive table-responsive-card">
                                     <table class="table align-middle admin-table" style="font-size: 1.25rem;">
                                         <thead>
                                             <tr>
@@ -146,10 +146,10 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                     $isActive = (int) $session['is_active'] === 1;
                                                 ?>
                                                     <tr>
-                                                        <td class="fw-bold text-dark py-3">
+                                                        <td class="fw-bold text-dark py-3" data-label="सत्र नाम">
                                                             <?= htmlspecialchars($session['session_name']) ?>
                                                         </td>
-                                                        <td class="py-3">
+                                                        <td class="py-3" data-label="स्थिति">
                                                             <?php if ($isActive): ?>
                                                                 <span class="badge rounded-pill px-3 py-1 fw-bold bg-success text-white" style="font-size: 1.1rem;">
                                                                     सक्रिय
@@ -160,7 +160,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                                 </span>
                                                             <?php endif; ?>
                                                         </td>
-                                                        <td class="py-3 text-end">
+                                                        <td class="py-3 text-end" data-label="कार्रवाई">
                                                             <?php if (!$isActive): ?>
                                                                 <form action="/admin/settings/session/<?= $session['id'] ?>/activate" method="post" class="m-0">
                                                                     <?= Csrf::field() ?>

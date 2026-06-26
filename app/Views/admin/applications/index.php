@@ -70,7 +70,7 @@ function getHindiStatusInfo($statusName, $appId) {
                                 <p class="mt-3 mb-0 fw-semibold" style="font-size: 1.4rem;">कोई आवेदन सबमिट नहीं किया गया है।</p>
                             </div>
                         <?php else: ?>
-                            <div class="table-responsive">
+                            <div class="table-responsive table-responsive-card">
                                 <table class="table align-middle admin-table" style="font-size: 1.35rem;">
                                     <thead>
                                         <tr>
@@ -94,19 +94,19 @@ function getHindiStatusInfo($statusName, $appId) {
                                             $date = !empty($app['submitted_at']) ? date('d M Y', strtotime($app['submitted_at'])) : '-';
                                         ?>
                                         <tr>
-                                            <td class="fw-bold text-dark py-3"><?= $appNum ?></td>
-                                            <td class="py-3">
+                                            <td class="fw-bold text-dark py-3" data-label="आवेदन संख्या"><?= $appNum ?></td>
+                                            <td class="py-3" data-label="छात्र का नाम">
                                                 <div class="fw-semibold text-dark"><?= $studentName ?></div>
                                                 <small class="text-muted fw-semibold" style="font-size: 1.15rem;"><?= $studentCode ?></small>
                                             </td>
-                                            <td class="text-secondary py-3"><?= $appTypeHindi ?></td>
-                                            <td class="py-3">
+                                            <td class="text-secondary py-3" data-label="प्रकार"><?= $appTypeHindi ?></td>
+                                            <td class="py-3" data-label="स्थिति">
                                                 <span class="badge rounded-pill px-3 py-2 fw-bold <?= $statusInfo['class'] ?>" style="font-size: 1.15rem; display: inline-block;">
                                                     <?= htmlspecialchars($statusInfo['text']) ?>
                                                 </span>
                                             </td>
-                                            <td class="text-muted py-3"><?= $date ?></td>
-                                            <td class="text-center py-3">
+                                            <td class="text-muted py-3" data-label="दिनांक"><?= $date ?></td>
+                                            <td class="text-center py-3" data-label="कार्रवाई">
                                                 <a href="/admin/applications/<?= (int) $app['id'] ?>" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold border-0 bg-transparent text-secondary" style="font-size: 1.25rem; color: #8b0000 !important;">
                                                     <i class="bi bi-eye-fill me-1"></i> समीक्षा करें
                                                 </a>

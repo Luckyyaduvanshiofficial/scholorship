@@ -38,7 +38,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 <!-- Announcements Table Card -->
                 <div class="card border-0 shadow-sm" style="border-radius: 16px;">
                     <div class="card-body p-4">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-responsive-card">
                             <table class="table align-middle admin-table" style="font-size: 1.3rem;">
                                 <thead>
                                     <tr>
@@ -55,13 +55,13 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                             $isActive = (int) $ann['is_active'] === 1;
                                         ?>
                                             <tr>
-                                                <td class="fw-bold text-dark py-3">
+                                                <td class="fw-bold text-dark py-3" data-label="शीर्षक">
                                                     <?= htmlspecialchars($ann['title']) ?>
                                                 </td>
-                                                <td class="text-secondary py-3 text-truncate" style="max-width: 400px;">
+                                                <td class="text-secondary py-3 text-truncate" style="max-width: 400px;" data-label="विवरण">
                                                     <?= htmlspecialchars(strip_tags($ann['content'])) ?>
                                                 </td>
-                                                <td class="py-3">
+                                                <td class="py-3" data-label="स्थिति">
                                                     <?php if ($isActive): ?>
                                                         <span class="badge rounded-pill px-3 py-2 fw-bold bg-success text-white" style="font-size: 1.15rem;">
                                                             सक्रिय
@@ -72,10 +72,10 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                         </span>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td class="text-secondary py-3">
+                                                <td class="text-secondary py-3" data-label="जारीकर्ता">
                                                     <?= htmlspecialchars($ann['creator_name'] ?? 'Admin') ?>
                                                 </td>
-                                                <td class="py-3 text-end">
+                                                <td class="py-3 text-end" data-label="कार्रवाई">
                                                     <div class="d-inline-flex gap-2">
                                                         <!-- Edit Button -->
                                                         <a href="/admin/announcements/<?= $ann['id'] ?>/edit" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" style="font-size: 1.15rem;">

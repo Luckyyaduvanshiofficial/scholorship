@@ -38,7 +38,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 <!-- Reps Table Card -->
                 <div class="card border-0 shadow-sm" style="border-radius: 16px;">
                     <div class="card-body p-4">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-responsive-card">
                             <table class="table align-middle admin-table" style="font-size: 1.3rem;">
                                 <thead>
                                     <tr>
@@ -55,16 +55,16 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                             $isSuspended = (int) $rep['status'] === 2;
                                         ?>
                                             <tr>
-                                                <td class="fw-semibold text-secondary py-3">
+                                                <td class="fw-semibold text-secondary py-3" data-label="नाम">
                                                     <?= htmlspecialchars($rep['username'] ?? '') ?>
                                                 </td>
-                                                <td class="text-secondary py-3">
+                                                <td class="text-secondary py-3" data-label="ईमेल">
                                                     <?= htmlspecialchars($rep['email']) ?>
                                                 </td>
-                                                <td class="text-muted py-3">
+                                                <td class="text-muted py-3" data-label="पंजीकरण तिथि">
                                                     <?= date('d M Y', $rep['registered']) ?>
                                                 </td>
-                                                <td class="py-3">
+                                                <td class="py-3" data-label="स्थिति">
                                                     <?php if ($isSuspended): ?>
                                                         <span class="badge rounded-pill px-3 py-2 fw-bold bg-danger text-white" style="font-size: 1.15rem;">
                                                             निलंबित
@@ -75,7 +75,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                         </span>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td class="py-3 text-end">
+                                                <td class="py-3 text-end" data-label="कार्रवाई">
                                                     <div class="d-inline-flex gap-2">
                                                         <!-- Toggle Status Button -->
                                                         <form action="/admin/reps/<?= $rep['id'] ?>/toggle-status" method="post" class="m-0">

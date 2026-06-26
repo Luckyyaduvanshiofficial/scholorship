@@ -28,4 +28,42 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.add('active');
         }
     });
+
+    // Premium navbar scroll state
+    const premiumNavbar = document.getElementById('tspPremiumNavbar');
+    if (premiumNavbar) {
+        const updateNavbar = () => {
+            if (window.scrollY > 10) {
+                premiumNavbar.classList.add('scrolled');
+            } else {
+                premiumNavbar.classList.remove('scrolled');
+            }
+        };
+        updateNavbar();
+        window.addEventListener('scroll', updateNavbar, { passive: true });
+    }
+
+    // Smooth scroll for anchor links with sticky offset
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            const target = document.querySelector(targetId);
+            if (target) {
+                e.preventDefault();
+                const navHeight = premiumNavbar ? premiumNavbar.offsetHeight : 0;
+                const ticker = document.querySelector('.tsp-premium-ticker');
+                const tickerHeight = ticker ? ticker.offsetHeight : 0;
+                const offset = navHeight + tickerHeight + 16;
+                const targetPosition = target.getBoundingClientRect().top + window.scrollY - offset;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+                });
+            }
+        });
+    });
+
+    // Pause premium ticker on hover is handled by CSS; this is a fallback
+    // for any JS-driven ticker implementations in the future.
 });

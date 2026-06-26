@@ -1,31 +1,87 @@
 <?php
 use App\Core\Auth;
+use App\Core\Helpers;
+
+$dashHref = Auth::isAdmin()
+    ? '/admin'
+    : (Auth::isRepresentative() ? '/representative' : '/dashboard');
 ?>
 
-<footer class="tsp-site-footer-v2" id="help">
-  <div class="container">
-    <div class="tsp-footer-body">
-      <div class="tsp-footer-brand">
-        <img src="/assets/images/logo/logo-placeholder.svg" alt="Logo" class="tsp-footer-logo">
-        <span class="tsp-footer-brand-name">तम्बोली समाज विकास संस्था</span>
-      </div>
-      <p class="tsp-footer-about">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल — समाज के स्वतंत्रता दिवस सम्मान एवं प्रतिभाओं के प्रोत्साहन के लिए समर्पित।</p>
+<!-- ── PREMIUM FOOTER ── -->
+<footer class="tsp-premium-footer" id="help">
+    <div class="container">
+        <div class="tsp-footer-grid">
+            <!-- Brand Column -->
+            <div class="tsp-footer-col tsp-footer-brand-col">
+                <div class="tsp-footer-brand">
+                    <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj Logo" class="tsp-footer-logo">
+                    <div>
+                        <div class="tsp-footer-brand-hi">तम्बोली समाज विकास संस्था</div>
+                        <div class="tsp-footer-brand-en">Tamboli Samaj Vikas Sanstha, Rajasthan</div>
+                    </div>
+                </div>
+                <p class="tsp-footer-about">
+                    प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल — समाज की प्रतिभाओं के सम्मान एवं उज्ज्वल भविष्य के लिए समर्पित।
+                </p>
+                <div class="tsp-footer-social">
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                </div>
+            </div>
 
-      <div class="tsp-footer-contacts">
-        <span><i class="bi bi-telephone-fill"></i> 0141-XXXXXXX</span>
-        <span><i class="bi bi-envelope-fill"></i> contact@tambolisamaj.org</span>
-        <span><i class="bi bi-globe"></i> www.tambolisamaj.org</span>
-      </div>
+            <!-- Quick Links Column -->
+            <div class="tsp-footer-col">
+                <h2 class="tsp-footer-heading">त्वरित लिंक / Quick Links</h2>
+                <ul class="tsp-footer-links">
+                    <li><a href="/">मुख्य पृष्ठ / Home</a></li>
+                    <li><a href="/applications/create">आवेदन करें / Apply</a></li>
+                    <li><a href="#status-tracker">स्थिति खोजें / Track Status</a></li>
+                    <?php if (Auth::guest()): ?>
+                        <li><a href="/login">लॉगिन / Login</a></li>
+                        <li><a href="/register">पंजीकरण / Register</a></li>
+                    <?php else: ?>
+                        <li><a href="<?= Helpers::esc($dashHref) ?>">डैशबोर्ड / Dashboard</a></li>
+                        <li><a href="/profile">प्रोफाइल / Profile</a></li>
+                    <?php endif; ?>
+                </ul>
+            </div>
 
-      <div class="tsp-footer-social">
-        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-        <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-      </div>
+            <!-- Contact Column -->
+            <div class="tsp-footer-col">
+                <h2 class="tsp-footer-heading">संपर्क / Contact</h2>
+                <ul class="tsp-footer-contact">
+                    <li>
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>कोटा, राजस्थान, भारत</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-telephone-fill"></i>
+                        <span>0141-XXXXXXX</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-envelope-fill"></i>
+                        <span>contact@tambolisamaj.org</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-globe"></i>
+                        <span>www.tambolisamaj.org</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tsp-footer-bottom">
+            <span>&copy; <?= date('Y') ?> तम्बोली समाज विकास संस्था। सभी अधिकार सुरक्षित।</span>
+            <span class="tsp-footer-credit">Tamboli Samaj Vikas Sanstha, Rajasthan</span>
+        </div>
     </div>
-
-    <div class="tsp-footer-bottom">
-      &copy; <?= date('Y') ?> सभी अधिकार सुरक्षित | Tamboli Samaj Vikas Sanstha, Rajasthan
-    </div>
-  </div>
 </footer>
+
+<?php if (\App\Core\Auth::check()): ?>
+    <?php require VIEW_PATH . '/layouts/mobile-bottom-nav.php'; ?>
+<?php endif; ?>
+
+</body>
+</html>

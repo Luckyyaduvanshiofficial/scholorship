@@ -79,6 +79,7 @@ class HomeController
 
         Response::view('home/index', [
             'title'         => 'Tamboli Samaj Portal',
+            'bodyClass'     => 'tsp-premium',
             'announcements' => $announcements,
             'trackResult'   => $trackResult,
             'trackError'    => $trackError,
