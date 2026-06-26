@@ -1,0 +1,9 @@
+style: tune header/nav to match hero theme — gold border, maroon nav, gold active icon
+
+- Top header: gold bottom border instead of light grey, smaller titles (1.7rem/0.95rem), tighter padding
+- Pill nav: changed background from bright red (#c0271f) to theme maroon (var(--accent), #8B0000)
+- Active nav link gets gold icon tint to match hero's gold accents
+- Softer shadows and hover effects throughout
+- Responsive breakpoints scaled to match new sizes
+
+Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
