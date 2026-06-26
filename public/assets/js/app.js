@@ -29,18 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Premium navbar scroll state
-    const premiumNavbar = document.getElementById('tspPremiumNavbar');
-    if (premiumNavbar) {
-        const updateNavbar = () => {
-            if (window.scrollY > 10) {
-                premiumNavbar.classList.add('scrolled');
-            } else {
-                premiumNavbar.classList.remove('scrolled');
-            }
-        };
-        updateNavbar();
-        window.addEventListener('scroll', updateNavbar, { passive: true });
+
     }
 
     // Smooth scroll for anchor links with sticky offset
