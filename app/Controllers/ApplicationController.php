@@ -959,7 +959,6 @@ class ApplicationController
                 'career_goal'               => $data['career_goal'] ?: null,
                 'status_id'                 => 1, // reset to pending
                 'dispute_message'           => null, // clear dispute message
-                'updated_at'                => date('Y-m-d H:i:s'),
             ]);
 
             // Update academics
@@ -1077,7 +1076,6 @@ class ApplicationController
                 'rank_position'       => $data['rank_position'] ?: null,
                 'status_id'           => 1, // reset to pending
                 'dispute_message'     => null, // clear dispute message
-                'updated_at'          => date('Y-m-d H:i:s'),
             ]);
 
             // Update academics
