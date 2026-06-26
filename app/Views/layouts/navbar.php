@@ -16,19 +16,15 @@ $isRegister = str_starts_with($uri, '/register');
 <!-- ── CLASSIC CENTERED HEADER ── -->
 <div class="tsp-classic-header">
     <div class="container">
-        <a href="/" class="tsp-classic-brand" aria-label="Tamboli Samaj Portal Home"
-           style="text-decoration:none; color:inherit;">
+        <a href="/" class="tsp-classic-brand" aria-label="Tamboli Samaj Portal Home">
             <img src="/assets/images/logo/logo-placeholder.svg"
                  alt="Tamboli Samaj Vikas Sanstha Logo"
                  class="tsp-classic-logo"
-                 width="88" height="88"
-                 style="width:88px;height:88px;min-width:88px;min-height:88px;max-width:88px;max-height:88px;object-fit:contain;border-radius:50%;border:3px solid #c62828;box-shadow:0 2px 12px rgba(198,40,40,.18);display:block;">
-            <h1 class="tsp-classic-title-hi"
-                style="font-size:clamp(1.5rem,3vw,2.4rem);font-weight:700;color:#1a1a1a;margin:0;line-height:1.2;text-decoration:none;">
+                 width="72" height="72">
+            <h1 class="tsp-classic-title-hi">
                 प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल
             </h1>
-            <p class="tsp-classic-title-en"
-               style="font-size:clamp(0.8rem,1.5vw,1.1rem);font-weight:700;color:#c62828;margin:0;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;">
+            <p class="tsp-classic-title-en">
                 TAMBOLI SAMAJ VIKAS SANSTHA, RAJASTHAN
             </p>
         </a>
