@@ -6,70 +6,86 @@ $dashHref = Auth::isAdmin()
     ? '/admin'
     : (Auth::isRepresentative() ? '/representative' : '/dashboard');
 $uri = $_SERVER['REQUEST_URI'] ?? '/';
-$isHome = $uri === '/' || $uri === '/home';
-$isApply = str_starts_with($uri, '/applications/create');
-$isLogin = str_starts_with($uri, '/login');
+$isHome    = $uri === '/' || $uri === '/home';
+$isApply   = str_starts_with($uri, '/applications/create');
+$isTrack   = str_starts_with($uri, '#status-tracker') || str_starts_with($uri, '/?track');
+$isLogin   = str_starts_with($uri, '/login');
 $isRegister = str_starts_with($uri, '/register');
 ?>
 
-<!-- ── PREMIUM GLASSMORPHIC NAVBAR ── -->
-<header class="tsp-premium-navbar" id="tspPremiumNavbar">
+<!-- ── CLASSIC CENTERED HEADER ── -->
+<div class="tsp-classic-header">
     <div class="container">
-        <nav class="tsp-navbar-inner" aria-label="Primary navigation">
-            <!-- Brand -->
-            <a href="/" class="tsp-navbar-brand">
-                <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj Logo" class="tsp-navbar-logo">
-                <div class="tsp-navbar-titles">
-                    <span class="tsp-navbar-title-hi">प्रतिभा सम्मान पोर्टल</span>
-                    <span class="tsp-navbar-title-en">Tamboli Samaj Vikas Sanstha</span>
-                </div>
-            </a>
+        <a href="/" class="tsp-classic-brand" aria-label="Tamboli Samaj Portal Home">
+            <img src="/assets/images/logo/logo-placeholder.svg"
+                 alt="Tamboli Samaj Vikas Sanstha Logo"
+                 class="tsp-classic-logo">
+            <h1 class="tsp-classic-title-hi">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</h1>
+            <p class="tsp-classic-title-en">TAMBOLI SAMAJ VIKAS SANSTHA, RAJASTHAN</p>
+        </a>
+    </div>
+</div>
 
-            <!-- Desktop Navigation -->
-            <ul class="tsp-navbar-links d-none d-lg-flex">
+<!-- ── PILL NAVIGATION BAR ── -->
+<div class="tsp-pill-navbar-wrap" id="tspPremiumNavbar">
+    <div class="container">
+        <nav class="tsp-pill-nav" aria-label="Primary navigation">
+
+            <!-- Desktop Links -->
+            <ul class="tsp-pill-nav-links d-none d-lg-flex" role="list">
                 <li>
-                    <a href="/" class="<?= $isHome ? 'active' : '' ?>">
-                        <i class="bi bi-house-door-fill"></i>
-                        <span>मुख्य पृष्ठ</span>
+                    <a href="/" class="tsp-pill-link <?= $isHome ? 'active' : '' ?>" aria-current="<?= $isHome ? 'page' : 'false' ?>">
+                        <i class="bi bi-house-fill" aria-hidden="true"></i>
+                        <span>मुख्य पृष</span>
                     </a>
                 </li>
                 <li>
-                    <a href="/applications/create" class="<?= $isApply ? 'active' : '' ?>">
-                        <i class="bi bi-file-earmark-plus-fill"></i>
+                    <a href="/applications/create" class="tsp-pill-link <?= $isApply ? 'active' : '' ?>" aria-current="<?= $isApply ? 'page' : 'false' ?>">
+                        <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
                         <span>आवेदन</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#status-tracker">
-                        <i class="bi bi-search"></i>
+                    <a href="/#status-tracker" class="tsp-pill-link <?= $isTrack ? 'active' : '' ?>">
+                        <i class="bi bi-search" aria-hidden="true"></i>
                         <span>स्थिति खोजें</span>
                     </a>
                 </li>
+                <?php if (Auth::guest()): ?>
+                    <li>
+                        <a href="/login" class="tsp-pill-link tsp-pill-login <?= $isLogin ? 'active' : '' ?>">
+                            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+                            <span>लॉगिन</span>
+                        </a>
+                    </li>
+                <?php else: ?>
+                    <li>
+                        <a href="<?= Helpers::esc($dashHref) ?>" class="tsp-pill-link">
+                            <i class="bi bi-speedometer2" aria-hidden="true"></i>
+                            <span>डैशबोर्ड</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
             </ul>
 
-            <!-- Desktop CTA -->
-            <div class="tsp-navbar-cta d-none d-lg-flex">
-                <?php if (Auth::guest()): ?>
-                    <a href="/login" class="tsp-navbar-link-btn <?= $isLogin ? 'active' : '' ?>">लॉगिन</a>
-                    <a href="/register" class="tsp-navbar-btn-primary">पंजीकरण</a>
-                <?php else: ?>
-                    <a href="<?= Helpers::esc($dashHref) ?>" class="tsp-navbar-btn-primary">
-                        <i class="bi bi-speedometer2"></i>
-                        <span>डैशबोर्ड</span>
-                    </a>
-                <?php endif; ?>
-            </div>
-
             <!-- Mobile Toggle -->
-            <button class="tsp-navbar-toggle d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#tspMobileNav" aria-controls="tspMobileNav" aria-label="Open menu">
-                <i class="bi bi-list"></i>
+            <button class="tsp-pill-toggle d-lg-none"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#tspMobileNav"
+                    aria-controls="tspMobileNav"
+                    aria-label="मेनू खोलें">
+                <i class="bi bi-list" aria-hidden="true"></i>
             </button>
         </nav>
     </div>
-</header>
+</div>
 
-<!-- Mobile Offcanvas Drawer -->
-<div class="offcanvas offcanvas-end tsp-mobile-nav" tabindex="-1" id="tspMobileNav" aria-labelledby="tspMobileNavLabel">
+<!-- ── Mobile Offcanvas Drawer ── -->
+<div class="offcanvas offcanvas-end tsp-mobile-nav"
+     tabindex="-1"
+     id="tspMobileNav"
+     aria-labelledby="tspMobileNavLabel">
     <div class="offcanvas-header">
         <div class="tsp-mobile-brand">
             <img src="/assets/images/logo/logo-placeholder.svg" alt="Logo" class="tsp-mobile-logo">
@@ -78,26 +94,26 @@ $isRegister = str_starts_with($uri, '/register');
                 <div class="tsp-mobile-title-en">Tamboli Samaj</div>
             </div>
         </div>
-        <button type="button" class="tsp-mobile-close" data-bs-dismiss="offcanvas" aria-label="Close menu">
-            <i class="bi bi-x-lg"></i>
+        <button type="button" class="tsp-mobile-close" data-bs-dismiss="offcanvas" aria-label="मेनू बंद करें">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
     </div>
     <div class="offcanvas-body">
         <ul class="tsp-mobile-nav-list">
             <li>
                 <a href="/" class="<?= $isHome ? 'active' : '' ?>" data-bs-dismiss="offcanvas">
-                    <i class="bi bi-house-door-fill"></i>
+                    <i class="bi bi-house-fill"></i>
                     <span>मुख्य पृष्ठ / Home</span>
                 </a>
             </li>
             <li>
                 <a href="/applications/create" class="<?= $isApply ? 'active' : '' ?>" data-bs-dismiss="offcanvas">
-                    <i class="bi bi-file-earmark-plus-fill"></i>
+                    <i class="bi bi-file-earmark-text"></i>
                     <span>आवेदन करें / Apply</span>
                 </a>
             </li>
             <li>
-                <a href="#status-tracker" data-bs-dismiss="offcanvas">
+                <a href="/#status-tracker" data-bs-dismiss="offcanvas">
                     <i class="bi bi-search"></i>
                     <span>स्थिति खोजें / Track</span>
                 </a>
