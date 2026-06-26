@@ -350,9 +350,12 @@ Target environment is Apache shared hosting (Hostinger).
 * **Always escape output** in views with `Helpers::esc()`.
 * **Always whitelist columns** when adding dynamic model updates.
 * **Always enforce CSRF** for new POST endpoints.
-* **Upload paths:** Application documents are stored under `uploads/applications/{id}/` (served through `ApplicationController::viewUpload`). Profile photos are stored under `public/uploads/profiles/` and served directly.
+* **Upload paths:** Application documents are stored under `uploads/applications/{id}/` (there is no dedicated file-serving route; files are referred to via their path in templates). Profile photos are stored under `public/uploads/profiles/` and served directly.
 * **Middleware is defined but not heavily wired** in `web.php`; if you add protected route groups, prefer the existing middleware classes instead of duplicating role checks in controllers.
 * **Self-healing schema:** The `Application` model can add columns at runtime. Do not rely on this for intentional schema changes; prefer `database/update_schema.php`.
 * **Bilingual UI:** The views mix Hindi and English; preserve existing language choices when editing templates.
+
+For deeper file-by-file details, see `docs/CODEBASE_INDEX.md` and `README.md`.
+gual UI:** The views mix Hindi and English; preserve existing language choices when editing templates.
 
 For deeper file-by-file details, see `docs/CODEBASE_INDEX.md` and `README.md`.
