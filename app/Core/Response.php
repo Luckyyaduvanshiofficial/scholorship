@@ -82,9 +82,7 @@ class Response
         // Extract variables for the error view
         $errorCode    = $code;
 
-        require VIEW_PATH . '/layouts/header.php';
         require $file;
-        require VIEW_PATH . '/layouts/footer.php';
         exit;
     }
 }

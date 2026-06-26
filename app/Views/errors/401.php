@@ -1,32 +1,72 @@
 <?php
 /**
  * Error 401 — Unauthorized
- * Wrapper (header/footer) handled by Response::abort().
+ * Standalone template matching site design system.
  */
+declare(strict_types=1);
+
 $errorCode    = $errorCode ?? 401;
 $errorMessage = $errorMessage ?? 'You need to log in to access this page.';
 ?>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+    <title><?= $errorCode ?> - लॉगिन आवश्यक / Authentication Required</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <!-- Bootstrap CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Self-hosted Google Fonts -->
+    <link href="/assets/fonts/fonts.css" rel="stylesheet">
+    <!-- Portal Design System Custom CSS -->
+    <link href="/assets/css/style.css?v=2.1.0" rel="stylesheet">
+</head>
+<body class="bg-light">
 
-<div class="container py-5">
-    <div class="row justify-content-center align-items-center min-vh-50">
-        <div class="col-md-6 text-center">
-            <div class="mb-4">
-                <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-circle p-4" style="width: 100px; height: 100px;">
-                    <i class="bi bi-shield-lock-fill fs-1"></i>
+<main class="tsp-auth-wrapper d-flex align-items-center py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
+                <div class="text-center mb-4">
+                    <div class="tsp-auth-logo-wrapper mb-3">
+                        <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
+                    </div>
+                    <h1 class="h3 fw-bold mb-1" style="color:var(--accent);">तम्बोली समाज विकास संस्था</h1>
+                    <p class="small text-muted mb-0">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</p>
                 </div>
-            </div>
-            <h1 class="display-3 fw-bold text-dark mb-1" style="font-family: 'Outfit', sans-serif; letter-spacing: -1px;"><?= $errorCode ?></h1>
-            <h3 class="fw-bold mb-3" style="font-size: 1.5rem;">लॉगिन आवश्यक है / Authentication Required</h3>
-            <p class="text-secondary mb-2" style="font-size: 1.25rem;">आपको इस पृष्ठ तक पहुँचने के लिए पहले लॉग इन करना होगा।</p>
-            <p class="text-muted mb-4 small"><?= \App\Core\Helpers::esc($errorMessage) ?></p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="/login" class="btn btn-success px-4 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 1.15rem;">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> लॉगिन करें / Log In
-                </a>
-                <a href="/" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold" style="font-size: 1.15rem;">
-                    <i class="bi bi-house-door me-1"></i> मुख्य पृष्ठ / Home
-                </a>
+                <div class="card border-0 tsp-auth-card">
+                    <div class="card-body p-4 p-md-5 text-center">
+                        <div class="mb-4">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background-color: rgba(2, 132, 199, 0.06);">
+                                <i class="bi bi-shield-lock-fill" style="font-size: 3.6rem; color: #0284c7;"></i>
+                            </div>
+                        </div>
+                        <h1 class="display-2 fw-bold mb-2" style="font-family: 'Manrope', sans-serif; letter-spacing: -2px; color: var(--accent); line-height: 1;"><?= $errorCode ?></h1>
+                        <h2 class="fw-bold mb-3" style="font-size: 1.8rem; font-family: 'Manrope', 'Noto Sans Devanagari', sans-serif; color: var(--primary);">लॉगिन आवश्यक है / Authentication Required</h2>
+                        <p class="text-muted mb-4" style="font-size: 1.4rem; line-height: 1.6;">क्षमा करें, आपको इस पृष्ठ तक पहुँचने के लिए पहले लॉग इन करना होगा।</p>
+                        <p class="text-muted mb-4 small" style="font-size: 1.2rem; font-style: italic;"><?= \App\Core\Helpers::esc($errorMessage) ?></p>
+                        
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            <a href="/login" class="btn tsp-btn w-100 justify-content-center text-white" style="background:var(--nav-red); border-color:var(--nav-red); display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.6rem; border-radius: 5rem; font-size: 1.4rem; font-weight: 600;">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <span>लॉगिन करें / Log In</span>
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary w-100 justify-content-center" style="border-radius: 5rem; padding: 0.8rem 1.6rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.4rem; font-weight: 600;">
+                                <i class="bi bi-house-door-fill"></i>
+                                <span>मुख्य पृष्ठ / Home</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-center small text-muted mt-4"><i class="bi bi-shield-check me-1"></i> Tamboli Samaj Vikas Sanstha, Rajasthan</p>
             </div>
         </div>
     </div>
-</div>
+</main>
+
+</body>
+</html>
