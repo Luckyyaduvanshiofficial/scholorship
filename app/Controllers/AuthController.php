@@ -409,6 +409,11 @@ class AuthController
      */
     public function logout(): void
     {
+        if (!Csrf::validate()) {
+            Flash::set('error', 'Invalid security token.');
+            Response::redirect('/');
+        }
+
         Auth::logout();
         Flash::set('success', 'You have been logged out.');
         Response::redirect('/');

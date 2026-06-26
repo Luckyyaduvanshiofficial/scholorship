@@ -10,6 +10,7 @@ use App\Core\FileUploader;
 use App\Core\Flash;
 use App\Core\Helpers;
 use App\Core\Input;
+use App\Core\Logger;
 use App\Core\Response;
 use App\Core\Validator;
 use App\Models\Student;
@@ -139,13 +140,22 @@ class ProfileController
             'pincode'     => $data['pincode'] ?: null,
         ];
 
-        $studentModel->update($studentId, $updateData);
+        try {
+            $studentModel->update($studentId, $updateData);
 
-        // Update session name
-        Auth::updateSessionName($data['first_name'] . ' ' . $data['last_name']);
+            // Update session name
+            Auth::updateSessionName($data['first_name'] . ' ' . $data['last_name']);
 
-        Flash::set('success', 'Profile updated successfully.');
-        Response::redirect('/profile');
+            Flash::set('success', 'Profile updated successfully.');
+            Response::redirect('/profile');
+        } catch (\Throwable $e) {
+            Logger::error('Profile update failed', [
+                'student_id' => $studentId,
+                'error'      => $e->getMessage(),
+            ]);
+            Flash::set('error', 'प्रोफ़ाइल अपडेट करने में त्रुटि। कृपया पुनः प्रयास करें।');
+            Response::redirect('/profile/edit');
+        }
     }
 
     /**

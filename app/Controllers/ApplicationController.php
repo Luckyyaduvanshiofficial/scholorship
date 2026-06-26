@@ -764,6 +764,11 @@ class ApplicationController
                 exit;
             }
 
+            if (!\App\Core\Csrf::validate()) {
+                echo json_encode(['success' => false, 'error' => 'Invalid security token.']);
+                exit;
+            }
+
             $appModel = new Application();
             $app = $appModel->find((int)$id);
 
@@ -857,6 +862,11 @@ class ApplicationController
         try {
             if (!Auth::check()) {
                 echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+                exit;
+            }
+
+            if (!\App\Core\Csrf::validate()) {
+                echo json_encode(['success' => false, 'error' => 'Invalid security token.']);
                 exit;
             }
 

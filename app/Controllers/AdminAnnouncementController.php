@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Flash;
 use App\Core\Input;
+use App\Core\Logger;
 use App\Core\Response;
 use App\Core\Validator;
 use PDO;
@@ -161,20 +162,30 @@ class AdminAnnouncementController
         $db = Database::getInstance();
 
         // Check if exists
-        $stmt = $db->prepare("SELECT id FROM announcements WHERE id = ?");
-        $stmt->execute([$id]);
-        if (!$stmt->fetch()) {
-            Flash::set('error', 'Announcement not found.');
+        try {
+            $stmt = $db->prepare("SELECT id FROM announcements WHERE id = ?");
+            $stmt->execute([$id]);
+            if (!$stmt->fetch()) {
+                Flash::set('error', 'Announcement not found.');
+                Response::redirect('/admin/announcements');
+            }
+
+            $stmt = $db->prepare(
+                "UPDATE announcements SET title = ?, content = ?, is_active = ? WHERE id = ?"
+            );
+            $stmt->execute([$title, $content, $isActive, $id]);
+
+            Flash::set('success', 'सूचना सफलतापूर्वक अपडेट की गई।');
+            Response::redirect('/admin/announcements');
+        } catch (\Throwable $e) {
+            Logger::error('Failed to update announcement', [
+                'announcement_id' => $id,
+                'user_id'         => Auth::id(),
+                'error'           => $e->getMessage(),
+            ]);
+            Flash::set('error', 'एक त्रुटि हुई। कृपया पुनः प्रयास करें।');
             Response::redirect('/admin/announcements');
         }
-
-        $stmt = $db->prepare(
-            "UPDATE announcements SET title = ?, content = ?, is_active = ? WHERE id = ?"
-        );
-        $stmt->execute([$title, $content, $isActive, $id]);
-
-        Flash::set('success', 'सूचना सफलतापूर्वक अपडेट की गई।');
-        Response::redirect('/admin/announcements');
     }
 
     /**

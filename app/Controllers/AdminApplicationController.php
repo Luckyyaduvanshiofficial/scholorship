@@ -139,6 +139,16 @@ class AdminApplicationController
         $db->beginTransaction();
 
         try {
+            // Lock the row to prevent race conditions
+            $lockStmt = $db->prepare("SELECT id, status_id FROM applications WHERE id = ? FOR UPDATE");
+            $lockStmt->execute([$id]);
+            $lockedApp = $lockStmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$lockedApp) {
+                $db->rollBack();
+                Flash::set('error', 'Application not found.');
+                Response::redirect('/admin/applications');
+            }
+
             // Transition status to Approved (4)
             $appModel->updateStatus($id, 4, (int) Auth::id());
             $appModel->logHistory($id, 'approved', (int) Auth::id());
@@ -203,6 +213,16 @@ class AdminApplicationController
         $db->beginTransaction();
 
         try {
+            // Lock the row to prevent race conditions
+            $lockStmt = $db->prepare("SELECT id, status_id FROM applications WHERE id = ? FOR UPDATE");
+            $lockStmt->execute([$id]);
+            $lockedApp = $lockStmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$lockedApp) {
+                $db->rollBack();
+                Flash::set('error', 'Application not found.');
+                Response::redirect('/admin/applications');
+            }
+
             $newCount = (int) ($app['correction_count'] ?? 0) + 1;
             $deadline = date('Y-m-d H:i:s', strtotime('+7 days'));
 

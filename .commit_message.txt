@@ -1,0 +1,26 @@
+fix: form security hardening — CSRF, double-submit, race conditions, UX
+
+Security fixes:
+- Added CSRF validation to AJAX upload/delete endpoints (were unprotected)
+- Added FOR UPDATE locking to admin approve/reject (race condition)
+- Added CSRF validation to logout endpoint
+- Converted navbar anchor logout to POST form with CSRF token
+- Skipped sensitive bank fields (account_number, IFSC) in localStorage
+
+Double-submit prevention:
+- Universal form guard in app.js: disables all submit buttons on first click,
+  shows Bootstrap spinner, prevents duplicate POST requests
+- Added spinner + disable to wizard Save Draft and Final Submit buttons
+- Client-side password confirmation match validation on register and reset forms
+
+Error handling:
+- Added try/catch to AdminAnnouncementController (store, update, delete)
+- Added try/catch to AdminSettingsController (update, createSession, activateSession)
+- Added try/catch to ProfileController (update)
+
+UX improvements:
+- Added autocomplete, inputmode, pattern attributes across all forms
+- Added unsaved changes warning on admin settings form
+- Added pattern="[6-9]\d{9}" to profile mobile field
+
+Co-authored-by: CommandCodeBot <noreply@commandcode.ai>

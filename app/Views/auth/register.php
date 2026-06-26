@@ -29,47 +29,47 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-6">
                                     <label for="first_name" class="form-label small fw-semibold">प्रथम नाम / First Name *</label>
-                                    <input type="text" name="first_name" id="first_name" class="form-control" placeholder="First name" value="<?= Helpers::esc($old['first_name'] ?? '') ?>" required autofocus>
+                                    <input type="text" name="first_name" id="first_name" class="form-control" placeholder="First name" value="<?= Helpers::esc($old['first_name'] ?? '') ?>" required autofocus autocomplete="given-name">
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="last_name" class="form-label small fw-semibold">अंतिम नाम / Last Name *</label>
-                                    <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Last name" value="<?= Helpers::esc($old['last_name'] ?? '') ?>" required>
+                                    <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Last name" value="<?= Helpers::esc($old['last_name'] ?? '') ?>" required autocomplete="family-name">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="father_name" class="form-label small fw-semibold">पिता का नाम / Father's Name *</label>
-                                <input type="text" name="father_name" id="father_name" class="form-control" placeholder="Father or guardian name" value="<?= Helpers::esc($old['father_name'] ?? '') ?>" required>
+                                <input type="text" name="father_name" id="father_name" class="form-control" placeholder="Father or guardian name" value="<?= Helpers::esc($old['father_name'] ?? '') ?>" required autocomplete="family-name">
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label small fw-semibold">ईमेल / Email *</label>
                                 <div class="tsp-auth-input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                    <input type="email" name="email" id="email" class="form-control" placeholder="you@example.com" value="<?= Helpers::esc($old['email'] ?? '') ?>" required>
+                                    <input type="email" name="email" id="email" class="form-control" placeholder="you@example.com" value="<?= Helpers::esc($old['email'] ?? '') ?>" required autocomplete="email" inputmode="email">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="mobile" class="form-label small fw-semibold">मोबाइल नंबर / Mobile Number *</label>
                                 <div class="tsp-auth-input-group">
                                     <span class="input-group-text">+91</span>
-                                    <input type="tel" name="mobile" id="mobile" class="form-control" placeholder="9876543210" maxlength="10" pattern="[6-9]\d{9}" value="<?= Helpers::esc($old['mobile'] ?? '') ?>" required>
+                                    <input type="tel" name="mobile" id="mobile" class="form-control" placeholder="9876543210" maxlength="10" pattern="[6-9]\d{9}" value="<?= Helpers::esc($old['mobile'] ?? '') ?>" required autocomplete="tel" inputmode="numeric">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="address" class="form-label small fw-semibold">पता / Address *</label>
-                                <textarea name="address" id="address" class="form-control" rows="2" placeholder="House, street, area" required><?= Helpers::esc($old['address'] ?? '') ?></textarea>
+                                <textarea name="address" id="address" class="form-control" rows="2" placeholder="House, street, area" required autocomplete="street-address"><?= Helpers::esc($old['address'] ?? '') ?></textarea>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-sm-4">
                                     <label for="city" class="form-label small fw-semibold">शहर / City</label>
-                                    <input type="text" name="city" id="city" class="form-control" value="<?= Helpers::esc($old['city'] ?? '') ?>">
+                                    <input type="text" name="city" id="city" class="form-control" value="<?= Helpers::esc($old['city'] ?? '') ?>" autocomplete="address-level2">
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="जिला" class="form-label small fw-semibold">जिला / District</label>
-                                    <input type="text" name="district" id="district" class="form-control" value="<?= Helpers::esc($old['district'] ?? '') ?>">
+                                    <input type="text" name="district" id="district" class="form-control" value="<?= Helpers::esc($old['district'] ?? '') ?>" autocomplete="address-level1">
                                 </div>
                                 <div class="col-sm-4">
                                     <label for="pincode" class="form-label small fw-semibold">पिनकोड / Pincode</label>
-                                    <input type="text" name="pincode" id="pincode" class="form-control" maxlength="6" pattern="\d{6}" value="<?= Helpers::esc($old['pincode'] ?? '') ?>">
+                                    <input type="text" name="pincode" id="pincode" class="form-control" maxlength="6" pattern="\d{6}" value="<?= Helpers::esc($old['pincode'] ?? '') ?>" autocomplete="postal-code" inputmode="numeric">
                                 </div>
                             </div>
                             <div class="mb-4">
@@ -95,7 +95,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <label for="password_confirm" class="form-label small fw-semibold">पुष्टि करें / Confirm *</label>
                                     <div class="tsp-auth-input-group tsp-password-group">
                                         <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                                        <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="Re-enter password" minlength="6" required>
+                                        <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="Re-enter password" minlength="6" required autocomplete="new-password">
                                         <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
                                     </div>
                                 </div>
@@ -112,5 +112,40 @@ require VIEW_PATH . '/layouts/flash-message.php';
         </div>
     </div>
 </main>
+
+<script>
+// Client-side password confirmation match
+(function() {
+    var pwd = document.getElementById('password');
+    var confirm = document.getElementById('password_confirm');
+    var form = pwd && pwd.closest('form');
+    if (!pwd || !confirm || !form) return;
+
+    var feedback = document.createElement('div');
+    feedback.className = 'invalid-feedback d-block';
+    feedback.textContent = 'पासवर्ड मेल नहीं खाते / Passwords do not match';
+    confirm.parentNode.appendChild(feedback);
+
+    function checkMatch() {
+        if (confirm.value.length > 0 && pwd.value !== confirm.value) {
+            confirm.classList.add('is-invalid');
+        } else {
+            confirm.classList.remove('is-invalid');
+            confirm.setCustomValidity('');
+        }
+    }
+
+    // Also hook into form submit to catch native validation
+    form.addEventListener('submit', function(e) {
+        if (pwd.value !== confirm.value) {
+            confirm.classList.add('is-invalid');
+            confirm.setCustomValidity('Passwords do not match');
+        }
+    });
+
+    pwd.addEventListener('input', checkMatch);
+    confirm.addEventListener('input', checkMatch);
+})();
+</script>
 
 <?php require VIEW_PATH . '/layouts/footer.php'; ?>

@@ -918,6 +918,8 @@ function compileFormPreview() {
 }
 
 function saveDraftAction() {
+    var btn = document.querySelector('#btnSaveDraft, button[onclick="saveDraftAction()"]');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> सेव... / Saving...'; }
     document.getElementById('wizardAction').value = 'save_draft';
     const form = document.getElementById('pratibhaWizardForm');
     form.submit();
@@ -930,6 +932,8 @@ function confirmFinalSubmit() {
         return;
     }
     if (confirm('क्या आप सुनिश्चित हैं? सबमिशन के बाद आप संपादन नहीं कर सकते। / Are you sure? You cannot edit after submission.')) {
+        var btn = document.getElementById('btnSubmit');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> सबमिट... / Submitting...'; }
         document.getElementById('wizardAction').value = 'final_submit';
         const form = document.getElementById('pratibhaWizardForm');
         form.submit();

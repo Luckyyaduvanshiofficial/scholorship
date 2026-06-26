@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Auth;
+use App\Core\Csrf;
 use App\Core\Database;
 use App\Core\Flash;
 use App\Core\Input;
+use App\Core\Logger;
 use App\Core\Response;
 use App\Core\Validator;
 use PDO;
@@ -155,30 +157,40 @@ class AdminSettingsController
             Response::redirect('/admin/settings');
         }
 
-        $db = Database::getInstance();
+        try {
+            $db = Database::getInstance();
 
-        // Check if session exists
-        $stmt = $db->prepare("SELECT session_name FROM academic_sessions WHERE id = ?");
-        $stmt->execute([$id]);
-        $sessionName = $stmt->fetchColumn();
+            // Check if session exists
+            $stmt = $db->prepare("SELECT session_name FROM academic_sessions WHERE id = ?");
+            $stmt->execute([$id]);
+            $sessionName = $stmt->fetchColumn();
 
-        if (!$sessionName) {
-            Flash::set('error', 'Session not found.');
+            if (!$sessionName) {
+                Flash::set('error', 'Session not found.');
+                Response::redirect('/admin/settings');
+            }
+
+            // Set all sessions to inactive
+            $db->query("UPDATE academic_sessions SET is_active = 0");
+
+            // Set this session to active
+            $stmt = $db->prepare("UPDATE academic_sessions SET is_active = 1 WHERE id = ?");
+            $stmt->execute([$id]);
+
+            // Also update current_session_id in settings table
+            $stmt = $db->prepare("UPDATE settings SET value = ? WHERE `key` = 'current_session_id'");
+            $stmt->execute([(string) $id]);
+
+            Flash::set('success', "शैक्षणिक सत्र {$sessionName} को सक्रिय सत्र के रूप में सेट किया गया है।");
+            Response::redirect('/admin/settings');
+        } catch (\Throwable $e) {
+            Logger::error('Failed to activate academic session', [
+                'session_id' => $id,
+                'user_id'    => Auth::id(),
+                'error'      => $e->getMessage(),
+            ]);
+            Flash::set('error', 'सत्र सक्रिय करने में त्रुटि। कृपया पुनः प्रयास करें।');
             Response::redirect('/admin/settings');
         }
-
-        // Set all sessions to inactive
-        $db->query("UPDATE academic_sessions SET is_active = 0");
-
-        // Set this session to active
-        $stmt = $db->prepare("UPDATE academic_sessions SET is_active = 1 WHERE id = ?");
-        $stmt->execute([$id]);
-
-        // Also update current_session_id in settings table
-        $stmt = $db->prepare("UPDATE settings SET value = ? WHERE `key` = 'current_session_id'");
-        $stmt->execute([(string) $id]);
-
-        Flash::set('success', "शैक्षणिक सत्र {$sessionName} को सक्रिय सत्र के रूप में सेट किया गया है।");
-        Response::redirect('/admin/settings');
     }
 }

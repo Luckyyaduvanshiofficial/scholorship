@@ -1094,6 +1094,8 @@ function compileFormPreview() {
 }
 
 function saveDraftAction() {
+    var btn = document.querySelector('#btnSaveDraft, button[onclick="saveDraftAction()"]');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> सेव... / Saving...'; }
     document.getElementById('wizardAction').value = 'save_draft';
     const form = document.getElementById('scholarshipWizardForm');
     form.submit();
@@ -1106,6 +1108,8 @@ function confirmFinalSubmit() {
         return;
     }
     if (confirm('क्या आप सुनिश्चित हैं? सबमिशन के बाद आप संपादन नहीं कर सकते। / Are you sure? You cannot edit after submission.')) {
+        var btn = document.getElementById('btnSubmit');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> सबमिट... / Submitting...'; }
         document.getElementById('wizardAction').value = 'final_submit';
         const form = document.getElementById('scholarshipWizardForm');
         form.submit();
@@ -1138,11 +1142,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const wizardForm = document.getElementById('scholarshipWizardForm');
     if (!wizardForm) return;
 
-    // Save form data to localStorage
+    // Save form data to localStorage (skip sensitive bank fields)
     function saveFormDraft() {
+        const sensitiveFields = ['account_number', 'confirm_account_number', 'ifsc_code'];
         const formData = {};
         wizardForm.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([name="csrf_token"]), select, textarea').forEach(input => {
             if (input.name && !input.readOnly && !input.disabled) {
+                // Skip sensitive bank fields for security
+                if (sensitiveFields.includes(input.name)) return;
                 if (input.type === 'checkbox' || input.type === 'radio') {
                     if (input.checked) {
                         formData[input.name] = input.value;

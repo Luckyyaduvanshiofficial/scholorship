@@ -117,7 +117,8 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <div class="input-group">
                                         <span class="input-group-text">+91</span>
                                         <input type="tel" name="mobile" id="mobile" maxlength="10"
-                                               class="form-control" value="<?= Helpers::esc($oldMobile) ?>" required>
+                                               class="form-control" value="<?= Helpers::esc($oldMobile) ?>" required
+                                               pattern="[6-9]\d{9}" inputmode="numeric" autocomplete="tel">
                                     </div>
                                 </div>
                                 <div class="col-sm-6">

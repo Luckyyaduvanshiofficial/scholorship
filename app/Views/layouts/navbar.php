@@ -160,10 +160,13 @@ $isRegister = str_starts_with($uri, '/register');
                     </a>
                 </li>
                 <li>
-                    <a href="/logout" data-bs-dismiss="offcanvas" class="text-danger">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>लॉगआउट / Logout</span>
-                    </a>
+                    <form action="/logout" method="post" class="m-0">
+                        <?= Csrf::field() ?>
+                        <button type="submit" data-bs-dismiss="offcanvas" class="text-danger border-0 bg-transparent w-100 text-start d-flex align-items-center gap-2 py-1">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>लॉगआउट / Logout</span>
+                        </button>
+                    </form>
                 </li>
             <?php endif; ?>
         </ul>

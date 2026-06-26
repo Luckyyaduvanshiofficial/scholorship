@@ -28,7 +28,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <label for="password" class="form-label small fw-semibold">नया पासवर्ड / New Password</label>
                                 <div class="tsp-auth-input-group tsp-password-group">
                                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" minlength="6" required autofocus>
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" minlength="6" required autofocus autocomplete="new-password">
                                     <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
                                 </div>
                             </div>
@@ -49,5 +49,39 @@ require VIEW_PATH . '/layouts/flash-message.php';
         </div>
     </div>
 </main>
+
+<script>
+// Client-side password confirmation match
+(function() {
+    var pwd = document.getElementById('password');
+    var confirm = document.getElementById('password_confirm');
+    var form = pwd && pwd.closest('form');
+    if (!pwd || !confirm || !form) return;
+
+    var feedback = document.createElement('div');
+    feedback.className = 'invalid-feedback d-block';
+    feedback.textContent = 'पासवर्ड मेल नहीं खाते / Passwords do not match';
+    confirm.parentNode.appendChild(feedback);
+
+    function checkMatch() {
+        if (confirm.value.length > 0 && pwd.value !== confirm.value) {
+            confirm.classList.add('is-invalid');
+        } else {
+            confirm.classList.remove('is-invalid');
+            confirm.setCustomValidity('');
+        }
+    }
+
+    form.addEventListener('submit', function(e) {
+        if (pwd.value !== confirm.value) {
+            confirm.classList.add('is-invalid');
+            confirm.setCustomValidity('Passwords do not match');
+        }
+    });
+
+    pwd.addEventListener('input', checkMatch);
+    confirm.addEventListener('input', checkMatch);
+})();
+</script>
 
 <?php require VIEW_PATH . '/layouts/footer.php'; ?>

@@ -37,7 +37,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label small fw-semibold">ईमेल / Email</label>
-                                <input type="email" name="email" id="email" class="form-control tsp-input" placeholder="you@example.com" value="<?= Helpers::esc($emailVal) ?>" required autofocus>
+                                <input type="email" name="email" id="email" class="form-control tsp-input" placeholder="you@example.com" value="<?= Helpers::esc($emailVal) ?>" required autofocus autocomplete="email" inputmode="email">
                             </div>
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -45,7 +45,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <a href="/forgot-password" class="small text-decoration-none fw-semibold" style="color:var(--nav-red); font-size: 1.2rem;">पासवर्ड भूल गए? / Forgot?</a>
                                 </div>
                                 <div class="tsp-password-group position-relative">
-                                    <input type="password" name="password" id="password" class="form-control tsp-input tsp-input-pw" placeholder="••••••••" required>
+                                    <input type="password" name="password" id="password" class="form-control tsp-input tsp-input-pw" placeholder="••••••••" required autocomplete="current-password">
                                     <?php require VIEW_PATH . '/layouts/password-toggle.php'; ?>
                                 </div>
                             </div>

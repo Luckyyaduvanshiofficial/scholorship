@@ -198,6 +198,23 @@ require VIEW_PATH . '/layouts/flash-message.php';
 
 </div>
 
+<!-- Unsaved changes warning for settings form -->
+<script>
+(function() {
+    var form = document.querySelector('form[action="/admin/settings/update"]');
+    if (!form) return;
+    var modified = false;
+    form.querySelectorAll('input, select, textarea').forEach(function(el) {
+        el.addEventListener('change', function() { modified = true; });
+        el.addEventListener('input', function() { modified = true; });
+    });
+    form.addEventListener('submit', function() { modified = false; });
+    window.addEventListener('beforeunload', function(e) {
+        if (modified) { e.preventDefault(); e.returnValue = ''; }
+    });
+})();
+</script>
+
 <!-- Sidebar toggle script -->
 <?php require VIEW_PATH . '/layouts/admin-sidebar-script.php'; ?>
 
