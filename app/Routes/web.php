@@ -45,6 +45,8 @@ $router->post('/applications/{id}/edit', 'ApplicationController@update');
 $router->post('/applications/{id}/upload-document', 'ApplicationController@uploadDocumentAjax');
 $router->post('/applications/{id}/delete-document', 'ApplicationController@deleteDocumentAjax');
 $router->get('/uploads/applications/{id}/{filename}', 'ApplicationController@viewUpload');
+$router->post('/applications/step/{step}', 'ApplicationController@storeStep');
+$router->get('/applications/{id}/acknowledgment', 'ApplicationController@acknowledgment');
 
 // ─── Admin Application Routes ─────────────────────────────
 $router->get('/admin/applications', 'AdminApplicationController@index');

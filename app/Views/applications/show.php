@@ -10,19 +10,27 @@ $app = $application ?? [];
 // Define status translate and badge helper
 $statusBadgeClass = function(string $statusName): string {
     return match($statusName) {
-        'Approved' => 'bg-success-subtle text-success border border-success',
-        'Rejected' => 'bg-danger-subtle text-danger border border-danger',
-        'Disputed' => 'bg-warning-subtle text-warning-emphasis border border-warning',
-        default    => 'bg-secondary-subtle text-secondary border border-secondary',
+        'Draft'              => 'bg-secondary text-white',
+        'Submitted'          => 'bg-primary text-white',
+        'Under Review'       => 'bg-warning text-dark',
+        'Approved'           => 'bg-success text-white',
+        'Rejected'           => 'bg-danger text-white',
+        'Pending Correction' => 'bg-warning-subtle text-warning-emphasis border border-warning',
+        'Resubmitted'        => 'bg-info text-dark',
+        default              => 'bg-secondary text-white',
     };
 };
 
 $statusTranslate = function(string $statusName): string {
     return match($statusName) {
-        'Approved' => 'स्वीकृत (Approved)',
-        'Rejected' => 'अस्वीकृत (Rejected)',
-        'Disputed' => 'त्रुटि/विवाद (Action Required)',
-        default    => 'लंबित (Pending)',
+        'Draft'              => 'प्रारूप (Draft)',
+        'Submitted'          => 'जमा किया गया (Submitted)',
+        'Under Review'       => 'समीक्षाधीन (Under Review)',
+        'Approved'           => 'स्वीकृत (Approved)',
+        'Rejected'           => 'अस्वीकृत (Rejected)',
+        'Pending Correction' => 'सुधार लंबित (Pending Correction)',
+        'Resubmitted'        => 'पुनः जमा किया गया (Resubmitted)',
+        default              => 'अज्ञात (Unknown)',
     };
 };
 
@@ -42,45 +50,72 @@ if (!empty($app['documents'])) {
 
 // Calculate timeline progress width and step classes
 $timelineProgress = 0;
-$step1Class = 'completed';
+$step1Class = '';
 $step2Class = '';
 $step3Class = '';
 $step4Class = '';
 
-$step1Icon = 'bi-check-circle-fill';
+$step1Icon = 'bi-circle';
 $step2Icon = 'bi-circle';
 $step3Icon = 'bi-circle';
 $step4Icon = 'bi-circle';
 
 switch ($app['status_name'] ?? '') {
+    case 'Draft':
+        $timelineProgress = 0;
+        $step1Class = 'active';
+        $step1Icon = 'bi-circle';
+        break;
+    case 'Submitted':
+    case 'Resubmitted':
+        $timelineProgress = 33;
+        $step1Class = 'completed';
+        $step2Class = 'active';
+        $step1Icon = 'bi-check-circle-fill';
+        $step2Icon = 'bi-hourglass-split text-primary';
+        break;
+    case 'Under Review':
+        $timelineProgress = 66;
+        $step1Class = 'completed';
+        $step2Class = 'completed';
+        $step3Class = 'active';
+        $step1Icon = 'bi-check-circle-fill';
+        $step2Icon = 'bi-check-circle-fill';
+        $step3Icon = 'bi-hourglass-split text-primary';
+        break;
     case 'Approved':
         $timelineProgress = 100;
+        $step1Class = 'completed';
         $step2Class = 'completed';
         $step3Class = 'completed';
         $step4Class = 'completed status-approved';
+        $step1Icon = 'bi-check-circle-fill';
         $step2Icon = 'bi-check-circle-fill';
         $step3Icon = 'bi-check-circle-fill';
         $step4Icon = 'bi-check-circle-fill';
         break;
     case 'Rejected':
         $timelineProgress = 100;
+        $step1Class = 'completed';
         $step2Class = 'completed';
         $step3Class = 'completed';
         $step4Class = 'completed status-rejected';
+        $step1Icon = 'bi-check-circle-fill';
         $step2Icon = 'bi-check-circle-fill';
         $step3Icon = 'bi-check-circle-fill';
         $step4Icon = 'bi-x-circle-fill';
         break;
-    case 'Disputed':
+    case 'Pending Correction':
         $timelineProgress = 33;
+        $step1Class = 'completed';
         $step2Class = 'active disputed';
+        $step1Icon = 'bi-check-circle-fill';
         $step2Icon = 'bi-exclamation-triangle-fill text-warning';
         break;
-    case 'Pending':
     default:
-        $timelineProgress = 33;
-        $step2Class = 'active';
-        $step2Icon = 'bi-hourglass-split text-primary';
+        $timelineProgress = 0;
+        $step1Class = 'active';
+        $step1Icon = 'bi-circle';
         break;
 }
 
@@ -414,18 +449,24 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     </div>
                     
                     <div class="d-flex gap-2 align-items-center">
-                        <?php if (in_array($app['status_name'] ?? '', ['Pending', 'Disputed'], true)): ?>
+                        <?php if (in_array($app['status_name'] ?? '', ['Draft', 'Rejected', 'Pending Correction'], true)): ?>
                             <a href="/applications/<?= (int) $app['id'] ?>/edit" class="btn btn-warning rounded-pill d-inline-flex align-items-center gap-2 shadow-sm px-3.5 py-2 fw-semibold hover-scale">
                                 <i class="bi bi-pencil-fill"></i>
                                 <span>संशोधन / Edit</span>
+                            </a>
+                        <?php endif; ?>
+                        <?php if (in_array($app['status_name'] ?? '', ['Submitted', 'Resubmitted', 'Under Review', 'Approved'], true)): ?>
+                            <a href="/applications/<?= (int) $app['id'] ?>/acknowledgment" class="btn btn-success rounded-pill d-inline-flex align-items-center gap-2 shadow-sm px-3.5 py-2 fw-semibold hover-scale">
+                                <i class="bi bi-file-earmark-check-fill"></i>
+                                <span>पावती पत्र / Acknowledgment</span>
                             </a>
                         <?php endif; ?>
                         <button type="button" class="btn btn-outline-dark rounded-pill d-inline-flex align-items-center gap-2 shadow-sm px-3.5 py-2 fw-semibold" onclick="window.print();">
                             <i class="bi bi-printer-fill"></i>
                             <span>प्रिंट / Print PDF</span>
                         </button>
-                        <span class="badge py-2.5 px-3.5 rounded-pill fw-bold fs-6 <?= $statusBadgeClass($app['status_name'] ?? 'Pending') ?>">
-                            <?= $statusTranslate($app['status_name'] ?? 'Pending') ?>
+                        <span class="badge py-2.5 px-3.5 rounded-pill fw-bold fs-6 <?= $statusBadgeClass($app['status_name'] ?? 'Draft') ?>">
+                            <?= $statusTranslate($app['status_name'] ?? 'Draft') ?>
                         </span>
                     </div>
                 </div>
@@ -477,67 +518,76 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 </div>
             </div>
 
-            <!-- Dispute Warning Notice -->
-            <?php if (!empty($app['dispute_message'])): ?>
-                <div class="alert alert-warning border-0 shadow-sm mb-4 p-4" style="border-radius: 1.25rem; border-left: 6px solid #d97706 !important;">
+            <!-- Dispute Warning Notice & Countdown -->
+            <?php if (!empty($app['dispute_message']) || in_array($app['status_name'] ?? '', ['Rejected', 'Pending Correction'], true)): ?>
+                <div class="alert alert-warning border-0 shadow-sm mb-4 p-4 animate__animated animate__fadeIn" style="border-radius: 1.25rem; border-left: 6px solid #d97706 !important;">
                     <div class="d-flex align-items-start gap-3">
-                        <div class="bg-warning text-dark rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm">
+                        <div class="bg-warning text-dark rounded-circle p-2.5 d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px; flex-shrink: 0;">
                             <i class="bi bi-exclamation-triangle-fill fs-4"></i>
                         </div>
-                        <div>
-                            <h5 class="fw-bold text-dark mb-1 fs-5">संशोधन की आवश्यकता (Action Required)</h5>
-                            <p class="mb-0 text-dark small" style="line-height: 1.6;"><?= Helpers::esc($app['dispute_message']) ?></p>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
+                        <div class="w-100">
+                            <h5 class="fw-bold text-dark mb-1.5 fs-5">संशोधन की आवश्यकता (Correction Required)</h5>
+                            <?php if (!empty($app['dispute_message'])): ?>
+                                <p class="mb-3 text-dark small bg-white p-3 rounded-3 border-start border-3 border-warning shadow-sm" style="line-height: 1.6;">
+                                    <strong>कारण / Reason:</strong> <?= Helpers::esc($app['dispute_message']) ?>
+                                </p>
+                            <?php endif; ?>
+                            <p class="mb-3 text-dark small" style="line-height: 1.6;">
+                                कृपया सुधार करने के लिए ऊपर दिए गए <strong>"संशोधन / Edit"</strong> बटन पर क्लिक करें। आप अपने संपूर्ण विवरण और दस्तावेज़ों को संपादित कर सकते हैं।
+                                <br><span class="fst-italic text-muted">Please click the <strong>"Edit"</strong> button above to start correcting your application. You will be able to edit all steps and documents.</span>
+                            </p>
 
-            <!-- Dispute Resolution Resubmission Form -->
-            <?php if (($app['status_name'] ?? '') === 'Disputed'): ?>
-                <div class="card border-0 shadow-sm border-start border-warning border-4 mb-4" style="border-radius: 1.25rem;">
-                    <div class="card-body p-4 p-md-5">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <div class="d-flex align-items-center justify-content-center bg-warning-subtle text-warning-emphasis rounded-circle" style="width: 36px; height: 36px;">
-                                <i class="bi bi-arrow-counterclockwise fs-5"></i>
-                            </div>
-                            <h4 class="h5 fw-bold mb-0 text-dark">विवाद समाधान एवं दस्तावेज़ पुनः अपलोड / Resolve & Resubmit Documents</h4>
-                        </div>
-                        <p class="text-muted small mb-4" style="line-height: 1.6;">
-                            कृपया त्रुटि निवारण के लिए आवश्यक संशोधित दस्तावेज़ यहाँ अपलोड करें। आप एक या अधिक दस्तावेज़ अपडेट कर सकते हैं।
-                            <br><span class="fst-italic text-muted">Please upload the corrected documents below to resolve the dispute and resubmit your application.</span>
-                        </p>
-
-                        <form action="/applications/<?= (int) $app['id'] ?>/resubmit" method="POST" enctype="multipart/form-data">
-                            <?= Csrf::field() ?>
-                            
-                            <div class="row g-4 mb-4">
-                                <!-- Marksheet -->
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">संशोधित अंकतालिका अपलोड करें / Upload Corrected Marksheet (JPG/PNG/PDF)</label>
-                                    <input type="file" name="marksheet" class="form-control border-2 py-2" style="border-radius: 0.5rem;" accept=".jpg,.jpeg,.png,.pdf">
+                            <?php if (!empty($app['correction_deadline'])): ?>
+                                <?php
+                                $deadlineTime = strtotime($app['correction_deadline']);
+                                $timeLeft = $deadlineTime - time();
+                                $isExpired = $timeLeft <= 0;
+                                ?>
+                                <div class="border-top pt-3 mt-2">
+                                    <?php if ($isExpired): ?>
+                                        <div class="badge bg-danger text-white py-2.5 px-4 rounded-pill fw-bold font-monospace fs-6 shadow-sm">
+                                            ⚠️ सुधार समय सीमा समाप्त / Correction Deadline Expired
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="d-flex flex-wrap align-items-center gap-2">
+                                            <span class="small fw-bold text-dark">सुधार की अंतिम तिथि (Deadline):</span>
+                                            <div class="badge bg-danger text-white py-2 px-3 rounded-pill fw-bold font-monospace fs-6 shadow-sm" id="deadline-countdown" data-deadline="<?= $deadlineTime ?>">
+                                                ⏳ गणना की जा रही है / Calculating...
+                                            </div>
+                                        </div>
+                                        <script>
+                                            (function() {
+                                                const countdownEl = document.getElementById('deadline-countdown');
+                                                const deadline = parseInt(countdownEl.getAttribute('data-deadline')) * 1000;
+                                                
+                                                function updateCountdown() {
+                                                    const now = new Date().getTime();
+                                                    const diff = deadline - now;
+                                                    
+                                                    if (diff <= 0) {
+                                                        countdownEl.innerHTML = "समय सीमा समाप्त / Expired";
+                                                        countdownEl.classList.remove('bg-danger');
+                                                        countdownEl.classList.add('bg-secondary');
+                                                        return;
+                                                    }
+                                                    
+                                                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                                                    
+                                                    countdownEl.innerHTML = `⏳ ${days}d ${hours}h ${minutes}m ${seconds}s शेष / remaining`;
+                                                }
+                                                
+                                                updateCountdown();
+                                                setInterval(updateCountdown, 1000);
+                                            })();
+                                        </script>
+                                    <?php endif; ?>
                                 </div>
-
-                                <?php if (($app['type'] ?? '') === 'scholarship'): ?>
-                                    <!-- Passbook -->
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-semibold text-muted">बैंक पासबुक अपलोड करें / Upload Corrected Bank Passbook (JPG/PNG/PDF)</label>
-                                        <input type="file" name="passbook" class="form-control border-2 py-2" style="border-radius: 0.5rem;" accept=".jpg,.jpeg,.png,.pdf">
-                                    </div>
-                                <?php else: ?>
-                                    <!-- Certificate -->
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-semibold text-muted">योग्यता प्रमाणपत्र अपलोड करें / Upload Corrected Certificate (JPG/PNG/PDF)</label>
-                                        <input type="file" name="certificate" class="form-control border-2 py-2" style="border-radius: 0.5rem;" accept=".jpg,.jpeg,.png,.pdf">
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <button type="submit" class="btn btn-warning fw-bold text-dark px-4 py-2.5 rounded-pill shadow-sm hover-scale">
-                                <i class="bi bi-send-fill me-1"></i> दस्तावेज़ सबमिट करें / Submit Documents
-                            </button>
-                        </form>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
             <?php endif; ?>
 
             <!-- Main Layout Details Grid -->

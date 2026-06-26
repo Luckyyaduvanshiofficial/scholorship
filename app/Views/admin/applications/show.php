@@ -35,20 +35,20 @@ if (!empty($app['documents'])) {
 
 // Helper to determine status badges in Hindi
 function getHindiStatusInfo($statusName) {
-    $statusName = strtolower($statusName ?? '');
-    if ($statusName === 'pending') {
-        return ['text' => 'जांचधीन', 'class' => 'tsp-bg-gold'];
-    } elseif ($statusName === 'approved') {
-        return ['text' => 'स्वीकृत', 'class' => 'tsp-bg-green'];
-    } elseif ($statusName === 'rejected') {
-        return ['text' => 'अस्वीकृत', 'class' => 'tsp-bg-red'];
-    } elseif ($statusName === 'disputed') {
-        return ['text' => 'दस्तावेज सत्यापन', 'class' => 'tsp-bg-blue'];
-    }
-    return ['text' => ucfirst($statusName), 'class' => 'tsp-bg-gold'];
+    $statusLower = strtolower($statusName ?? '');
+    return match($statusLower) {
+        'draft'              => ['text' => 'प्रारूप (Draft)', 'class' => 'bg-secondary text-white'],
+        'submitted'          => ['text' => 'जमा किया गया (Submitted)', 'class' => 'bg-primary text-white'],
+        'under review'       => ['text' => 'समीक्षाधीन (Under Review)', 'class' => 'bg-warning text-dark'],
+        'approved'           => ['text' => 'स्वीकृत (Approved)', 'class' => 'bg-success text-white'],
+        'rejected'           => ['text' => 'अस्वीकृत (Rejected)', 'class' => 'bg-danger text-white'],
+        'pending correction' => ['text' => 'सुधार लंबित (Pending Correction)', 'class' => 'bg-warning text-dark'],
+        'resubmitted'        => ['text' => 'पुनः जमा (Resubmitted)', 'class' => 'bg-info text-dark'],
+        default              => ['text' => $statusName ?: 'लंबित', 'class' => 'bg-secondary text-white']
+    };
 }
 
-$statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
+$statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Submitted');
 ?>
 
 <!-- Outer full-viewport shell -->
@@ -92,47 +92,62 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Pending');
                     </div>
                 </div>
 
+                <!-- Completeness Warning Banner -->
+                <?php if ($isIncomplete ?? false): ?>
+                    <div class="alert alert-danger border-0 shadow-sm mb-4 p-4 animate__animated animate__shakeX" style="border-radius: 16px; border-left: 6px solid #dc3545 !important;">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="bg-danger text-white rounded-circle p-2.5 d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px; flex-shrink: 0;">
+                                <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-dark mb-1 fs-5">⚠️ अपूर्ण आवेदन चेतावनी (Incomplete Application Warning)</h5>
+                                <p class="mb-2 text-dark small">इस आवेदन में कुछ आवश्यक जानकारी या दस्तावेज़ अनुपलब्ध हैं। कृपया समीक्षा करने से पहले सत्यापित करें:</p>
+                                <ul class="mb-0 text-danger small fw-bold">
+                                    <?php foreach ($missingData ?? [] as $missingField): ?>
+                                        <li><?= Helpers::esc($missingField) ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Action Form Buttons Card -->
-                <?php if (($app['status_name'] ?? '') === 'Pending' || ($app['status_name'] ?? '') === 'Disputed'): ?>
+                <?php if (in_array($app['status_name'] ?? '', ['Submitted', 'Resubmitted', 'Under Review', 'Pending Correction'], true)): ?>
                 <div class="card border-0 shadow-sm mb-4 print-hide" style="border-radius: 16px;">
                     <div class="card-body p-4">
                         <h4 class="h5 fw-bold text-dark mb-3 font-heading">निर्णय प्रक्रिया (Action Menu)</h4>
                         <div class="row g-3">
-                            <div class="col-sm-4">
-                                <form action="/admin/applications/<?= (int) $app['id'] ?>/approve" method="post" class="m-0">
+                            <div class="col-sm-6">
+                                <form action="/admin/applications/<?= (int) $app['id'] ?>/approve" method="post" class="m-0" onsubmit="return confirm('क्या आप वाकई इस आवेदन को स्वीकृत करना चाहते हैं? / Are you sure you want to approve this application?');">
                                     <?= Csrf::field() ?>
-                                    <button type="submit" class="btn btn-success w-100 py-2.5 fw-bold rounded-pill" style="font-size: 1.35rem;">
-                                        <i class="bi bi-check-circle-fill me-1"></i> स्वीकृत करें (Approve)
+                                    <button type="submit" class="btn btn-success w-100 py-2.5 fw-bold rounded-pill" style="font-size: 1.3rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i> स्वीकृत करें (Approve Application)
                                     </button>
                                 </form>
                             </div>
-                            <div class="col-sm-4">
-                                <form action="/admin/applications/<?= (int) $app['id'] ?>/reject" method="post" class="m-0">
-                                    <?= Csrf::field() ?>
-                                    <button type="submit" class="btn btn-danger w-100 py-2.5 fw-bold rounded-pill" style="font-size: 1.35rem;">
-                                        <i class="bi bi-x-circle-fill me-1"></i> अस्वीकृत करें (Reject)
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="col-sm-4">
-                                <button type="button" class="btn btn-warning text-dark w-100 py-2.5 fw-bold rounded-pill" style="font-size: 1.35rem;" data-bs-toggle="collapse" data-bs-target="#disputeForm">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> विवादित मार्क करें (Dispute)
+                            <div class="col-sm-6">
+                                <button type="button" class="btn btn-danger w-100 py-2.5 fw-bold rounded-pill" style="font-size: 1.3rem;" data-bs-toggle="collapse" data-bs-target="#rejectCorrectionForm">
+                                    <i class="bi bi-x-circle-fill me-1"></i> अस्वीकृत/सुधार हेतु भेजें (Reject & Request Correction)
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Dispute collapse block -->
-                        <div class="collapse mt-3" id="disputeForm">
+                        <!-- Reject / Correction collapse block -->
+                        <div class="collapse mt-3" id="rejectCorrectionForm">
                             <div class="card card-body bg-light border-0" style="border-radius: 12px;">
-                                <form action="/admin/applications/<?= (int) $app['id'] ?>/dispute" method="post" class="m-0">
+                                <form action="/admin/applications/<?= (int) $app['id'] ?>/reject" method="post" class="m-0">
                                     <?= Csrf::field() ?>
                                     <div class="mb-3">
-                                        <label class="form-label small fw-bold text-secondary">विवाद टिप्पणी (Dispute Remarks / Reason)</label>
-                                        <textarea name="dispute_message" class="form-control" rows="3" style="font-size: 1.3rem; border-radius: 8px;"
-                                                  placeholder="कृपया टिप्पणी दर्ज करें कि यह आवेदन विवादित क्यों घोषित किया जा रहा है..." required></textarea>
+                                        <label class="form-label small fw-bold text-secondary">अस्वीकृति / सुधार का कारण (Reason for Rejection / Correction Required) <span class="text-danger">*</span></label>
+                                        <textarea name="rejection_reason" class="form-control" rows="3" style="font-size: 1.3rem; border-radius: 8px;"
+                                                  placeholder="कृपया स्पष्ट कारण लिखें कि सुधार की आवश्यकता क्यों है (यह छात्र को दिखाया जाएगा)..." required></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-warning fw-bold text-dark px-4 rounded-pill" style="font-size: 1.25rem;">
-                                        <i class="bi bi-send-fill me-1"></i> विवाद सबमिट करें (Submit)
+                                    <div class="form-text text-muted small mb-3">
+                                        अस्वीकार करने पर छात्र को 7 दिनों की सुधार समय सीमा दी जाएगी। (Rejecting opens a 7-day correction window for the student).
+                                    </div>
+                                    <button type="submit" class="btn btn-danger fw-bold text-white px-4 rounded-pill" style="font-size: 1.25rem;">
+                                        <i class="bi bi-send-fill me-1"></i> अस्वीकृत करें और भेजें (Submit Rejection)
                                     </button>
                                 </form>
                             </div>

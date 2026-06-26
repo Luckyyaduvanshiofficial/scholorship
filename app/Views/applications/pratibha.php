@@ -44,19 +44,19 @@ ob_start();
 
             <!-- Form Stepper Header -->
             <div class="tsp-stepper" id="formStepper">
-                <div class="tsp-step-item active" data-step="1">
+                <div class="tsp-step-item <?= $step === 1 ? 'active' : ($step > 1 ? 'completed' : '') ?>" data-step="1">
                     <div class="tsp-step-circle">1</div>
                     <div class="tsp-step-label">व्यक्तिगत विवरण<br><small class="text-muted d-none d-md-inline">Profile</small></div>
                 </div>
-                <div class="tsp-step-item" data-step="2">
+                <div class="tsp-step-item <?= $step === 2 ? 'active' : ($step > 2 ? 'completed' : '') ?>" data-step="2">
                     <div class="tsp-step-circle">2</div>
                     <div class="tsp-step-label">शैक्षणिक व उपलब्धि<br><small class="text-muted d-none d-md-inline">Academic & Trophy</small></div>
                 </div>
-                <div class="tsp-step-item" data-step="3">
+                <div class="tsp-step-item <?= $step === 3 ? 'active' : ($step > 3 ? 'completed' : '') ?>" data-step="3">
                     <div class="tsp-step-circle">3</div>
                     <div class="tsp-step-label">दस्तावेज़ अपलोड<br><small class="text-muted d-none d-md-inline">Uploads</small></div>
                 </div>
-                <div class="tsp-step-item" data-step="4">
+                <div class="tsp-step-item <?= $step === 4 ? 'active' : ($step > 4 ? 'completed' : '') ?>" data-step="4">
                     <div class="tsp-step-circle">4</div>
                     <div class="tsp-step-label">पूर्वावलोकन<br><small class="text-muted d-none d-md-inline">Form Preview</small></div>
                 </div>
@@ -65,11 +65,11 @@ ob_start();
             <!-- Interactive Form Wizard Wrapper -->
             <div class="card border-0 shadow-sm" style="border-radius: 1.25rem;">
                 <div class="card-body p-4 p-md-5">
-                    <form action="<?= $isEdit ? '/applications/' . (int) $application['id'] . '/edit' : '/applications/pratibha' ?>" method="POST" enctype="multipart/form-data" id="pratibhaWizardForm">
+                    <form action="/applications/step/<?= $step ?>" method="POST" enctype="multipart/form-data" id="pratibhaWizardForm">
                         <?= Csrf::field() ?>
 
                         <!-- STEP 1: Personal & Family Information -->
-                        <div class="tsp-form-step active" id="step1">
+                        <div class="tsp-form-step <?= $step === 1 ? 'active' : '' ?>" id="step1">
                             <h4 class="h5 fw-bold mb-4 text-dark border-bottom pb-2">
                                 <i class="bi bi-person-fill text-muted me-2"></i> 1. व्यक्तिगत एवं पारिवारिक विवरण / Personal & Family Details
                             </h4>
@@ -142,7 +142,7 @@ ob_start();
                         </div>
 
                         <!-- STEP 2: Academic & Achievement Details -->
-                        <div class="tsp-form-step" id="step2">
+                        <div class="tsp-form-step <?= $step === 2 ? 'active' : '' ?>" id="step2">
                             <h4 class="h5 fw-bold mb-4 text-dark border-bottom pb-2">
                                 <i class="bi bi-book-half text-muted me-2"></i> 2. शैक्षणिक एवं उपलब्धि विवरण / Academic & Achievement Details
                             </h4>
@@ -221,7 +221,7 @@ ob_start();
                         </div>
 
                         <!-- STEP 3: Required Upload Documents -->
-                        <div class="tsp-form-step" id="step3">
+                        <div class="tsp-form-step <?= $step === 3 ? 'active' : '' ?>" id="step3">
                             <h4 class="h5 fw-bold mb-4 text-dark border-bottom pb-2">
                                 <i class="bi bi-file-earmark-arrow-up text-muted me-2"></i> 3. आवश्यक दस्तावेज़ अपलोड / Upload Documents
                             </h4>
@@ -319,6 +319,8 @@ ob_start();
                                     <div class="p-3 border rounded shadow-sm doc-card" id="card_signature" data-type="Signature" data-field="signature" data-uploaded="<?= $signatureDoc ? 'true' : '' ?>">
                                         <label class="form-label small fw-semibold text-muted d-block mb-2">विद्यार्थी के हस्ताक्षर (Student Signature) <span class="text-danger">*</span></label>
                                         <div class="input-group">
+                                    <label class="form-label small fw-semibold text-muted">विद्यार्थी के हस्ताक्षर (Student Signature) <span class="text-danger">*</span></label>
+                                    <div class="input-group">
                                             <input type="file" id="file_signature" class="form-control file-input-field" accept=".jpg,.jpeg,.png">
                                             <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1 btn-upload-doc d-none" onclick="uploadDocAjax('Signature', 'file_signature');">
                                                 <i class="bi bi-cloud-arrow-up-fill"></i> अपलोड / Upload
@@ -346,7 +348,7 @@ ob_start();
                         </div>
 
                         <!-- STEP 4: Offline-Style Formal Preview Sheet -->
-                        <div class="tsp-form-step" id="step4">
+                        <div class="tsp-form-step <?= $step === 4 ? 'active' : '' ?>" id="step4">
                             <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
                                 <h4 class="h5 fw-bold text-dark mb-0">
                                     <i class="bi bi-eye text-muted me-2"></i> 4. आवेदन पूर्वावलोकन / Form Preview & Verification
@@ -378,6 +380,12 @@ ob_start();
                                 </div>
 
                                 <div class="print-form-fields mt-4">
+                                    <!-- Section 1 Header with Edit Link -->
+                                    <div class="d-flex justify-content-between align-items-center bg-light p-2 mb-3 border no-print">
+                                        <span class="mb-0 text-dark fw-bold" style="font-size: 14px;"><i class="bi bi-person-circle text-muted me-1"></i> 1. व्यक्तिगत एवं पारिवारिक विवरण / Personal & Family Details</span>
+                                        <a href="?step=1" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 12px;"><i class="bi bi-pencil-square"></i> सुधारें / Edit</a>
+                                    </div>
+
                                     <!-- Photo & Profile Row -->
                                     <div class="row mb-3">
                                         <div class="col-8 col-sm-9">
@@ -417,6 +425,12 @@ ob_start();
                                         <span class="print-field-value" id="preview_mobile"></span>
                                         <span class="print-field-label ms-3">ईमेल (Email):</span>
                                         <span class="print-field-value" id="preview_email"></span>
+                                    </div>
+
+                                    <!-- Section 2 Header with Edit Link -->
+                                    <div class="d-flex justify-content-between align-items-center bg-light p-2 mb-3 border mt-4 no-print">
+                                        <span class="mb-0 text-dark fw-bold" style="font-size: 14px;"><i class="bi bi-book-half text-muted me-1"></i> 2. शैक्षणिक एवं उपलब्धि विवरण / Academic & Achievement Details</span>
+                                        <a href="?step=2" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 12px;"><i class="bi bi-pencil-square"></i> सुधारें / Edit</a>
                                     </div>
 
                                     <div class="row mb-3">
@@ -477,7 +491,12 @@ ob_start();
                                     </div>
                                 </div>
 
-                                <div class="print-section-heading">संलग्न दस्तावेज़ (Attached Documents Checklist)</div>
+                                <!-- Section 3 Header with Edit Link -->
+                                <div class="d-flex justify-content-between align-items-center bg-light p-2 mb-3 border mt-4 no-print">
+                                    <span class="mb-0 text-dark fw-bold" style="font-size: 14px;"><i class="bi bi-file-earmark-arrow-up text-muted me-1"></i> 3. संलग्न दस्तावेज़ (Attached Documents Checklist)</span>
+                                    <a href="?step=3" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 12px;"><i class="bi bi-pencil-square"></i> सुधारें / Edit</a>
+                                </div>
+
                                 <div class="row g-3 mb-4">
                                     <div class="col-sm-6">
                                         <div class="fw-semibold small text-muted mb-2">गत वर्ष की अंकतालिका / Last Year Marksheet:</div>
@@ -511,20 +530,45 @@ ob_start();
                             </div>
                         </div>
 
+                        <?php if ($step === 4): ?>
+                        <!-- Declaration Checkbox -->
+                        <div class="form-check mt-4 p-3 border rounded bg-light" id="declarationBox">
+                            <input class="form-check-input" type="checkbox" name="self_declared" id="declarationCheckbox" value="1" onchange="toggleSubmitBtn();">
+                            <label class="form-check-label fw-semibold small text-danger" for="declarationCheckbox">
+                                मैं घोषणा करता/करती हूं कि दी गई सभी जानकारी सही है। / I hereby declare that all information provided is true and correct to the best of my knowledge. I understand that any false information may result in rejection. <span class="text-danger">*</span>
+                            </label>
+                        </div>
+                        <?php endif; ?>
+
                         <!-- Stepper Actions Navigation Footer -->
                         <div class="d-flex gap-2 justify-content-between mt-5 pt-3 border-top" id="wizardActions">
-                            <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-semibold d-none" id="btnPrev" onclick="moveStep(-1);">
-                                <i class="bi bi-chevron-left"></i> पिछला चरण / Previous
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('pratibha_form_draft_new'); localStorage.removeItem('pratibha_form_draft_<?= (int) ($application['id'] ?? 0) ?>'); location.href='/applications/create';">
-                                रद्द करें / Cancel
-                            </button>
-                            <button type="button" class="btn tsp-dash-welcome-btn shadow-sm rounded-pill px-4 py-2 fw-semibold ms-auto" id="btnNext" onclick="moveStep(1);">
-                                अगला चरण / Next <i class="bi bi-chevron-right"></i>
-                            </button>
-                            <button type="submit" class="btn btn-success shadow-sm rounded-pill px-4 py-2 fw-semibold d-none" id="btnSubmit">
-                                <i class="bi bi-check-circle-fill me-1"></i> <?= $isEdit ? 'बदलाव सुरक्षित करें / Save Changes' : 'आवेदन जमा करें / Submit' ?>
-                            </button>
+                            <input type="hidden" name="action" id="wizardAction" value="next">
+                            <input type="hidden" name="application_id" value="<?= (int) ($application['id'] ?? 0) ?>">
+                            
+                            <?php if ($step > 1): ?>
+                                <a href="?step=<?= $step - 1 ?>" class="btn btn-light rounded-pill px-4 py-2 fw-semibold" id="btnPrev">
+                                    <i class="bi bi-chevron-left"></i> पिछला चरण / Previous
+                                </a>
+                            <?php else: ?>
+                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('pratibha_form_draft_new'); localStorage.removeItem('pratibha_form_draft_<?= (int) ($application['id'] ?? 0) ?>'); location.href='/applications/create';">
+                                    रद्द करें / Cancel
+                                </button>
+                            <?php endif; ?>
+
+                            <div class="d-flex gap-2 ms-auto">
+                                <?php if ($step < 4): ?>
+                                    <button type="button" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold" id="btnSaveDraft" onclick="saveDraftAction();">
+                                        प्रारूप सहेजें / Save Draft
+                                    </button>
+                                    <button type="submit" class="btn tsp-dash-welcome-btn shadow-sm rounded-pill px-4 py-2 fw-semibold" id="btnNext">
+                                        अगला चरण / Next <i class="bi bi-chevron-right"></i>
+                                    </button>
+                                <?php else: ?>
+                                    <button type="button" class="btn btn-success shadow-sm rounded-pill px-4 py-2 fw-semibold" id="btnSubmit" onclick="confirmFinalSubmit();" disabled>
+                                        <i class="bi bi-check-circle-fill me-1"></i> अंतिम सबमिट / Final Submit
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -532,7 +576,7 @@ ob_start();
 
 <!-- Stepper Navigation & Preview Script -->
 <script>
-let currentStep = 1;
+let currentStep = <?= (int) $step ?>;
 const totalSteps = 4;
 const isEditMode = <?= $isEdit ? 'true' : 'false' ?>;
 const applicationId = <?= (int) ($application['id'] ?? 0) ?>;
@@ -725,118 +769,12 @@ async function deleteDocAjax(docType, inputId) {
     }
 }
 
-function moveStep(direction) {
-    if (direction === 1 && !validateCurrentStep()) {
-        return; // Validation failed, do not progress
+function toggleSubmitBtn() {
+    const cb = document.getElementById('declarationCheckbox');
+    const btn = document.getElementById('btnSubmit');
+    if (cb && btn) {
+        btn.disabled = !cb.checked;
     }
-    
-    // Deactivate current view & stepper label
-    document.getElementById(`step${currentStep}`).classList.remove('active');
-    document.querySelector(`.tsp-step-item[data-step="${currentStep}"]`).classList.remove('active');
-    if (direction === 1) {
-        document.querySelector(`.tsp-step-item[data-step="${currentStep}"]`).classList.add('completed');
-    }
-    
-    currentStep += direction;
-    
-    // Activate new view & stepper label
-    document.getElementById(`step${currentStep}`).classList.add('active');
-    document.querySelector(`.tsp-step-item[data-step="${currentStep}"]`).classList.add('active');
-    
-    // If going backwards, remove completed status
-    if (direction === -1) {
-        document.querySelector(`.tsp-step-item[data-step="${currentStep}"]`).classList.remove('completed');
-    }
-
-    // Toggle button visibilities
-    const btnPrev = document.getElementById('btnPrev');
-    const btnNext = document.getElementById('btnNext');
-    const btnSubmit = document.getElementById('btnSubmit');
-    const btnCancel = document.getElementById('btnCancel');
-    
-    // Prev button display state
-    if (currentStep > 1) {
-        btnPrev.classList.remove('d-none');
-        btnCancel.classList.add('d-none');
-    } else {
-        btnPrev.classList.add('d-none');
-        btnCancel.classList.remove('d-none');
-    }
-
-    // Next vs Submit display state
-    if (currentStep === totalSteps) {
-        btnNext.classList.add('d-none');
-        btnSubmit.classList.remove('d-none');
-        compileFormPreview(); // Compile inputs to formal layout on preview step
-    } else {
-        btnNext.classList.remove('d-none');
-        btnSubmit.classList.add('d-none');
-    }
-
-    // Scroll back to stepper top for good usability
-    document.getElementById('formStepper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function validateCurrentStep() {
-    const activeContainer = document.getElementById(`step${currentStep}`);
-    
-    // Remove previous validation alert if any
-    const existingAlert = activeContainer.querySelector('.wizard-validation-alert');
-    if (existingAlert) {
-        existingAlert.remove();
-    }
-
-    let isValid = true;
-    
-    if (currentStep === 3) {
-        // Step 3 holds the document cards
-        const docCards = activeContainer.querySelectorAll('.doc-card');
-        for (let card of docCards) {
-            const isUploaded = card.getAttribute('data-uploaded') === 'true';
-            const fileInput = card.querySelector('.file-input-field');
-            const hasLocalSelectedFile = fileInput && fileInput.files && fileInput.files.length > 0;
-            
-            // If the document is not uploaded to DB and no local file is selected
-            if (!isUploaded && !hasLocalSelectedFile) {
-                card.classList.add('border-danger');
-                isValid = false;
-            } else {
-                card.classList.remove('border-danger');
-            }
-        }
-    } else {
-        const requiredInputs = activeContainer.querySelectorAll('[required]');
-        for (let input of requiredInputs) {
-            if (!input.value.trim()) {
-                input.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                input.classList.remove('is-invalid');
-            }
-        }
-        
-        // Extra percentage range validation on Step 2
-        if (currentStep === 2) {
-            const pctInput = document.getElementById('field_percentage');
-            if (pctInput) {
-                const pct = parseFloat(pctInput.value);
-                if (isNaN(pct) || pct < 0 || pct > 100) {
-                    pctInput.classList.add('is-invalid');
-                    isValid = false;
-                }
-            }
-        }
-    }
-
-    if (!isValid) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger wizard-validation-alert border-0 shadow-sm mt-3 d-flex align-items-center gap-2 small';
-        alertDiv.style.borderRadius = '0.5rem';
-        alertDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill fs-5"></i> <span>कृपया सभी आवश्यक जानकारी दर्ज करें या आवश्यक दस्तावेज़ अपलोड करें।</span>`;
-        activeContainer.appendChild(alertDiv);
-    }
-    
-    return isValid;
 }
 
 function compileFormPreview() {
@@ -860,11 +798,11 @@ function compileFormPreview() {
     const maxMarks = document.getElementById('field_max_marks').value.trim();
     const collegeName = document.getElementById('field_college_name').value.trim();
     const boardUniversity = document.getElementById('field_board_university').value.trim();
-
+    
     const achievementTitle = document.getElementById('field_achievement_title').value.trim();
-    const rankPosition = document.getElementById('field_rank_position').value.trim();
     const achievementCategory = document.getElementById('field_achievement_category').value;
     const achievementLevel = document.getElementById('field_achievement_level').value;
+    const rankPosition = document.getElementById('field_rank_position').value.trim();
 
     // Map values into preview sheet
     document.getElementById('preview_name').textContent = `${firstName} ${lastName}`;
@@ -890,13 +828,13 @@ function compileFormPreview() {
     document.getElementById('preview_marks').textContent = (marksObtained && maxMarks) ? `${marksObtained} / ${maxMarks}` : '-';
     document.getElementById('preview_college').textContent = collegeName || '-';
     document.getElementById('preview_board').textContent = boardUniversity || '-';
-
+    
     document.getElementById('preview_achievement_title').textContent = achievementTitle;
-    document.getElementById('preview_rank_position').textContent = rankPosition || '-';
     document.getElementById('preview_achievement_category').textContent = achievementCategory || '-';
     document.getElementById('preview_achievement_level').textContent = achievementLevel || '-';
+    document.getElementById('preview_rank_position').textContent = rankPosition || '-';
 
-    // File Preview using FileReader or global uploadedDocs object for Student Photo
+    // File Preview for Student Photo
     const filePhoto = document.getElementById('file_photo').files[0];
     const previewPhotoBox = document.getElementById('preview_photo_box');
     if (filePhoto) {
@@ -911,7 +849,7 @@ function compileFormPreview() {
         previewPhotoBox.innerHTML = 'विद्यार्थी का<br>फोटो';
     }
 
-    // File Preview using FileReader or global uploadedDocs object for Signature
+    // File Preview for Signature
     const fileSignature = document.getElementById('file_signature').files[0];
     const previewSignatureBox = document.getElementById('preview_signature_box');
     if (fileSignature) {
@@ -978,6 +916,44 @@ function compileFormPreview() {
         previewCertificateBox.innerHTML = '<span class="text-muted">प्रमाणपत्र उपलब्ध नहीं है / No Certificate</span>';
     }
 }
+
+function saveDraftAction() {
+    document.getElementById('wizardAction').value = 'save_draft';
+    const form = document.getElementById('pratibhaWizardForm');
+    form.submit();
+}
+
+function confirmFinalSubmit() {
+    const checkbox = document.getElementById('declarationCheckbox');
+    if (!checkbox || !checkbox.checked) {
+        alert('कृपया स्व-घोषणा बॉक्स को चेक करें / Please check the self-declaration box.');
+        return;
+    }
+    if (confirm('क्या आप सुनिश्चित हैं? सबमिशन के बाद आप संपादन नहीं कर सकते। / Are you sure? You cannot edit after submission.')) {
+        document.getElementById('wizardAction').value = 'final_submit';
+        const form = document.getElementById('pratibhaWizardForm');
+        form.submit();
+    }
+}
+
+// ─── Disable Required Fields for Inactive Steps & Initialize ───
+document.addEventListener('DOMContentLoaded', function() {
+    for (let s = 1; s <= 4; s++) {
+        if (s !== currentStep) {
+            const stepDiv = document.getElementById(`step${s}`);
+            if (stepDiv) {
+                stepDiv.querySelectorAll('[required]').forEach(input => {
+                    input.removeAttribute('required');
+                });
+            }
+        }
+    }
+    
+    if (currentStep === 4) {
+        compileFormPreview();
+        toggleSubmitBtn();
+    }
+});
 
 // ─── Unsaved Progress Auto-Save and Navigation Warn ───
 (function () {

@@ -125,26 +125,52 @@ require VIEW_PATH . '/layouts/flash-message.php';
             <?php if (count($applications) > 0): ?>
                 <div class="tsp-stu-apps-list mb-4">
                     <?php foreach ($applications as $app):
-                        $status = $app['status_name'] ?? '';
+                        $status = $app['status_name'] ?? 'Draft';
                         $typeIcon = ($app['type'] ?? '') === 'scholarship' ? 'bi-mortarboard' : 'bi-trophy';
                         $typeLabel = ($app['type'] ?? '') === 'scholarship' ? 'छात्रवृत्ति' : 'प्रतिभा सम्मान';
-                        $isDraft = $app['submitted_at'] === null;
+                        $isDraft = ($app['submitted_at'] === null || $status === 'Draft');
 
-                        // Status badge class
-                        $badgeClass = 'tsp-stu-status-pending';
-                        $statusLabel = $status ?: 'ड्राफ्ट';
+                        // Status badge style & label mapping
+                        $badgeClass = 'bg-secondary text-white';
+                        $statusLabel = 'ड्राफ्ट (Draft)';
+
                         if ($isDraft) {
-                            $badgeClass = 'tsp-stu-status-draft';
-                            $statusLabel = 'ड्राफ्ट';
-                        } elseif (stripos($status, 'approve') !== false) {
-                            $badgeClass = 'tsp-stu-status-approved';
-                        } elseif (stripos($status, 'reject') !== false) {
-                            $badgeClass = 'tsp-stu-status-rejected';
-                        } elseif (stripos($status, 'dispute') !== false) {
-                            $badgeClass = 'tsp-stu-status-disputed';
+                            $badgeClass = 'bg-secondary text-white';
+                            $statusLabel = 'ड्राफ्ट (Draft)';
+                        } else {
+                            switch ($status) {
+                                case 'Submitted':
+                                    $badgeClass = 'bg-primary text-white';
+                                    $statusLabel = 'जमा किया गया (Submitted)';
+                                    break;
+                                case 'Under Review':
+                                    $badgeClass = 'bg-warning text-dark';
+                                    $statusLabel = 'समीक्षाधीन (Under Review)';
+                                    break;
+                                case 'Approved':
+                                    $badgeClass = 'bg-success text-white';
+                                    $statusLabel = 'स्वीकृत (Approved)';
+                                    break;
+                                case 'Rejected':
+                                    $badgeClass = 'bg-danger text-white';
+                                    $statusLabel = 'अस्वीकृत (Rejected)';
+                                    break;
+                                case 'Pending Correction':
+                                    $badgeClass = 'bg-warning-subtle text-warning-emphasis border border-warning';
+                                    $statusLabel = 'सुधार लंबित (Pending Correction)';
+                                    break;
+                                case 'Resubmitted':
+                                    $badgeClass = 'bg-info text-dark';
+                                    $statusLabel = 'पुनः जमा (Resubmitted)';
+                                    break;
+                                default:
+                                    $badgeClass = 'bg-secondary text-white';
+                                    $statusLabel = $status;
+                                    break;
+                            }
                         }
 
-                        $appNum = 'TSVS-' . date('Y', strtotime($app['created_at'] ?? 'now')) . '-' . str_pad((string) $app['id'], 6, '0', STR_PAD_LEFT);
+                        $appNum = !empty($app['application_no']) ? $app['application_no'] : ('TSVS-' . date('Y', strtotime($app['created_at'] ?? 'now')) . '-' . str_pad((string) $app['id'], 6, '0', STR_PAD_LEFT));
                         $createdDate = !empty($app['created_at']) ? date('d M Y', strtotime($app['created_at'])) : '—';
                         $submittedDate = !empty($app['submitted_at']) ? date('d M Y', strtotime($app['submitted_at'])) : null;
                     ?>
@@ -165,19 +191,51 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 </div>
                             </div>
                             <div class="tsp-stu-app-right">
-                                <span class="tsp-stu-status-badge <?= $badgeClass ?>"><?= $statusLabel ?></span>
-                                <div class="tsp-stu-app-actions">
-                                    <?php if ($isDraft): ?>
-                                        <a href="/applications/<?= (int) $app['id'] ?>/edit" class="btn tsp-btn-sm tsp-btn-outline">
-                                            <i class="bi bi-pencil"></i> जारी रखें
-                                        </a>
-                                    <?php elseif (stripos($status, 'dispute') !== false): ?>
-                                        <a href="/applications/<?= (int) $app['id'] ?>" class="btn tsp-btn-sm tsp-btn-warning">
-                                            <i class="bi bi-arrow-clockwise"></i> पुनः सबमिट
+                                <span class="badge py-2 px-3 rounded-pill <?= $badgeClass ?>" style="font-size: 0.85rem;"><?= $statusLabel ?></span>
+                                
+                                <?php if (in_array($status, ['Rejected', 'Pending Correction'], true) && !empty($app['correction_deadline'])): ?>
+                                    <?php
+                                    $dlTime = strtotime($app['correction_deadline']);
+                                    $diff = $dlTime - time();
+                                    ?>
+                                    <?php if ($diff > 0): ?>
+                                        <div class="mt-2 text-danger small font-monospace fw-bold" id="cd-<?= $app['id'] ?>" data-time="<?= $dlTime ?>">
+                                            ⏳ Counting...
+                                        </div>
+                                        <script>
+                                            (function() {
+                                                const el = document.getElementById('cd-<?= $app['id'] ?>');
+                                                const deadline = parseInt(el.getAttribute('data-time')) * 1000;
+                                                function update() {
+                                                    const now = new Date().getTime();
+                                                    const t = deadline - now;
+                                                    if (t <= 0) {
+                                                        el.innerHTML = "⚠️ Expired";
+                                                        return;
+                                                    }
+                                                    const days = Math.floor(t / (1000 * 60 * 60 * 24));
+                                                    const hours = Math.floor((t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                    const minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
+                                                    const seconds = Math.floor((t % (1000 * 60)) / 1000);
+                                                    el.innerHTML = `⏳ ${days}d ${hours}h ${minutes}m left`;
+                                                }
+                                                update();
+                                                setInterval(update, 1000);
+                                            })();
+                                        </script>
+                                    <?php else: ?>
+                                        <div class="mt-2 text-danger small font-monospace fw-bold">⚠️ Expired</div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <div class="tsp-stu-app-actions mt-3">
+                                    <?php if ($isDraft || in_array($status, ['Rejected', 'Pending Correction'], true)): ?>
+                                        <a href="/applications/<?= (int) $app['id'] ?>/edit" class="btn tsp-btn-sm tsp-btn-warning w-100 mt-2">
+                                            <i class="bi bi-pencil"></i> <?= ($status === 'Rejected' || $status === 'Pending Correction') ? 'सुधार करें / Correct' : 'जारी रखें / Continue' ?>
                                         </a>
                                     <?php else: ?>
-                                        <a href="/applications/<?= (int) $app['id'] ?>" class="btn tsp-btn-sm tsp-btn-outline">
-                                            <i class="bi bi-eye"></i> देखें
+                                        <a href="/applications/<?= (int) $app['id'] ?>" class="btn tsp-btn-sm tsp-btn-outline w-100 mt-2">
+                                            <i class="bi bi-eye"></i> देखें / View
                                         </a>
                                     <?php endif; ?>
                                 </div>

@@ -44,19 +44,19 @@ ob_start();
 
             <!-- Form Stepper Header -->
             <div class="tsp-stepper" id="formStepper">
-                <div class="tsp-step-item active" data-step="1">
+                <div class="tsp-step-item <?= $step === 1 ? 'active' : ($step > 1 ? 'completed' : '') ?>" data-step="1">
                     <div class="tsp-step-circle">1</div>
                     <div class="tsp-step-label">व्यक्तिगत विवरण<br><small class="text-muted d-none d-md-inline">Profile</small></div>
                 </div>
-                <div class="tsp-step-item" data-step="2">
+                <div class="tsp-step-item <?= $step === 2 ? 'active' : ($step > 2 ? 'completed' : '') ?>" data-step="2">
                     <div class="tsp-step-circle">2</div>
                     <div class="tsp-step-label">शैक्षणिक व बैंक<br><small class="text-muted d-none d-md-inline">Academic & Bank</small></div>
                 </div>
-                <div class="tsp-step-item" data-step="3">
+                <div class="tsp-step-item <?= $step === 3 ? 'active' : ($step > 3 ? 'completed' : '') ?>" data-step="3">
                     <div class="tsp-step-circle">3</div>
                     <div class="tsp-step-label">दस्तावेज़ अपलोड<br><small class="text-muted d-none d-md-inline">Uploads</small></div>
                 </div>
-                <div class="tsp-step-item" data-step="4">
+                <div class="tsp-step-item <?= $step === 4 ? 'active' : ($step > 4 ? 'completed' : '') ?>" data-step="4">
                     <div class="tsp-step-circle">4</div>
                     <div class="tsp-step-label">पूर्वावलोकन<br><small class="text-muted d-none d-md-inline">Form Preview</small></div>
                 </div>
@@ -65,11 +65,11 @@ ob_start();
             <!-- Interactive Form Wizard Wrapper -->
             <div class="card border-0 shadow-sm" style="border-radius: 1.25rem;">
                 <div class="card-body p-4 p-md-5">
-                    <form action="<?= $isEdit ? '/applications/' . (int) $application['id'] . '/edit' : '/applications/scholarship' ?>" method="POST" enctype="multipart/form-data" id="scholarshipWizardForm">
+                    <form action="/applications/step/<?= $step ?>" method="POST" enctype="multipart/form-data" id="scholarshipWizardForm">
                         <?= Csrf::field() ?>
 
                         <!-- STEP 1: Personal & Family Information -->
-                        <div class="tsp-form-step active" id="step1">
+                        <div class="tsp-form-step <?= $step === 1 ? 'active' : '' ?>" id="step1">
                             <h4 class="h5 fw-bold mb-4 text-dark border-bottom pb-2">
                                 <i class="bi bi-person-fill text-muted me-2"></i> 1. व्यक्तिगत एवं पारिवारिक विवरण / Personal & Family Details
                             </h4>
@@ -162,7 +162,7 @@ ob_start();
                         </div>
 
                         <!-- STEP 2: Academic & Bank Details -->
-                        <div class="tsp-form-step" id="step2">
+                        <div class="tsp-form-step <?= $step === 2 ? 'active' : '' ?>" id="step2">
                             <h4 class="h5 fw-bold mb-4 text-dark border-bottom pb-2">
                                 <i class="bi bi-book-half text-muted me-2"></i> 2. शैक्षणिक एवं बैंक खाता विवरण / Academic & Bank Details
                             </h4>
@@ -291,7 +291,7 @@ ob_start();
                         </div>
 
                         <!-- STEP 3: Required Upload Documents -->
-                        <div class="tsp-form-step" id="step3">
+                        <div class="tsp-form-step <?= $step === 3 ? 'active' : '' ?>" id="step3">
                             <h4 class="h5 fw-bold mb-4 text-dark border-bottom pb-2">
                                 <i class="bi bi-file-earmark-arrow-up text-muted me-2"></i> 3. आवश्यक दस्तावेज़ अपलोड / Upload Documents
                             </h4>
@@ -388,35 +388,8 @@ ob_start();
                                 <div class="col-sm-6">
                                     <div class="p-3 border rounded shadow-sm doc-card" id="card_signature" data-type="Signature" data-field="signature" data-uploaded="<?= $signatureDoc ? 'true' : '' ?>">
                                         <label class="form-label small fw-semibold text-muted d-block mb-2">विद्यार्थी के हस्ताक्षर (Student Signature) <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="file" id="file_signature" class="form-control file-input-field" accept=".jpg,.jpeg,.png">
-                                            <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1 btn-upload-doc d-none" onclick="uploadDocAjax('Signature', 'file_signature');">
-                                                <i class="bi bi-cloud-arrow-up-fill"></i> अपलोड / Upload
-                                            </button>
-                                        </div>
-                                        <div class="form-text text-muted small mt-1">सफ़ेद कागज पर काले/नीले पेन से हस्ताक्षर (केवल JPG, PNG | अधिकतम: 500KB)</div>
-                                        <div class="doc-status-container mt-2">
-                                            <?php if ($signatureDoc): ?>
-                                                <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded">
-                                                    <span class="text-success small fw-semibold">
-                                                        <i class="bi bi-check-circle-fill"></i> वर्तमान फ़ाइल: 
-                                                        <a href="/uploads/applications/<?= $application['id'] ?>/<?= $signatureDoc['stored_name'] ?>" target="_blank" class="text-decoration-underline"><?= Helpers::esc(Helpers::limitString($signatureDoc['original_name'], 25)) ?></a>
-                                                    </span>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm py-0 px-2" onclick="deleteDocAjax('Signature', 'file_signature');">
-                                                        <i class="bi bi-trash-fill"></i> हटाएं / Remove
-                                                    </button>
-                                                </div>
-                                            <?php else: ?>
-                                                <span class="badge bg-warning text-dark font-monospace small py-1 px-2 mt-1">दस्तावेज़ आवश्यक है / Required</span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- STEP 4: Offline-Style Formal Preview Sheet -->
-                        <div class="tsp-form-step" id="step4">
+                                 <!-- STEP 4: Offline-Style Formal Preview Sheet -->
+                        <div class="tsp-form-step <?= $step === 4 ? 'active' : '' ?>" id="step4">
                             <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
                                 <h4 class="h5 fw-bold text-dark mb-0">
                                     <i class="bi bi-eye text-muted me-2"></i> 4. आवेदन पूर्वावलोकन / Form Preview & Verification
@@ -448,6 +421,12 @@ ob_start();
                                 </div>
 
                                 <div class="print-form-fields mt-4">
+                                    <!-- Section 1 Header with Edit Link -->
+                                    <div class="d-flex justify-content-between align-items-center bg-light p-2 mb-3 border no-print">
+                                        <span class="mb-0 text-dark fw-bold" style="font-size: 14px;"><i class="bi bi-person-circle text-muted me-1"></i> 1. व्यक्तिगत एवं पारिवारिक विवरण / Personal & Family Details</span>
+                                        <a href="?step=1" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 12px;"><i class="bi bi-pencil-square"></i> सुधारें / Edit</a>
+                                    </div>
+
                                     <!-- Photo & Profile Row -->
                                     <div class="row mb-3">
                                         <div class="col-8 col-sm-9">
@@ -507,6 +486,12 @@ ob_start();
                                                 <span class="print-field-value" id="preview_earning_members_count"></span>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    <!-- Section 2 Header with Edit Link -->
+                                    <div class="d-flex justify-content-between align-items-center bg-light p-2 mb-3 border mt-4 no-print">
+                                        <span class="mb-0 text-dark fw-bold" style="font-size: 14px;"><i class="bi bi-book-half text-muted me-1"></i> 2. शैक्षणिक एवं बैंक खाता विवरण / Academic & Bank Details</span>
+                                        <a href="?step=2" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 12px;"><i class="bi bi-pencil-square"></i> सुधारें / Edit</a>
                                     </div>
 
                                     <div class="row mb-3">
@@ -613,7 +598,12 @@ ob_start();
                                     </div>
                                 </div>
 
-                                <div class="print-section-heading">5. संलग्न दस्तावेज़ (Attached Documents Checklist)</div>
+                                <!-- Section 3 Header with Edit Link -->
+                                <div class="d-flex justify-content-between align-items-center bg-light p-2 mb-3 border mt-4 no-print">
+                                    <span class="mb-0 text-dark fw-bold" style="font-size: 14px;"><i class="bi bi-file-earmark-arrow-up text-muted me-1"></i> 3. संलग्न दस्तावेज़ (Attached Documents Checklist)</span>
+                                    <a href="?step=3" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 12px;"><i class="bi bi-pencil-square"></i> सुधारें / Edit</a>
+                                </div>
+
                                 <div class="row g-3 mb-4">
                                     <div class="col-sm-6">
                                         <div class="fw-semibold small text-muted mb-2">गत वर्ष की अंकतालिका / Last Year Marksheet:</div>
@@ -660,29 +650,45 @@ ob_start();
                             </div>
                         </div>
 
+                        <?php if ($step === 4): ?>
                         <!-- Declaration Checkbox -->
                         <div class="form-check mt-4 p-3 border rounded bg-light" id="declarationBox">
-                            <input class="form-check-input" type="checkbox" name="declaration" id="declarationCheckbox" required onchange="toggleSubmitBtn();">
-                            <label class="form-check-label fw-semibold small" for="declarationCheckbox">
-                                मैं घोषणा करता/करती हूँ कि उपरोक्त सभी जानकारी सत्य एवं सही है। गलत जानकारी पाए जाने पर मेरा आवेदन निरस्त किया जा सकता है।<br>
-                                <span class="text-muted">I hereby declare that all the above information is true and correct. If found false, my application may be cancelled.</span>
+                            <input class="form-check-input" type="checkbox" name="self_declared" id="declarationCheckbox" value="1" onchange="toggleSubmitBtn();">
+                            <label class="form-check-label fw-semibold small text-danger" for="declarationCheckbox">
+                                मैं घोषणा करता/करती हूं कि दी गई सभी जानकारी सही है। / I hereby declare that all information provided is true and correct to the best of my knowledge. I understand that any false information may result in rejection. <span class="text-danger">*</span>
                             </label>
                         </div>
+                        <?php endif; ?>
 
                         <!-- Stepper Actions Navigation Footer -->
                         <div class="d-flex gap-2 justify-content-between mt-5 pt-3 border-top" id="wizardActions">
-                            <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-semibold d-none" id="btnPrev" onclick="moveStep(-1);">
-                                <i class="bi bi-chevron-left"></i> पिछला चरण / Previous
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('scholarship_form_draft_new'); localStorage.removeItem('scholarship_form_draft_<?= (int) ($application['id'] ?? 0) ?>'); location.href='/applications/create';">
-                                रद्द करें / Cancel
-                            </button>
-                            <button type="button" class="btn tsp-dash-welcome-btn shadow-sm rounded-pill px-4 py-2 fw-semibold ms-auto" id="btnNext" onclick="moveStep(1);">
-                                अगला चरण / Next <i class="bi bi-chevron-right"></i>
-                            </button>
-                            <button type="submit" class="btn btn-success shadow-sm rounded-pill px-4 py-2 fw-semibold d-none" id="btnSubmit">
-                                <i class="bi bi-check-circle-fill me-1"></i> आवेदन जमा करें / Submit
-                            </button>
+                            <input type="hidden" name="action" id="wizardAction" value="next">
+                            <input type="hidden" name="application_id" value="<?= (int) ($application['id'] ?? 0) ?>">
+                            
+                            <?php if ($step > 1): ?>
+                                <a href="?step=<?= $step - 1 ?>" class="btn btn-light rounded-pill px-4 py-2 fw-semibold" id="btnPrev">
+                                    <i class="bi bi-chevron-left"></i> पिछला चरण / Previous
+                                </a>
+                            <?php else: ?>
+                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold" id="btnCancel" onclick="localStorage.removeItem('scholarship_form_draft_new'); localStorage.removeItem('scholarship_form_draft_<?= (int) ($application['id'] ?? 0) ?>'); location.href='/applications/create';">
+                                    रद्द करें / Cancel
+                                </button>
+                            <?php endif; ?>
+
+                            <div class="d-flex gap-2 ms-auto">
+                                <?php if ($step < 4): ?>
+                                    <button type="button" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold" id="btnSaveDraft" onclick="saveDraftAction();">
+                                        प्रारूप सहेजें / Save Draft
+                                    </button>
+                                    <button type="submit" class="btn tsp-dash-welcome-btn shadow-sm rounded-pill px-4 py-2 fw-semibold" id="btnNext">
+                                        अगला चरण / Next <i class="bi bi-chevron-right"></i>
+                                    </button>
+                                <?php else: ?>
+                                    <button type="button" class="btn btn-success shadow-sm rounded-pill px-4 py-2 fw-semibold" id="btnSubmit" onclick="confirmFinalSubmit();" disabled>
+                                        <i class="bi bi-check-circle-fill me-1"></i> अंतिम सबमिट / Final Submit
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -690,7 +696,7 @@ ob_start();
 
 <!-- Stepper Navigation & Preview Script -->
 <script>
-let currentStep = 1;
+let currentStep = <?= (int) $step ?>;
 const totalSteps = 4;
 const applicationId = <?= (int) ($application['id'] ?? 0) ?>;
 
@@ -882,148 +888,6 @@ async function deleteDocAjax(docType, inputId) {
     }
 }
 
-function moveStep(direction) {
-    if (direction === 1 && !validateCurrentStep()) {
-        return; // Validation failed, do not progress
-    }
-    
-    // Deactivate current view & stepper label
-    document.getElementById(`step${currentStep}`).classList.remove('active');
-    document.querySelector(`.tsp-step-item[data-step="${currentStep}"]`).classList.remove('active');
-    if (direction === 1) {
-        document.querySelector(`.tsp-step-item[data-step="${currentStep}"]`).classList.add('completed');
-    }
-    
-    currentStep += direction;
-    
-    // Activate new view & stepper label
-    document.getElementById(`step${currentStep}`).classList.add('active');
-    document.querySelector(`.tsp-step-item[data-step="${currentStep}"]`).classList.add('active');
-    
-    // If going backwards, remove completed status
-    if (direction === -1) {
-        document.querySelector(`.tsp-step-item[data-step="${currentStep}"]`).classList.remove('completed');
-    }
-
-    // Toggle button visibilities
-    const btnPrev = document.getElementById('btnPrev');
-    const btnNext = document.getElementById('btnNext');
-    const btnSubmit = document.getElementById('btnSubmit');
-    const btnCancel = document.getElementById('btnCancel');
-    
-    // Prev button display state
-    if (currentStep > 1) {
-        btnPrev.classList.remove('d-none');
-        btnCancel.classList.add('d-none');
-    } else {
-        btnPrev.classList.add('d-none');
-        btnCancel.classList.remove('d-none');
-    }
-
-    // Next vs Submit display state
-    if (currentStep === totalSteps) {
-        btnNext.classList.add('d-none');
-        btnSubmit.classList.remove('d-none');
-        compileFormPreview(); // Compile inputs to formal layout on preview step
-    } else {
-        btnNext.classList.remove('d-none');
-        btnSubmit.classList.add('d-none');
-    }
-
-    // Scroll back to stepper top for good usability
-    document.getElementById('formStepper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function validateCurrentStep() {
-    const activeContainer = document.getElementById(`step${currentStep}`);
-    
-    // Remove previous validation alert if any
-    const existingAlert = activeContainer.querySelector('.wizard-validation-alert');
-    if (existingAlert) {
-        existingAlert.remove();
-    }
-
-    let isValid = true;
-    
-    if (currentStep === 3) {
-        // Step 3 holds the document cards
-        const docCards = activeContainer.querySelectorAll('.doc-card');
-        for (let card of docCards) {
-            const isUploaded = card.getAttribute('data-uploaded') === 'true';
-            const fileInput = card.querySelector('.file-input-field');
-            const hasLocalSelectedFile = fileInput && fileInput.files && fileInput.files.length > 0;
-            
-            if (!isUploaded && !hasLocalSelectedFile) {
-                card.classList.add('border-danger');
-                isValid = false;
-            } else {
-                card.classList.remove('border-danger');
-            }
-        }
-    } else {
-        const requiredInputs = activeContainer.querySelectorAll('[required]');
-        for (let input of requiredInputs) {
-            if (!input.value.trim()) {
-                input.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                input.classList.remove('is-invalid');
-            }
-        }
-
-        // Step 1 cross-validations
-        if (currentStep === 1) {
-            const totalEl = document.getElementById('field_family_members_count');
-            const earnEl = document.getElementById('field_earning_members_count');
-            if (totalEl && earnEl && totalEl.value && earnEl.value) {
-                const total = parseInt(totalEl.value, 10);
-                const earn = parseInt(earnEl.value, 10);
-                if (earn > total) {
-                    earnEl.classList.add('is-invalid');
-                    isValid = false;
-                }
-            }
-
-            const prevSchYes = document.getElementById('prev_sch_yes');
-            const prevSchNo = document.getElementById('prev_sch_no');
-            if (prevSchYes && prevSchNo && !prevSchYes.checked && !prevSchNo.checked) {
-                isValid = false;
-            }
-        }
-        
-        // Step 2 cross-validations
-        if (currentStep === 2) {
-            const pctInput = document.getElementById('field_percentage');
-            if (pctInput) {
-                const pct = parseFloat(pctInput.value);
-                if (isNaN(pct) || pct < 0 || pct > 100) {
-                    pctInput.classList.add('is-invalid');
-                    isValid = false;
-                }
-            }
-
-            const acctInput = document.getElementById('field_account_number');
-            const acctConfirm = document.getElementById('field_confirm_account_number');
-            if (acctInput && acctConfirm && acctInput.value && acctConfirm.value) {
-                if (acctInput.value !== acctConfirm.value) {
-                    acctConfirm.classList.add('is-invalid');
-                    isValid = false;
-                }
-            }
-        }
-    }
-
-    if (!isValid) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger wizard-validation-alert border-0 shadow-sm mt-3 d-flex align-items-center gap-2 small';
-        alertDiv.style.borderRadius = '0.5rem';
-        alertDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill fs-5"></i> <span>कृपया सभी आवश्यक जानकारी दर्ज करें या आवश्यक दस्तावेज़ अपलोड करें।</span>`;
-        activeContainer.appendChild(alertDiv);
-    }
-    
-    return isValid;
-}
-
 function togglePrevSchAmt(show) {
     const div = document.getElementById('prev_sch_amounts_div');
     if (show) {
@@ -1146,7 +1010,7 @@ function compileFormPreview() {
     document.getElementById('preview_ifsc_code').textContent = ifscCode;
     document.getElementById('preview_family_income').textContent = familyIncome ? `₹ ${parseFloat(familyIncome).toLocaleString('en-IN')}/-` : '-';
 
-    // File Preview using FileReader or global uploadedDocs object for Student Photo
+    // File Preview for Student Photo
     const filePhoto = document.getElementById('file_photo').files[0];
     const previewPhotoBox = document.getElementById('preview_photo_box');
     if (filePhoto) {
@@ -1161,7 +1025,7 @@ function compileFormPreview() {
         previewPhotoBox.innerHTML = 'विद्यार्थी का<br>फोटो';
     }
 
-    // File Preview using FileReader or global uploadedDocs object for Signature
+    // File Preview for Signature
     const fileSignature = document.getElementById('file_signature').files[0];
     const previewSignatureBox = document.getElementById('preview_signature_box');
     if (fileSignature) {
@@ -1228,6 +1092,44 @@ function compileFormPreview() {
         previewPassbookBox.innerHTML = '<span class="text-muted">बैंक पासबुक उपलब्ध नहीं है / No Passbook</span>';
     }
 }
+
+function saveDraftAction() {
+    document.getElementById('wizardAction').value = 'save_draft';
+    const form = document.getElementById('scholarshipWizardForm');
+    form.submit();
+}
+
+function confirmFinalSubmit() {
+    const checkbox = document.getElementById('declarationCheckbox');
+    if (!checkbox || !checkbox.checked) {
+        alert('कृपया स्व-घोषणा बॉक्स को चेक करें / Please check the self-declaration box.');
+        return;
+    }
+    if (confirm('क्या आप सुनिश्चित हैं? सबमिशन के बाद आप संपादन नहीं कर सकते। / Are you sure? You cannot edit after submission.')) {
+        document.getElementById('wizardAction').value = 'final_submit';
+        const form = document.getElementById('scholarshipWizardForm');
+        form.submit();
+    }
+}
+
+// ─── Disable Required Fields for Inactive Steps & Initialize ───
+document.addEventListener('DOMContentLoaded', function() {
+    for (let s = 1; s <= 4; s++) {
+        if (s !== currentStep) {
+            const stepDiv = document.getElementById(`step${s}`);
+            if (stepDiv) {
+                stepDiv.querySelectorAll('[required]').forEach(input => {
+                    input.removeAttribute('required');
+                });
+            }
+        }
+    }
+    
+    if (currentStep === 4) {
+        compileFormPreview();
+        toggleSubmitBtn();
+    }
+});
 
 // ─── Unsaved Progress Auto-Save and Navigation Warn ───
 (function () {
@@ -1300,7 +1202,7 @@ function compileFormPreview() {
     });
 
     function beforeUnloadHandler(e) {
-        if (isFormModified) {
+        if (isFormModified && document.getElementById('wizardAction').value !== 'save_draft') {
             e.preventDefault();
             e.returnValue = '';
         }
@@ -1316,4 +1218,3 @@ function compileFormPreview() {
 $content = ob_get_clean();
 require VIEW_PATH . '/layouts/FormLayout.php';
 ?>
-

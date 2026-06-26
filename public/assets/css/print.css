@@ -1,0 +1,66 @@
+@media print {
+    body {
+        background: #fff !important;
+        color: #000 !important;
+        font-family: 'Outfit', 'Inter', 'Roboto', sans-serif !important;
+        font-size: 12pt !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* Hide navigation, sidebars, headers, footers, buttons and alerts */
+    header, footer, nav, .navbar, .sidebar, .student-sidebar, .admin-sidebar,
+    .btn, .no-print, .alert, .breadcrumb, .back-to-top, .card-header .btn,
+    .d-print-none, .print-btn, #sidebarMenu {
+        display: none !important;
+    }
+    
+    /* Layout adjustments */
+    .container, .container-fluid, .content-wrapper, main, .main-content {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+    
+    .card-body {
+        padding: 0 !important;
+    }
+    
+    /* Hide URLs next to links */
+    a[href]::after {
+        content: "" !important;
+    }
+    
+    /* Table borders for clean printing */
+    .table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+    
+    .table th, .table td {
+        border: 1px solid #dee2e6 !important;
+        padding: 8px !important;
+        font-size: 10pt !important;
+    }
+    
+    .table th {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+    
+    /* Timeline / steps adjustments for printing */
+    .timeline, .step-tracker {
+        display: none !important;
+    }
+    
+    .page-break {
+        page-break-before: always;
+    }
+}

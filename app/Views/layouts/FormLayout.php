@@ -28,6 +28,7 @@ declare(strict_types=1);
     <link href="/assets/fonts/fonts.css" rel="stylesheet">
     <!-- Portal Custom CSS -->
     <link href="/assets/css/style.css?v=2.1.0" rel="stylesheet">
+    <link href="/assets/css/print.css?v=1.0.0" rel="stylesheet" media="print">
     
     <style>
         /* Standalone Form Page Styles */

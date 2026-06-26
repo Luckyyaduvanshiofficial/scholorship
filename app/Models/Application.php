@@ -108,6 +108,7 @@ class Application
 
         if ($application) {
             $application['documents'] = $this->documents((int) $application['id']);
+            $application['history'] = $this->history((int) $application['id']);
         }
 
         return $application;
@@ -234,7 +235,9 @@ class Application
             'family_occupation', 'family_members_count', 'earning_members_count',
             'current_class', 'current_college', 'prev_scholarship_received',
             'scholarship_amt_2023_24', 'scholarship_amt_2024_25', 'scholarship_amt_2025_26',
-            'account_holder_name', 'career_goal'
+            'account_holder_name', 'career_goal',
+            'self_declared', 'self_declared_at', 'self_declared_ip',
+            'correction_count', 'correction_deadline', 'submitted_ip', 'resubmitted_at', 'application_no'
         ];
 
         foreach ($data as $key => $value) {
@@ -360,6 +363,53 @@ class Application
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function history(int $applicationId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT h.*, u.username, u.email,
+                    s.first_name, s.last_name
+             FROM application_history h
+             LEFT JOIN users u ON h.performed_by = u.id
+             LEFT JOIN students s ON h.performed_by = s.id
+             WHERE h.application_id = ?
+             ORDER BY h.performed_at DESC"
+        );
+        $stmt->execute([$applicationId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Log a significant application action in the history table.
+     */
+    public function logHistory(int $applicationId, string $action, int $performedBy, ?array $oldData = null, ?array $newData = null): bool
+    {
+        $sql = "INSERT INTO application_history 
+                (application_id, action, performed_by, performed_at, ip_address, user_agent, old_data, new_data) 
+                VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)";
+        
+        $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+        
+        $oldDataJson = $oldData !== null ? json_encode($oldData) : null;
+        $newDataJson = $newData !== null ? json_encode($newData) : null;
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                $applicationId,
+                $action,
+                $performedBy,
+                $ip,
+                $userAgent,
+                $oldDataJson,
+                $newDataJson
+            ]);
+        } catch (\Throwable $e) {
+            \App\Core\Logger::error("Failed to log history for app {$applicationId}: " . $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Auto-migrate schema to add missing applications table columns on the fly.
      */
@@ -378,6 +428,15 @@ class Application
                 'scholarship_amt_2025_26'   => 'DECIMAL(10, 2) DEFAULT NULL',
                 'account_holder_name'       => 'VARCHAR(100) DEFAULT NULL',
                 'career_goal'               => 'VARCHAR(255) DEFAULT NULL',
+                'self_declared'             => 'TINYINT(1) DEFAULT 0',
+                'self_declared_at'          => 'DATETIME DEFAULT NULL',
+                'self_declared_ip'          => 'VARCHAR(45) DEFAULT NULL',
+                'correction_count'          => 'INT DEFAULT 0',
+                'correction_deadline'       => 'DATETIME DEFAULT NULL',
+                'submitted_at'              => 'DATETIME DEFAULT NULL',
+                'submitted_ip'              => 'VARCHAR(45) DEFAULT NULL',
+                'resubmitted_at'            => 'DATETIME DEFAULT NULL',
+                'application_no'            => 'VARCHAR(50) DEFAULT NULL',
             ];
 
             // Describe table to check columns
@@ -389,6 +448,22 @@ class Application
                     $this->db->exec("ALTER TABLE applications ADD COLUMN `{$columnName}` {$columnDefinition}");
                 }
             }
+
+            // Create application_history table if missing
+            $this->db->exec("CREATE TABLE IF NOT EXISTS application_history (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                application_id INT NOT NULL,
+                action VARCHAR(50) NOT NULL,
+                performed_by INT NOT NULL,
+                performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                ip_address VARCHAR(45),
+                user_agent TEXT,
+                old_data JSON,
+                new_data JSON,
+                INDEX idx_app_id (application_id),
+                INDEX idx_action (action)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
         } catch (\Throwable $e) {
             \App\Core\Logger::error('Auto-migration failed: ' . $e->getMessage());
         }
