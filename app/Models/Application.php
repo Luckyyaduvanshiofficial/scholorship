@@ -20,32 +20,11 @@ class Application
      */
     public function create(array $data): int|false
     {
-        $sql = "INSERT INTO applications
-             (student_id, session_id, application_type_id, status_id, reviewed_by,
-              dispute_message, submitted_at, type,
-              family_income, bank_name, account_number, ifsc_code,
-              achievement_title, achievement_category, achievement_level, rank_position,
-              family_occupation, family_members_count, earning_members_count,
-              current_class, current_college, prev_scholarship_received,
-              scholarship_amt_2023_24, scholarship_amt_2024_25, scholarship_amt_2025_26,
-              account_holder_name, career_goal,
-              created_at)
-             VALUES
-             (:student_id, :session_id, :application_type_id, :status_id, :reviewed_by,
-              :dispute_message, :submitted_at, :type,
-              :family_income, :bank_name, :account_number, :ifsc_code,
-              :achievement_title, :achievement_category, :achievement_level, :rank_position,
-              :family_occupation, :family_members_count, :earning_members_count,
-              :current_class, :current_college, :prev_scholarship_received,
-              :scholarship_amt_2023_24, :scholarship_amt_2024_25, :scholarship_amt_2025_26,
-              :account_holder_name, :career_goal,
-              NOW())";
-
+        // Shared params
         $params = [
             ':student_id'          => $data['student_id'],
             ':session_id'          => $data['session_id'],
             ':application_type_id' => $data['application_type_id'],
-            ':status_id'           => $data['status_id'] ?? 1,
             ':reviewed_by'         => $data['reviewed_by'] ?? null,
             ':dispute_message'     => $data['dispute_message'] ?? null,
             ':submitted_at'        => $data['submitted_at'] ?? null,
@@ -71,15 +50,56 @@ class Application
             ':career_goal'               => $data['career_goal'] ?? null,
         ];
 
-        try {
-            $stmt = $this->db->prepare($sql);
-            $result = $stmt->execute($params);
-        } catch (\PDOException $e) {
-            if ($e->getCode() === '42S22' || str_contains($e->getMessage(), 'Unknown column')) {
-                $this->autoMigrateSchema();
+        $commonCols = "student_id, session_id, application_type_id, reviewed_by,
+                       dispute_message, submitted_at, type,
+                       family_income, bank_name, account_number, ifsc_code,
+                       achievement_title, achievement_category, achievement_level, rank_position,
+                       family_occupation, family_members_count, earning_members_count,
+                       current_class, current_college, prev_scholarship_received,
+                       scholarship_amt_2023_24, scholarship_amt_2024_25, scholarship_amt_2025_26,
+                       account_holder_name, career_goal, created_at";
+
+        $commonVals = ":student_id, :session_id, :application_type_id, :reviewed_by,
+                       :dispute_message, :submitted_at, :type,
+                       :family_income, :bank_name, :account_number, :ifsc_code,
+                       :achievement_title, :achievement_category, :achievement_level, :rank_position,
+                       :family_occupation, :family_members_count, :earning_members_count,
+                       :current_class, :current_college, :prev_scholarship_received,
+                       :scholarship_amt_2023_24, :scholarship_amt_2024_25, :scholarship_amt_2025_26,
+                       :account_holder_name, :career_goal, NOW()";
+
+        // Try old schema (status_id) first, fall back to new schema (status)
+        $sqlVariants = [
+            "INSERT INTO applications ({$commonCols}, status_id)
+             VALUES ({$commonVals}, :status_id)",
+            "INSERT INTO applications ({$commonCols}, status)
+             VALUES ({$commonVals}, :status)",
+        ];
+
+        $result = false;
+        foreach ($sqlVariants as $sql) {
+            try {
                 $stmt = $this->db->prepare($sql);
+                if (str_contains($sql, ':status_id')) {
+                    $params[':status_id'] = $data['status_id'] ?? 1;
+                } else {
+                    $params[':status'] = $data['status'] ?? 'draft';
+                }
                 $result = $stmt->execute($params);
-            } else {
+                break;
+            } catch (\PDOException $e) {
+                if ($e->getCode() === '42S22' || str_contains($e->getMessage(), 'Unknown column')) {
+                    if (str_contains($sql, ':status_id')) {
+                        // status_id column doesn't exist, try status column variant
+                        unset($params[':status_id']);
+                        continue;
+                    }
+                    // status column also doesn't exist — auto-migrate and retry
+                    $this->autoMigrateSchema();
+                    $stmt = $this->db->prepare($sql);
+                    $result = $stmt->execute($params);
+                    break;
+                }
                 throw $e;
             }
         }
@@ -89,7 +109,25 @@ class Application
 
     public function find(int $id): array|false
     {
-        $stmt = $this->db->prepare(
+        // The application_status table and status_id column may have been
+        // dropped by database/update_schema.php. Try the new-schema query
+        // first (uses a.status VARCHAR column), fall back to the old
+        // join-based query if the status column doesn't exist yet.
+        $queries = [
+            // New schema (VARCHAR status column, no status_id / application_status)
+            "SELECT a.*, 
+                    s.first_name, s.last_name, s.student_code, s.father_name, s.mother_name, 
+                    s.dob, s.gender, s.mobile, s.email, s.address, s.city, s.district, s.state, s.pincode, s.profile_photo,
+                    sa.class_year, sa.course_name, sa.college_name, sa.board_university, sa.marks_obtained, sa.max_marks, sa.percentage,
+                    ac.session_name, atp.name AS app_type_name, a.status AS status_name
+             FROM applications a
+             LEFT JOIN students s ON a.student_id = s.id
+             LEFT JOIN academic_sessions ac ON a.session_id = ac.id
+             LEFT JOIN application_types atp ON a.application_type_id = atp.id
+             LEFT JOIN student_academics sa ON a.student_id = sa.student_id AND a.session_id = sa.session_id
+             WHERE a.id = ?",
+
+            // Old schema (status_id FK + application_status lookup table)
             "SELECT a.*, 
                     s.first_name, s.last_name, s.student_code, s.father_name, s.mother_name, 
                     s.dob, s.gender, s.mobile, s.email, s.address, s.city, s.district, s.state, s.pincode, s.profile_photo,
@@ -101,10 +139,23 @@ class Application
              LEFT JOIN application_types atp ON a.application_type_id = atp.id
              LEFT JOIN application_status ast ON a.status_id = ast.id
              LEFT JOIN student_academics sa ON a.student_id = sa.student_id AND a.session_id = sa.session_id
-             WHERE a.id = ?"
-        );
-        $stmt->execute([$id]);
-        $application = $stmt->fetch(PDO::FETCH_ASSOC);
+             WHERE a.id = ?",
+        ];
+
+        $application = false;
+        foreach ($queries as $sql) {
+            try {
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([$id]);
+                $application = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($application !== false) {
+                    break;
+                }
+            } catch (\PDOException $e) {
+                // Query failed — try the next schema variant
+                continue;
+            }
+        }
 
         if ($application) {
             $application['documents'] = $this->documents((int) $application['id']);
@@ -237,7 +288,8 @@ class Application
             'scholarship_amt_2023_24', 'scholarship_amt_2024_25', 'scholarship_amt_2025_26',
             'account_holder_name', 'career_goal',
             'self_declared', 'self_declared_at', 'self_declared_ip',
-            'correction_count', 'correction_deadline', 'submitted_ip', 'resubmitted_at', 'application_no'
+            'correction_count', 'correction_deadline', 'submitted_ip', 'resubmitted_at', 'application_no',
+            'status'
         ];
 
         foreach ($data as $key => $value) {

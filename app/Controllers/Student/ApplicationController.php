@@ -124,7 +124,8 @@ class ApplicationController
                     'student_id'          => (int) Auth::id(),
                     'session_id'          => (int) $activeSession['id'],
                     'application_type_id' => (int) $scholarshipType['id'],
-                    'status_id'           => 1, // Draft
+                    'status_id'           => 1, // Draft (old schema)
+                    'status'              => 'draft', // Draft (new schema)
                     'type'                => 'scholarship',
                     'submitted_at'        => null,
                 ]);
@@ -193,7 +194,8 @@ class ApplicationController
                     'student_id'          => (int) Auth::id(),
                     'session_id'          => (int) $activeSession['id'],
                     'application_type_id' => (int) $pratibhaType['id'],
-                    'status_id'           => 1, // Draft
+                    'status_id'           => 1, // Draft (old schema)
+                    'status'              => 'draft', // Draft (new schema)
                     'type'                => 'pratibha',
                     'submitted_at'        => null,
                 ]);
@@ -562,11 +564,22 @@ class ApplicationController
             $db->beginTransaction();
 
             try {
-                $stmt = $db->prepare("SELECT status_id, application_no, correction_count FROM applications WHERE id = ? FOR UPDATE");
-                $stmt->execute([$appId]);
-                $currentApp = $stmt->fetch(\PDO::FETCH_ASSOC);
+                // Try old schema first (status_id), fall back to new (status VARCHAR)
+                $useOldSchema = true;
+                try {
+                    $stmt = $db->prepare("SELECT status_id, application_no, correction_count FROM applications WHERE id = ? FOR UPDATE");
+                    $stmt->execute([$appId]);
+                    $currentApp = $stmt->fetch(\PDO::FETCH_ASSOC);
+                    $currentStatusId = (int) $currentApp['status_id'];
+                } catch (\PDOException $e) {
+                    // status_id column doesn't exist — use new schema
+                    $useOldSchema = false;
+                    $stmt = $db->prepare("SELECT status, application_no, correction_count FROM applications WHERE id = ? FOR UPDATE");
+                    $stmt->execute([$appId]);
+                    $currentApp = $stmt->fetch(\PDO::FETCH_ASSOC);
+                    $currentStatusId = $currentApp['status'] === 'pending_correction' ? 6 : ($currentApp['status'] === 'draft' ? 1 : 2);
+                }
 
-                $currentStatusId = (int) $currentApp['status_id'];
                 $isResubmit = ($currentStatusId === 6); 
                 $finalStatusId = $isResubmit ? 7 : 2; 
                 $finalStatusName = $isResubmit ? 'Resubmitted' : 'Submitted';
@@ -579,13 +592,18 @@ class ApplicationController
                 }
 
                 $updateData = [
-                    'status_id'        => $finalStatusId,
                     'application_no'   => $appNo,
                     'self_declared'    => 1,
                     'self_declared_at' => date('Y-m-d H:i:s'),
                     'self_declared_ip' => $ipAddress,
                     'dispute_message'  => null, 
                 ];
+                // Status update: use whichever column exists
+                if ($useOldSchema) {
+                    $updateData['status_id'] = $finalStatusId;
+                } else {
+                    $updateData['status'] = $isResubmit ? 'resubmitted' : 'submitted';
+                }
 
                 if ($isResubmit) {
                     $updateData['resubmitted_at'] = date('Y-m-d H:i:s');
@@ -735,8 +753,13 @@ class ApplicationController
                 Response::redirect('/dashboard/applications/' . $id);
             }
 
-            // Transition to Pending Correction
-            $appModel->update((int) $id, ['status_id' => 6]);
+            // Transition to Pending Correction (support both old & new schema)
+            try {
+                $appModel->update((int) $id, ['status_id' => 6]);
+            } catch (\InvalidArgumentException $e) {
+                // status_id column likely dropped by update_schema.php — use VARCHAR status instead
+                $appModel->update((int) $id, ['status' => 'pending_correction']);
+            }
             $appModel->logHistory((int) $id, 'edited', (int) Auth::id());
         }
 
