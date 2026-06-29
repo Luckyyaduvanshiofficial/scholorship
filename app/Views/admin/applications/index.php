@@ -48,7 +48,7 @@ function getHindiStatusInfo($statusName, $appId) {
     <div class="d-flex flex-grow-1 position-relative">
 
         <?php
-        $activeSidebarLink = '/admin/applications';
+        $activeSidebarLink = admin_path('applications');
         require VIEW_PATH . '/layouts/admin-sidebar.php';
         ?>
 
@@ -107,7 +107,7 @@ function getHindiStatusInfo($statusName, $appId) {
                                             </td>
                                             <td class="text-muted py-3" data-label="दिनांक"><?= $date ?></td>
                                             <td class="text-center py-3" data-label="कार्रवाई">
-                                                <a href="/admin/applications/<?= (int) $app['id'] ?>" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold border-0 bg-transparent text-secondary" style="font-size: 1.25rem; color: #8b0000 !important;">
+                                                <a href="<?= admin_path('applications/' . (int) $app['id']) ?>" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold border-0 bg-transparent text-secondary" style="font-size: 1.25rem; color: #8b0000 !important;">
                                                     <i class="bi bi-eye-fill me-1"></i> समीक्षा करें
                                                 </a>
                                             </td>

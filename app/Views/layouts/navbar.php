@@ -3,7 +3,7 @@ use App\Core\Auth;
 use App\Core\Csrf;
 
 $dashHref = Auth::isAdmin()
-    ? '/admin'
+    ? admin_dashboard_url()
     : (Auth::isRepresentative() ? '/representative' : '/dashboard');
 $uri = $_SERVER['REQUEST_URI'] ?? '/';
 ?>

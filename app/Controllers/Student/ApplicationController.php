@@ -112,7 +112,10 @@ class ApplicationController
             );
 
             if ($existing) {
-                if ($existing['submitted_at'] !== null) {
+                $existingStatusId = (int) ($existing['status_id'] ?? 1);
+                $isEditMode = ($existing['submitted_at'] === null || $existingStatusId === 6);
+
+                if ($existing['submitted_at'] !== null && $existingStatusId !== 6) {
                     Flash::set('error', 'You have already applied for Scholarship in this session.');
                     Response::redirect('/dashboard/applications');
                 } else {
@@ -124,13 +127,11 @@ class ApplicationController
                     'student_id'          => (int) Auth::id(),
                     'session_id'          => (int) $activeSession['id'],
                     'application_type_id' => (int) $scholarshipType['id'],
-                    'status_id'           => 1, // Draft (old schema)
-                    'status'              => 'draft', // Draft (new schema)
-                    'type'                => 'scholarship',
+                    'status_id'           => 1,
                     'submitted_at'        => null,
                 ]);
                 $application = $appModel->find((int) $appId);
-                $appModel->logHistory((int) $appId, 'draft_saved', (int) Auth::id(), null, ['step' => 1]);
+                $appModel->logHistory((int) $appId, 'draft_saved_step_1', (int) Auth::id(), null, ['step' => 1]);
             }
         }
 
@@ -141,13 +142,17 @@ class ApplicationController
         $studentModel = new \App\Models\Student();
         $student = $studentModel->find((int) Auth::id());
 
+        $isEdit = !empty($application);
+
         Response::view('applications/scholarship', [
             'title'         => 'Scholarship Application — Tamboli Samaj Portal',
+            'formSubtitle'  => 'शिक्षा प्रोत्साहन छात्रवृत्ति आवेदन ' . date('Y'),
             'activeSession' => $activeSession,
             'student'       => $student ?: [],
             'application'   => $application,
             'step'          => $step,
-        ]);
+            'isEdit'        => $isEdit,
+        ], 'layouts/form');
     }
 
     public function pratibha(): void
@@ -182,7 +187,10 @@ class ApplicationController
             );
 
             if ($existing) {
-                if ($existing['submitted_at'] !== null) {
+                $existingStatusId = (int) ($existing['status_id'] ?? 1);
+                $isEditMode = ($existing['submitted_at'] === null || $existingStatusId === 6);
+
+                if ($existing['submitted_at'] !== null && $existingStatusId !== 6) {
                     Flash::set('error', 'You have already registered for Pratibha Samman in this session.');
                     Response::redirect('/dashboard/applications');
                 } else {
@@ -194,13 +202,11 @@ class ApplicationController
                     'student_id'          => (int) Auth::id(),
                     'session_id'          => (int) $activeSession['id'],
                     'application_type_id' => (int) $pratibhaType['id'],
-                    'status_id'           => 1, // Draft (old schema)
-                    'status'              => 'draft', // Draft (new schema)
-                    'type'                => 'pratibha',
+                    'status_id'           => 1,
                     'submitted_at'        => null,
                 ]);
                 $application = $appModel->find((int) $appId);
-                $appModel->logHistory((int) $appId, 'draft_saved', (int) Auth::id(), null, ['step' => 1]);
+                $appModel->logHistory((int) $appId, 'draft_saved_step_1', (int) Auth::id(), null, ['step' => 1]);
             }
         }
 
@@ -211,13 +217,17 @@ class ApplicationController
         $studentModel = new \App\Models\Student();
         $student = $studentModel->find((int) Auth::id());
 
+        $isEdit = !empty($application);
+
         Response::view('applications/pratibha', [
             'title'         => 'Pratibha Samman Application — Tamboli Samaj Portal',
+            'formSubtitle'  => 'प्रतिभा सम्मान आवेदन ' . date('Y'),
             'activeSession' => $activeSession,
             'student'       => $student ?: [],
             'application'   => $application,
             'step'          => $step,
-        ]);
+            'isEdit'        => $isEdit,
+        ], 'layouts/form');
     }
 
     public function storeStep(int $step): void
@@ -249,6 +259,12 @@ class ApplicationController
         $redirectUrl = ($type === 'scholarship') ? '/dashboard/applications/scholarship' : '/dashboard/applications/pratibha';
 
         $action = Input::post('action'); // 'save_draft', 'next', 'final_submit'
+        $currentStatusId = (int) ($app['status_id'] ?? 1);
+
+        if (!in_array($currentStatusId, [1, 6], true)) {
+            Flash::set('error', 'Submitted applications cannot be edited.');
+            Response::redirect('/dashboard/applications/' . $appId);
+        }
 
         if ($action === 'save_draft') {
             if ($step === 1) {
@@ -315,7 +331,7 @@ class ApplicationController
                 }
             }
 
-            $appModel->logHistory($appId, 'draft_saved', (int) Auth::id(), null, ['step' => $step]);
+            $appModel->logHistory($appId, 'draft_saved_step_' . $step, (int) Auth::id(), null, ['step' => $step]);
             Flash::set('success', 'प्रारूप सहेज लिया गया है / Draft saved successfully.');
             Response::redirect($redirectUrl . '?step=' . $step);
         }
@@ -493,117 +509,56 @@ class ApplicationController
                 Response::redirect($redirectUrl . '?step=4');
             }
 
+            // Double-submit protection
+            $submittedToken = Input::post('submit_token', '');
+            $sessionToken = \App\Core\Session::get('submit_token', '');
+            if ($submittedToken === '' || $submittedToken !== $sessionToken) {
+                Flash::set('error', 'Duplicate submission detected or session expired. Please try again.');
+                Response::redirect($redirectUrl . '?step=4');
+            }
+            \App\Core\Session::remove('submit_token');
+
             $fullApp = $appModel->find($appId);
-            $errors = [];
-            $failedStep = 4;
 
-            $personalFields = ['first_name', 'last_name', 'father_name', 'mother_name', 'dob', 'gender', 'address', 'city', 'district', 'pincode', 'family_occupation', 'family_members_count', 'earning_members_count', 'career_goal'];
-            foreach ($personalFields as $f) {
-                if (empty($fullApp[$f])) {
-                    $errors[] = "Missing personal field: " . $f;
-                    if ($failedStep > 1) {
-                        $failedStep = 1;
-                    }
-                }
-            }
-
-            $academicFields = ['class_year', 'percentage', 'college_name', 'board_university'];
-            foreach ($academicFields as $f) {
-                if (empty($fullApp[$f])) {
-                    $errors[] = "Missing academic field: " . $f;
-                    if ($failedStep > 2) {
-                        $failedStep = 2;
-                    }
-                }
-            }
-
-            if ($type === 'scholarship') {
-                $schFields = ['current_class', 'current_college', 'bank_name', 'account_number', 'ifsc_code', 'account_holder_name', 'family_income'];
-                foreach ($schFields as $f) {
-                    if (empty($fullApp[$f])) {
-                        $errors[] = "Missing scholarship field: " . $f;
-                        if ($failedStep > 2) {
-                            $failedStep = 2;
-                        }
-                    }
-                }
-            } else {
-                $pratFields = ['achievement_title'];
-                foreach ($pratFields as $f) {
-                    if (empty($fullApp[$f])) {
-                        $errors[] = "Missing Pratibha field: " . $f;
-                        if ($failedStep > 2) {
-                            $failedStep = 2;
-                        }
-                    }
-                }
-            }
-
-            $docs = $appModel->documents($appId);
-            $uploadedTypes = array_column($docs, 'document_type');
-            $requiredDocs = ($type === 'scholarship') 
-                ? ['Photo', 'Signature', 'Marksheet', 'Passbook']
-                : ['Photo', 'Signature', 'Marksheet', 'Certificate'];
-
-            foreach ($requiredDocs as $req) {
-                if (!in_array($req, $uploadedTypes, true)) {
-                    $errors[] = "Missing document: " . $req;
-                    if ($failedStep > 3) {
-                        $failedStep = 3;
-                    }
-                }
-            }
-
-            if (!empty($errors)) {
-                Logger::warning("Application {$appId} final submit blocked: incomplete data on step {$failedStep}.", ['errors' => $errors]);
-                Flash::set('error', "आवेदन में कुछ जानकारी अधूरी है। कृपया इस चरण को पूरा करें। / Step {$failedStep} contains incomplete information. Please complete it.");
-                Response::redirect($redirectUrl . '?step=' . $failedStep);
+            if (!$appModel->isComplete($appId)) {
+                Logger::warning("Application {$appId} final submit blocked: incomplete data.");
+                Flash::set('error', 'आवेदन में कुछ जानकारी अधूरी है। कृपया सभी चरण पूरे करें। / Application is incomplete. Please complete all steps.');
+                Response::redirect($redirectUrl . '?step=1');
             }
 
             $db = \App\Core\Database::getInstance();
             $db->beginTransaction();
 
             try {
-                // Try old schema first (status_id), fall back to new (status VARCHAR)
-                $useOldSchema = true;
-                try {
-                    $stmt = $db->prepare("SELECT status_id, application_no, correction_count FROM applications WHERE id = ? FOR UPDATE");
-                    $stmt->execute([$appId]);
-                    $currentApp = $stmt->fetch(\PDO::FETCH_ASSOC);
-                    $currentStatusId = (int) $currentApp['status_id'];
-                } catch (\PDOException $e) {
-                    // status_id column doesn't exist — use new schema
-                    $useOldSchema = false;
-                    $stmt = $db->prepare("SELECT status, application_no, correction_count FROM applications WHERE id = ? FOR UPDATE");
-                    $stmt->execute([$appId]);
-                    $currentApp = $stmt->fetch(\PDO::FETCH_ASSOC);
-                    $currentStatusId = $currentApp['status'] === 'pending_correction' ? 6 : ($currentApp['status'] === 'draft' ? 1 : 2);
+                $stmt = $db->prepare("SELECT status_id, application_no, correction_count FROM applications WHERE id = ? FOR UPDATE");
+                $stmt->execute([$appId]);
+                $currentApp = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                $lockedStatusId = (int) ($currentApp['status_id'] ?? 1);
+                if (!in_array($lockedStatusId, [1, 6], true)) {
+                    $db->rollBack();
+                    Flash::set('error', 'This application has already been submitted.');
+                    Response::redirect('/dashboard/applications/' . $appId);
                 }
 
-                $isResubmit = ($currentStatusId === 6); 
-                $finalStatusId = $isResubmit ? 7 : 2; 
+                $isResubmit = ($lockedStatusId === 6);
+                $finalStatusId = $isResubmit ? 7 : 2;
                 $finalStatusName = $isResubmit ? 'Resubmitted' : 'Submitted';
 
                 $ipAddress = $_SERVER['REMOTE_ADDR'] ?? null;
 
                 $appNo = $currentApp['application_no'];
                 if (empty($appNo)) {
-                    $appNo = \App\Core\ApplicationNumberGenerator::format($appId, date('Y'));
+                    $appNo = $appModel->generateApplicationNumber($appId, (int) ($app['application_type_id'] ?? 1));
                 }
 
                 $updateData = [
                     'application_no'   => $appNo,
+                    'status_id'        => $finalStatusId,
                     'self_declared'    => 1,
                     'self_declared_at' => date('Y-m-d H:i:s'),
                     'self_declared_ip' => $ipAddress,
-                    'dispute_message'  => null, 
                 ];
-                // Status update: use whichever column exists
-                if ($useOldSchema) {
-                    $updateData['status_id'] = $finalStatusId;
-                } else {
-                    $updateData['status'] = $isResubmit ? 'resubmitted' : 'submitted';
-                }
 
                 if ($isResubmit) {
                     $updateData['resubmitted_at'] = date('Y-m-d H:i:s');
@@ -615,7 +570,13 @@ class ApplicationController
                 $appModel->update($appId, $updateData);
 
                 $actionType = $isResubmit ? 'resubmitted' : 'final_submitted';
-                $appModel->logHistory($appId, $actionType, (int) Auth::id());
+                $appModel->logHistory(
+                    $appId,
+                    $actionType,
+                    (int) Auth::id(),
+                    ['status_id' => $lockedStatusId],
+                    ['status_id' => $finalStatusId, 'application_no' => $appNo]
+                );
 
                 $db->commit();
             } catch (\Throwable $e) {
@@ -673,6 +634,14 @@ class ApplicationController
         return 'Validation failed';
     }
 
+    /**
+     * Students may upload/delete documents only while drafting or correcting.
+     */
+    private function canModifyDocuments(array $app): bool
+    {
+        return in_array((int) ($app['status_id'] ?? 0), [1, 6], true);
+    }
+
     public function acknowledgment(int $id): void
     {
         if (!Auth::isStudent()) {
@@ -687,15 +656,17 @@ class ApplicationController
             Response::redirect('/dashboard/applications');
         }
 
-        if ($app['submitted_at'] === null) {
+        $statusId = (int) ($app['status_id'] ?? 0);
+        if ($statusId < 2) {
             Flash::set('error', 'Please submit the application first.');
             Response::redirect('/dashboard/applications');
         }
 
         Response::view('applications/acknowledgment', [
-            'title'       => 'Acknowledgment — Tamboli Samaj Portal',
-            'application' => $app,
-        ]);
+            'title'        => 'Acknowledgment — Tamboli Samaj Portal',
+            'formSubtitle' => 'आवेदन पावती पत्र / Acknowledgment',
+            'application'  => $app,
+        ], 'layouts/form');
     }
 
     public function show(int $id): void
@@ -723,14 +694,14 @@ class ApplicationController
         Response::redirect("/dashboard/applications/{$id}/edit");
     }
 
-    public function edit(string $id): void
+    public function edit(int $id): void
     {
         if (!Auth::isStudent()) {
             Response::redirect('/login');
         }
 
         $appModel = new Application();
-        $app = $appModel->find((int) $id);
+        $app = $appModel->find($id);
 
         if (!$app || (int) $app['student_id'] !== (int) Auth::id()) {
             Flash::set('error', 'Application not found.');
@@ -738,29 +709,39 @@ class ApplicationController
         }
 
         $statusName = $app['status_name'] ?? '';
-        
+
         if (in_array($statusName, ['Submitted', 'Under Review', 'Approved', 'Resubmitted'], true)) {
             Flash::set('error', 'Submitted applications cannot be edited.');
             Response::redirect('/dashboard/applications/' . $id);
         }
 
         if ($statusName === 'Rejected') {
-            $deadline = $app['correction_deadline'] ? strtotime($app['correction_deadline']) : 0;
-            $count = (int) ($app['correction_count'] ?? 0);
-            
-            if ($count > 1 || $deadline < time()) {
-                Flash::set('error', 'Correction deadline has passed or limit exceeded.');
+            $deadline = $app['correction_deadline'] ? strtotime((string) $app['correction_deadline']) : 0;
+            $oldCount = (int) ($app['correction_count'] ?? 0);
+
+            if ($oldCount >= 1) {
+                Flash::set('error', 'Correction window already used.');
                 Response::redirect('/dashboard/applications/' . $id);
             }
 
-            // Transition to Pending Correction (support both old & new schema)
-            try {
-                $appModel->update((int) $id, ['status_id' => 6]);
-            } catch (\InvalidArgumentException $e) {
-                // status_id column likely dropped by update_schema.php — use VARCHAR status instead
-                $appModel->update((int) $id, ['status' => 'pending_correction']);
+            if ($deadline > 0 && $deadline < time()) {
+                Flash::set('error', 'Correction deadline has expired.');
+                Response::redirect('/dashboard/applications/' . $id);
             }
-            $appModel->logHistory((int) $id, 'edited', (int) Auth::id());
+
+            $newCount = $oldCount + 1;
+            $appModel->update($id, [
+                'status_id'        => 6,
+                'correction_count' => $newCount,
+            ]);
+            $appModel->logHistory(
+                $id,
+                'edited',
+                (int) Auth::id(),
+                ['status_id' => 5, 'correction_count' => $oldCount],
+                ['status_id' => 6, 'correction_count' => $newCount]
+            );
+            Flash::set('info', 'You have one correction window. Please fix the issues and resubmit.');
         }
 
         \App\Core\Session::set('draft_id', $app['id']);
@@ -768,7 +749,7 @@ class ApplicationController
         Response::redirect($url . '?step=1');
     }
 
-    public function update(string $id): void
+    public function update(int $id): void
     {
         Response::redirect("/dashboard/applications/{$id}/edit");
     }
@@ -797,6 +778,11 @@ class ApplicationController
 
             if (!$app || (!Auth::isAdmin() && !Auth::isRepresentative() && (int)$app['student_id'] !== (int)Auth::id())) {
                 echo json_encode(['success' => false, 'error' => 'Application not found or unauthorized']);
+                exit;
+            }
+
+            if (!Auth::isAdmin() && !Auth::isRepresentative() && !$this->canModifyDocuments($app)) {
+                echo json_encode(['success' => false, 'error' => 'Documents cannot be modified after submission.']);
                 exit;
             }
 
@@ -898,6 +884,11 @@ class ApplicationController
 
             if (!$app || (!Auth::isAdmin() && !Auth::isRepresentative() && (int)$app['student_id'] !== (int)Auth::id())) {
                 echo json_encode(['success' => false, 'error' => 'Application not found or unauthorized']);
+                exit;
+            }
+
+            if (!Auth::isAdmin() && !Auth::isRepresentative() && !$this->canModifyDocuments($app)) {
+                echo json_encode(['success' => false, 'error' => 'Documents cannot be modified after submission.']);
                 exit;
             }
 

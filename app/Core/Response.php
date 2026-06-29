@@ -16,6 +16,14 @@ class Response
     }
 
     /**
+     * Redirect to an admin path (host-aware: / on admin host, /admin/ on portal).
+     */
+    public static function redirectAdmin(string $path = '', int $statusCode = 302): never
+    {
+        self::redirect(Url::admin($path), $statusCode);
+    }
+
+    /**
      * Redirect back to the previous page. Falls back to '/' if no referrer.
      */
     public static function back(): never
@@ -38,8 +46,13 @@ class Response
 
     /**
      * Render a view file.
+     *
+     * @param string      $template  View template path (relative to VIEW_PATH)
+     * @param array       $data      Variables to extract for the view
+     * @param string|null $layout    Optional layout to wrap the view in
+     * @param int         $statusCode HTTP status code
      */
-    public static function view(string $template, array $data = [], int $statusCode = 200): void
+    public static function view(string $template, array $data = [], ?string $layout = null, int $statusCode = 200): void
     {
         http_response_code($statusCode);
 
@@ -54,7 +67,27 @@ class Response
             self::abort(500, 'View not found');
         }
 
-        require $file;
+        // If a layout is specified, render view content into layout
+        if ($layout !== null) {
+            $layoutFile = VIEW_PATH . '/' . $layout . '.php';
+
+            if (!file_exists($layoutFile)) {
+                Logger::error("Layout not found: {$layout}");
+
+                self::abort(500, 'Layout not found');
+            }
+
+            // Capture view content into $content variable
+            ob_start();
+            require $file;
+            $content = ob_get_clean();
+
+            // Render layout with $content available
+            require $layoutFile;
+        } else {
+            // No layout — render view directly (existing behavior)
+            require $file;
+        }
     }
 
     /**

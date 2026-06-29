@@ -59,7 +59,7 @@ class SettingsController
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
-            Response::redirect('/admin/settings');
+            Response::redirectAdmin('settings');
         }
 
         $db = Database::getInstance();
@@ -94,7 +94,7 @@ class SettingsController
         }
 
         Flash::set('success', 'सिस्टम सेटिंग्स सफलतापूर्वक अपडेट की गईं।');
-        Response::redirect('/admin/settings');
+        Response::redirectAdmin('settings');
     }
 
     /**
@@ -109,7 +109,7 @@ class SettingsController
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
-            Response::redirect('/admin/settings');
+            Response::redirectAdmin('settings');
         }
 
         $sessionName = trim(Input::post('session_name', ''));
@@ -122,7 +122,7 @@ class SettingsController
 
         if ($v->fails()) {
             Flash::set('error', $v->first('session_name'));
-            Response::redirect('/admin/settings');
+            Response::redirectAdmin('settings');
         }
 
         $db = Database::getInstance();
@@ -132,14 +132,14 @@ class SettingsController
         $stmt->execute([$sessionName]);
         if ((int) $stmt->fetchColumn() > 0) {
             Flash::set('error', 'यह शैक्षणिक सत्र पहले से मौजूद है।');
-            Response::redirect('/admin/settings');
+            Response::redirectAdmin('settings');
         }
 
         $stmt = $db->prepare("INSERT INTO academic_sessions (session_name, is_active) VALUES (?, 0)");
         $stmt->execute([$sessionName]);
 
         Flash::set('success', "शैक्षणिक सत्र {$sessionName} सफलतापूर्वक जोड़ा गया।");
-        Response::redirect('/admin/settings');
+        Response::redirectAdmin('settings');
     }
 
     /**
@@ -154,7 +154,7 @@ class SettingsController
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
-            Response::redirect('/admin/settings');
+            Response::redirectAdmin('settings');
         }
 
         try {
@@ -167,7 +167,7 @@ class SettingsController
 
             if (!$sessionName) {
                 Flash::set('error', 'Session not found.');
-                Response::redirect('/admin/settings');
+                Response::redirectAdmin('settings');
             }
 
             // Set all sessions to inactive
@@ -182,7 +182,7 @@ class SettingsController
             $stmt->execute([(string) $id]);
 
             Flash::set('success', "शैक्षणिक सत्र {$sessionName} को सक्रिय सत्र के रूप में सेट किया गया है।");
-            Response::redirect('/admin/settings');
+            Response::redirectAdmin('settings');
         } catch (\Throwable $e) {
             Logger::error('Failed to activate academic session', [
                 'session_id' => $id,
@@ -190,7 +190,7 @@ class SettingsController
                 'error'      => $e->getMessage(),
             ]);
             Flash::set('error', 'सत्र सक्रिय करने में त्रुटि। कृपया पुनः प्रयास करें।');
-            Response::redirect('/admin/settings');
+            Response::redirectAdmin('settings');
         }
     }
 }

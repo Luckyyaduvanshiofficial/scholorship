@@ -11,12 +11,12 @@ $menus = [
     'admin' => [
         'label' => 'Admin Panel',
         'links' => [
-            ['href' => '/admin',                    'icon' => 'bi-speedometer2',       'label' => 'Dashboard'],
-            ['href' => '/admin/students',           'icon' => 'bi-people',             'label' => 'Students'],
-            ['href' => '/admin/applications',       'icon' => 'bi-file-earmark-text',  'label' => 'Applications'],
-            ['href' => '/admin/representatives',    'icon' => 'bi-person-badge',       'label' => 'Representatives'],
-            ['href' => '/admin/announcements',      'icon' => 'bi-megaphone',          'label' => 'Announcements'],
-            ['href' => '/admin/settings',           'icon' => 'bi-gear',               'label' => 'Settings'],
+            ['href' => admin_path(),                    'icon' => 'bi-speedometer2',       'label' => 'Dashboard'],
+            ['href' => admin_path('students'),           'icon' => 'bi-people',             'label' => 'Students'],
+            ['href' => admin_path('applications'),       'icon' => 'bi-file-earmark-text',  'label' => 'Applications'],
+            ['href' => admin_path('reps'),    'icon' => 'bi-person-badge',       'label' => 'Representatives'],
+            ['href' => admin_path('announcements'),      'icon' => 'bi-megaphone',          'label' => 'Announcements'],
+            ['href' => admin_path('settings'),           'icon' => 'bi-gear',               'label' => 'Settings'],
         ],
     ],
     'representative' => [

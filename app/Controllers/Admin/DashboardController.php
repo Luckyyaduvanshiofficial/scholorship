@@ -26,12 +26,15 @@ class DashboardController
         $countsQuery = $db->query("
             SELECT 
                 COUNT(*) as total_apps,
-                SUM(CASE WHEN type = 'scholarship' THEN 1 ELSE 0 END) as scholarship_apps,
-                SUM(CASE WHEN type = 'pratibha' THEN 1 ELSE 0 END) as pratibha_apps,
-                SUM(CASE WHEN status_id = 1 THEN 1 ELSE 0 END) as pending_apps,
-                SUM(CASE WHEN status_id = 2 THEN 1 ELSE 0 END) as approved_apps,
-                SUM(CASE WHEN status_id = 3 THEN 1 ELSE 0 END) as rejected_apps,
-                SUM(CASE WHEN status_id = 4 THEN 1 ELSE 0 END) as disputed_apps
+                SUM(CASE WHEN application_type_id = 1 THEN 1 ELSE 0 END) as scholarship_apps,
+                SUM(CASE WHEN application_type_id = 2 THEN 1 ELSE 0 END) as pratibha_apps,
+                SUM(CASE WHEN status_id = 1 THEN 1 ELSE 0 END) as draft_apps,
+                SUM(CASE WHEN status_id = 2 THEN 1 ELSE 0 END) as submitted_apps,
+                SUM(CASE WHEN status_id = 3 THEN 1 ELSE 0 END) as review_apps,
+                SUM(CASE WHEN status_id = 4 THEN 1 ELSE 0 END) as approved_apps,
+                SUM(CASE WHEN status_id = 5 THEN 1 ELSE 0 END) as rejected_apps,
+                SUM(CASE WHEN status_id = 6 THEN 1 ELSE 0 END) as correction_apps,
+                SUM(CASE WHEN status_id = 7 THEN 1 ELSE 0 END) as resubmitted_apps
             FROM applications
         ");
         $counts = $countsQuery->fetch(\PDO::FETCH_ASSOC);
@@ -41,10 +44,11 @@ class DashboardController
         $pratibhaApps = (int) ($counts['pratibha_apps'] ?? 0);
 
         $statusCounts = [
-            'pending'  => (int) ($counts['pending_apps'] ?? 0),
-            'approved' => (int) ($counts['approved_apps'] ?? 0),
-            'rejected' => (int) ($counts['rejected_apps'] ?? 0),
-            'disputed' => (int) ($counts['disputed_apps'] ?? 0),
+            'submitted'  => (int) ($counts['submitted_apps'] ?? 0) + (int) ($counts['resubmitted_apps'] ?? 0),
+            'pending'    => (int) ($counts['review_apps'] ?? 0),
+            'approved'   => (int) ($counts['approved_apps'] ?? 0),
+            'rejected'   => (int) ($counts['rejected_apps'] ?? 0),
+            'correction' => (int) ($counts['correction_apps'] ?? 0),
         ];
 
         // 2. Registered students count
@@ -55,7 +59,8 @@ class DashboardController
 
         // 7. Recent applications (limit 5)
         $stmt = $db->query(
-            "SELECT a.id, a.type, a.submitted_at, s.first_name, s.last_name, s.student_code, atp.name AS app_type_name, ast.name AS status_name 
+            "SELECT a.id, a.submitted_at, s.first_name, s.last_name, s.student_code, atp.name AS app_type_name, ast.name AS status_name,
+                    CASE WHEN a.application_type_id = 1 THEN 'scholarship' ELSE 'pratibha' END AS type
              FROM applications a
              LEFT JOIN students s ON a.student_id = s.id
              LEFT JOIN application_types atp ON a.application_type_id = atp.id
@@ -69,7 +74,7 @@ class DashboardController
         $activities = [];
         
         // Fetch 3 most recent applications
-        $stmt = $db->query("SELECT a.id, s.first_name, s.last_name, a.created_at, a.type FROM applications a JOIN students s ON a.student_id = s.id ORDER BY a.created_at DESC LIMIT 3");
+        $stmt = $db->query("SELECT a.id, s.first_name, s.last_name, a.created_at, CASE WHEN a.application_type_id = 1 THEN 'scholarship' ELSE 'pratibha' END AS type FROM applications a JOIN students s ON a.student_id = s.id ORDER BY a.created_at DESC LIMIT 3");
         $appsAct = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         foreach ($appsAct as $act) {
             $typeName = $act['type'] === 'scholarship' ? 'छात्रवृत्ति' : 'प्रतिभा सम्मान';

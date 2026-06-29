@@ -60,7 +60,7 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Submitted');
     <div class="d-flex flex-grow-1 position-relative">
 
         <?php
-        $activeSidebarLink = '/admin/applications';
+        $activeSidebarLink = admin_path('applications');
         require VIEW_PATH . '/layouts/admin-sidebar.php';
         ?>
 
@@ -68,7 +68,7 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Submitted');
         <main class="tsp-dash-content-area flex-grow-1 p-4 bg-light">
             <div class="container-fluid p-0">
 
-                <a href="/admin/applications" class="btn btn-sm btn-light border px-3 rounded-pill text-secondary fw-semibold mb-3 print-hide">
+                <a href="<?= admin_path('applications') ?>" class="btn btn-sm btn-light border px-3 rounded-pill text-secondary fw-semibold mb-3 print-hide">
                     <i class="bi bi-arrow-left me-1"></i> वापस जाएं (Back)
                 </a>
 
@@ -119,7 +119,7 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Submitted');
                         <h4 class="h5 fw-bold text-dark mb-3 font-heading">निर्णय प्रक्रिया (Action Menu)</h4>
                         <div class="row g-3">
                             <div class="col-sm-6">
-                                <form action="/admin/applications/<?= (int) $app['id'] ?>/approve" method="post" class="m-0" onsubmit="return confirm('क्या आप वाकई इस आवेदन को स्वीकृत करना चाहते हैं? / Are you sure you want to approve this application?');">
+                                <form action="<?= admin_path('applications/' . (int) $app['id'] . '/approve') ?>" method="post" class="m-0" onsubmit="return confirm('क्या आप वाकई इस आवेदन को स्वीकृत करना चाहते हैं? / Are you sure you want to approve this application?');">
                                     <?= Csrf::field() ?>
                                     <button type="submit" class="btn btn-success w-100 py-2.5 fw-bold rounded-pill" style="font-size: 1.3rem;">
                                         <i class="bi bi-check-circle-fill me-1"></i> स्वीकृत करें (Approve Application)
@@ -136,7 +136,7 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Submitted');
                         <!-- Reject / Correction collapse block -->
                         <div class="collapse mt-3" id="rejectCorrectionForm">
                             <div class="card card-body bg-light border-0" style="border-radius: 12px;">
-                                <form action="/admin/applications/<?= (int) $app['id'] ?>/reject" method="post" class="m-0">
+                                <form action="<?= admin_path('applications/' . (int) $app['id'] . '/reject') ?>" method="post" class="m-0">
                                     <?= Csrf::field() ?>
                                     <div class="mb-3">
                                         <label class="form-label small fw-bold text-secondary">अस्वीकृति / सुधार का कारण (Reason for Rejection / Correction Required) <span class="text-danger">*</span></label>
@@ -145,6 +145,9 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Submitted');
                                     </div>
                                     <div class="form-text text-muted small mb-3">
                                         अस्वीकार करने पर छात्र को 7 दिनों की सुधार समय सीमा दी जाएगी। (Rejecting opens a 7-day correction window for the student).
+                                        <?php if ((int) ($app['correction_count'] ?? 0) >= 1): ?>
+                                            <br><strong class="text-danger">Student has already used one correction — this rejection will be final.</strong>
+                                        <?php endif; ?>
                                     </div>
                                     <button type="submit" class="btn btn-danger fw-bold text-white px-4 rounded-pill" style="font-size: 1.25rem;">
                                         <i class="bi bi-send-fill me-1"></i> अस्वीकृत करें और भेजें (Submit Rejection)
@@ -331,10 +334,23 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Submitted');
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if (!empty($app['dispute_message'])): ?>
+                                <?php if (!empty($app['rejection_reason'])): ?>
                                     <div class="alert alert-warning mt-4 mb-0 border-0" style="border-radius: 12px;">
-                                        <h6 class="fw-bold text-warning-dark mb-1"><i class="bi bi-exclamation-triangle-fill"></i> वर्तमान विवाद संदेश:</h6>
-                                        <p class="mb-0 text-dark" style="font-size: 1.3rem; font-weight: 500;"><?= Helpers::esc($app['dispute_message']) ?></p>
+                                        <h6 class="fw-bold text-warning-dark mb-1"><i class="bi bi-exclamation-triangle-fill"></i> अस्वीकृति का कारण / Rejection Reason:</h6>
+                                        <p class="mb-0 text-dark" style="font-size: 1.3rem; font-weight: 500;"><?= Helpers::esc($app['rejection_reason']) ?></p>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if ((int) ($app['correction_count'] ?? 0) > 0 || !empty($app['correction_deadline'])): ?>
+                                    <div class="alert alert-info mt-3 mb-0 border-0" style="border-radius: 12px;">
+                                        <h6 class="fw-bold mb-1"><i class="bi bi-pencil-square"></i> सुधार विवरण / Correction Details</h6>
+                                        <p class="mb-1 small"><strong>Correction attempts used:</strong> <?= (int) ($app['correction_count'] ?? 0) ?></p>
+                                        <?php if (!empty($app['correction_deadline'])): ?>
+                                            <p class="mb-0 small"><strong>Correction deadline:</strong> <?= date('d M Y, h:i A', strtotime((string) $app['correction_deadline'])) ?></p>
+                                        <?php endif; ?>
+                                        <?php if ((int) ($app['correction_count'] ?? 0) >= 1): ?>
+                                            <p class="mb-0 mt-2 text-danger small fw-bold">⚠️ Next rejection will be final — student has used their correction window.</p>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -591,6 +607,50 @@ $statusInfo = getHindiStatusInfo($app['status_name'] ?? 'Submitted');
                     </div>
                 </div>
             </div>
+
+                <!-- Application History Audit Trail -->
+                <?php if (!empty($app['history'])): ?>
+                <div class="card border-0 shadow-sm mt-4 print-hide" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <h4 class="h5 fw-bold text-dark mb-4 border-bottom pb-2 font-heading">
+                            <i class="bi bi-clock-history text-danger me-2"></i> आवेदन इतिहास / Application History
+                        </h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Date</th>
+                                        <th>Performed By</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($app['history'] as $entry): ?>
+                                    <tr>
+                                        <td><span class="badge bg-secondary"><?= Helpers::esc($entry['action'] ?? '') ?></span></td>
+                                        <td class="small"><?= !empty($entry['performed_at']) ? date('d M Y, h:i A', strtotime((string) $entry['performed_at'])) : '—' ?></td>
+                                        <td class="small"><?= Helpers::esc($entry['performer_name'] ?? ('User #' . ($entry['performed_by'] ?? '?'))) ?></td>
+                                        <td class="small text-muted">
+                                            <?php
+                                            $newData = !empty($entry['new_data']) ? json_decode((string) $entry['new_data'], true) : [];
+                                            if (is_array($newData) && !empty($newData['reason'])) {
+                                                echo Helpers::esc((string) $newData['reason']);
+                                            } elseif (is_array($newData) && !empty($newData['status_id'])) {
+                                                echo 'Status → ' . (int) $newData['status_id'];
+                                            } else {
+                                                echo '—';
+                                            }
+                                            ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
             </div>
         </main>

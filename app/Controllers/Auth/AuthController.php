@@ -11,6 +11,7 @@ use App\Core\Helpers;
 use App\Core\Input;
 use App\Core\Logger;
 use App\Core\Response;
+use App\Core\Url;
 use App\Core\Validator;
 use App\Models\Student;
 use App\Models\User;
@@ -425,7 +426,11 @@ class AuthController
     private function redirectToDashboard(): void
     {
         if (Auth::isAdmin()) {
-            Response::redirect('/admin');
+            if (APP_HOST === 'admin') {
+                Response::redirect('/');
+            } else {
+                Response::redirect(Url::adminSite());
+            }
         } elseif (Auth::isRepresentative()) {
             Response::redirect('/representative');
         } else {

@@ -16,7 +16,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
     <div class="d-flex flex-grow-1 position-relative">
 
         <?php
-        $activeSidebarLink = '/admin/settings';
+        $activeSidebarLink = admin_path('settings');
         require VIEW_PATH . '/layouts/admin-sidebar.php';
         ?>
 
@@ -40,7 +40,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     सामान्य पोर्टल सेटिंग्स
                                 </h3>
                                 
-                                <form action="/admin/settings/update" method="post">
+                                <form action="<?= admin_path('settings/update') ?>" method="post">
                                     <?= Csrf::field() ?>
 
                                     <!-- Site Name -->
@@ -110,7 +110,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
                             <div class="card-body p-4">
                                 <h3 class="h5 fw-bold text-dark mb-3 font-heading">नया शैक्षणिक सत्र जोड़ें</h3>
-                                <form action="/admin/settings/session/create" method="post" class="d-flex gap-2 align-items-end">
+                                <form action="<?= admin_path('settings/session/create') ?>" method="post" class="d-flex gap-2 align-items-end">
                                     <?= Csrf::field() ?>
                                     <div class="flex-grow-1">
                                         <label for="session_name" class="form-label small fw-semibold text-secondary">सत्र का नाम (उदा. 2026-27)</label>
@@ -162,7 +162,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                         </td>
                                                         <td class="py-3 text-end" data-label="कार्रवाई">
                                                             <?php if (!$isActive): ?>
-                                                                <form action="/admin/settings/session/<?= $session['id'] ?>/activate" method="post" class="m-0">
+                                                                <form action="<?= admin_path('settings/session/' . $session['id'] . '/activate') ?>" method="post" class="m-0">
                                                                     <?= Csrf::field() ?>
                                                                     <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-3 py-1" style="font-size: 1.1rem;">
                                                                         सक्रिय करें
@@ -201,7 +201,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
 <!-- Unsaved changes warning for settings form -->
 <script>
 (function() {
-    var form = document.querySelector('form[action="/admin/settings/update"]');
+    var form = document.querySelector('form[action="<?= admin_path('settings/update') ?>"]');
     if (!form) return;
     var modified = false;
     form.querySelectorAll('input, select, textarea').forEach(function(el) {

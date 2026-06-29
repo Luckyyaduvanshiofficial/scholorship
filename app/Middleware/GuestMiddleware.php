@@ -7,6 +7,7 @@ namespace App\Middleware;
 use App\Core\Auth;
 use App\Core\Flash;
 use App\Core\Response;
+use App\Core\Url;
 
 class GuestMiddleware
 {
@@ -14,7 +15,7 @@ class GuestMiddleware
     {
         if (Auth::check()) {
             if (Auth::isAdmin()) {
-                Response::redirect('/admin');
+                Response::redirect(APP_HOST === 'admin' ? '/' : Url::adminSite());
             } elseif (Auth::isRepresentative()) {
                 Response::redirect('/representative');
             } else {

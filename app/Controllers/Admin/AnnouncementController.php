@@ -74,7 +74,7 @@ class AnnouncementController
 
         if ($v->fails()) {
             Flash::set('error', $v->first('title') ?? $v->first('content'));
-            Response::redirect('/admin/announcements/create');
+            Response::redirectAdmin('announcements/create');
         }
 
         $db = Database::getInstance();
@@ -103,7 +103,7 @@ class AnnouncementController
         $stmt->execute([$title, $slug, $content, $isActive, (int) Auth::id()]);
 
         Flash::set('success', 'सूचना सफलतापूर्वक जारी की गई।');
-        Response::redirect('/admin/announcements');
+        Response::redirectAdmin('announcements');
     }
 
     /**
@@ -123,7 +123,7 @@ class AnnouncementController
 
         if (!$announcement) {
             Flash::set('error', 'Announcement not found.');
-            Response::redirect('/admin/announcements');
+            Response::redirectAdmin('announcements');
         }
 
         Response::view('admin/announcements/edit', [
@@ -156,7 +156,7 @@ class AnnouncementController
 
         if ($v->fails()) {
             Flash::set('error', $v->first('title') ?? $v->first('content'));
-            Response::redirect("/admin/announcements/{$id}/edit");
+            Response::redirectAdmin("announcements/{$id}/edit");
         }
 
         $db = Database::getInstance();
@@ -167,7 +167,7 @@ class AnnouncementController
             $stmt->execute([$id]);
             if (!$stmt->fetch()) {
                 Flash::set('error', 'Announcement not found.');
-                Response::redirect('/admin/announcements');
+                Response::redirectAdmin('announcements');
             }
 
             $stmt = $db->prepare(
@@ -176,7 +176,7 @@ class AnnouncementController
             $stmt->execute([$title, $content, $isActive, $id]);
 
             Flash::set('success', 'सूचना सफलतापूर्वक अपडेट की गई।');
-            Response::redirect('/admin/announcements');
+            Response::redirectAdmin('announcements');
         } catch (\Throwable $e) {
             Logger::error('Failed to update announcement', [
                 'announcement_id' => $id,
@@ -184,7 +184,7 @@ class AnnouncementController
                 'error'           => $e->getMessage(),
             ]);
             Flash::set('error', 'एक त्रुटि हुई। कृपया पुनः प्रयास करें।');
-            Response::redirect('/admin/announcements');
+            Response::redirectAdmin('announcements');
         }
     }
 
@@ -203,6 +203,6 @@ class AnnouncementController
         $stmt->execute([$id]);
 
         Flash::set('success', 'सूचना सफलतापूर्वक हटा दी गई।');
-        Response::redirect('/admin/announcements');
+        Response::redirectAdmin('announcements');
     }
 }

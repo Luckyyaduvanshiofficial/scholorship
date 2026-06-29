@@ -36,20 +36,20 @@ class DashboardController
         $draftApps = 0;
         $pendingApps = 0;
         $approvedApps = 0;
-        $disputedApps = 0;
         $rejectedApps = 0;
+        $correctionApps = 0;
         foreach ($applications as $app) {
-            $status = $app['status_id'];
-            if ($app['submitted_at'] === null) {
+            $status = (int) ($app['status_id'] ?? 0);
+            if ($app['submitted_at'] === null || $status === 1) {
                 $draftApps++;
-            } elseif ((int) $status === 1) {
+            } elseif (in_array($status, [2, 3, 7], true)) {
                 $pendingApps++;
-            } elseif ((int) $status === 2) {
+            } elseif ($status === 4) {
                 $approvedApps++;
-            } elseif ((int) $status === 3) {
+            } elseif ($status === 5) {
                 $rejectedApps++;
-            } elseif ((int) $status === 4) {
-                $disputedApps++;
+            } elseif ($status === 6) {
+                $correctionApps++;
             }
         }
 
@@ -91,7 +91,7 @@ class DashboardController
             'draftApps'        => $draftApps,
             'pendingApps'      => $pendingApps,
             'approvedApps'     => $approvedApps,
-            'disputedApps'     => $disputedApps,
+            'correctionApps'   => $correctionApps,
             'rejectedApps'     => $rejectedApps,
             'activeSession'    => $activeSession ?: [],
             'profileCompletion'=> $profileCompletion,

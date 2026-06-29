@@ -46,20 +46,20 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
     <!-- Bootstrap 5 (critical, keep in head) -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= \App\Core\Url::asset('css/bootstrap.min.css') ?>" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- Self-hosted Google Fonts (same-origin, production-cacheable) -->
-    <link href="/assets/fonts/fonts.css" rel="stylesheet">
+    <link href="<?= \App\Core\Url::asset('fonts/fonts.css') ?>" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="/assets/css/style.css?v=2.2.0" rel="stylesheet">
-    <link href="/assets/css/print.css?v=1.0.0" rel="stylesheet" media="print">
+    <link href="<?= \App\Core\Url::asset('css/style.css?v=2.2.0') ?>" rel="stylesheet">
+    <link href="<?= \App\Core\Url::asset('css/print.css?v=1.0.0') ?>" rel="stylesheet" media="print">
 
     <!-- Bootstrap 5 JS Bundle -->
-    <script src="/assets/js/bootstrap.bundle.min.js" defer></script>
+    <script src="<?= \App\Core\Url::asset('js/bootstrap.bundle.min.js') ?>" defer></script>
 
     <!-- Service Worker Registration -->
     <script>

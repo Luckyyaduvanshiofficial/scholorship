@@ -3,7 +3,7 @@ use App\Core\Auth;
 use App\Core\Helpers;
 
 $dashHref = Auth::isAdmin()
-    ? '/admin'
+    ? admin_dashboard_url()
     : (Auth::isRepresentative() ? '/representative' : '/dashboard');
 ?>
 

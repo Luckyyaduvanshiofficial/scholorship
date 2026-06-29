@@ -17,10 +17,12 @@ class ApplicationNumberGenerator
      *
      * @param int $id           Application row ID
      * @param string $year      e.g. "2026"
+     * @param int $typeId       1=Scholarship(TSVS), 2=Pratibha(TSVP)
      * @return string           e.g. "TSVS-2026-000042"
      */
-    public static function format(int $id, string $year): string
+    public static function format(int $id, string $year, int $typeId = 1): string
     {
-        return sprintf('TSVS-%s-%06d', $year, $id);
+        $prefix = ($typeId === 2) ? 'TSVP' : 'TSVS';
+        return sprintf('%s-%s-%06d', $prefix, $year, $id);
     }
 }

@@ -16,7 +16,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
     <div class="d-flex flex-grow-1 position-relative">
 
         <?php
-        $activeSidebarLink = '/admin/announcements';
+        $activeSidebarLink = admin_path('announcements');
         require VIEW_PATH . '/layouts/admin-sidebar.php';
         ?>
 
@@ -26,7 +26,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
 
                 <!-- Back button & Heading -->
                 <div class="mb-4">
-                    <a href="/admin/announcements" class="btn btn-sm btn-outline-secondary fw-semibold mb-3">
+                    <a href="<?= admin_path('announcements') ?>" class="btn btn-sm btn-outline-secondary fw-semibold mb-3">
                         <i class="bi bi-arrow-left"></i> वापस जाएं
                     </a>
                     <h2 class="h3 fw-bold text-dark mb-1" style="font-family: 'Manrope', sans-serif;">सूचना संपादित करें</h2>
@@ -36,13 +36,13 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 <!-- Edit Form Card -->
                 <div class="card border-0 shadow-sm" style="border-radius: 16px;">
                     <div class="card-body p-4">
-                        <form action="/admin/announcements/<?= $announcement['id'] ?>/edit" method="post">
+                        <form action="<?= admin_path('announcements/' . $announcement['id'] ?>/edit" method="post">
                             <?= Csrf::field() ?>
 
                             <div class="mb-4">
                                 <label for="title" class="form-label fw-bold text-secondary" style="font-size: 1.25rem;">सूचना का शीर्षक (Title)</label>
                                 <input type="text" class="form-control" id="title" name="title" required 
-                                       value="<?= htmlspecialchars($announcement['title']) ?>" 
+                                       value="<?= htmlspecialchars($announcement['title'])) ?>" 
                                        placeholder="उदा. छात्रवृत्ति आवेदन की अंतिम तिथि बढ़ाई गई" style="border-color: #cbd5e1; font-size: 1.3rem; height: 50px;">
                             </div>
 
@@ -64,7 +64,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <hr class="my-4" style="border-color: #e2e8f0;">
 
                             <div class="d-flex gap-3 justify-content-end">
-                                <a href="/admin/announcements" class="btn btn-outline-secondary fw-semibold px-4 py-2" style="font-size: 1.25rem;">
+                                <a href="<?= admin_path('announcements') ?>" class="btn btn-outline-secondary fw-semibold px-4 py-2" style="font-size: 1.25rem;">
                                     रद्द करें
                                 </a>
                                 <button type="submit" class="btn btn-success fw-bold px-5 py-2" style="font-size: 1.25rem; background-color: #10b981; border-color: #10b981;">

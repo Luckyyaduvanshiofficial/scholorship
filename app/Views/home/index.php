@@ -17,7 +17,7 @@ if (Auth::guest()) {
     ];
 } else {
     $quickLinks = [
-        ['label' => 'डैशबोर्ड / Dashboard', 'sublabel' => 'अपना पैनल देखें', 'icon' => 'bi-speedometer2', 'href' => Auth::isAdmin() ? '/admin' : (Auth::isRepresentative() ? '/representative' : '/dashboard')],
+        ['label' => 'डैशबोर्ड / Dashboard', 'sublabel' => 'अपना पैनल देखें', 'icon' => 'bi-speedometer2', 'href' => Auth::isAdmin() ? admin_dashboard_url() : (Auth::isRepresentative() ? '/representative' : '/dashboard')],
         ['label' => 'नया आवेदन / New Apply', 'sublabel' => 'नया आवेदन भरें', 'icon' => 'bi-file-earmark-plus-fill', 'href' => '/dashboard/applications/create'],
         ['label' => 'आवेदन सूची / My Applies', 'sublabel' => 'सभी आवेदन देखें', 'icon' => 'bi-list-ul', 'href' => '/dashboard/applications'],
         ['label' => 'प्रोफाइल / Profile', 'sublabel' => 'प्रोफाइल प्रबंधित करें', 'icon' => 'bi-person-fill', 'href' => '/dashboard/profile'],
@@ -103,7 +103,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <span>स्थिति देखें / Track</span>
                             </a>
                         <?php else: ?>
-                            <a href="<?= Auth::isAdmin() ? '/admin' : (Auth::isRepresentative() ? '/representative' : '/dashboard') ?>" class="tsp-btn tsp-btn-primary tsp-btn-lg">
+                            <a href="<?= Auth::isAdmin() ? admin_dashboard_url() : (Auth::isRepresentative() ? '/representative' : '/dashboard') ?>" class="tsp-btn tsp-btn-primary tsp-btn-lg">
                                 <i class="bi bi-speedometer2"></i>
                                 <span>डैशबोर्ड / Dashboard</span>
                             </a>
@@ -468,7 +468,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <?php if ($status === 'Disputed'): ?>
                                 <div class="tsp-tracker-alert tsp-tracker-alert-warning">
                                     <h6><i class="bi bi-exclamation-triangle-fill"></i> त्रुटि निवारण / Dispute Remarks</h6>
-                                    <p><?= Helpers::esc($trackResult['dispute_message']) ?></p>
+                                    <p><?= Helpers::esc($trackResult['rejection_reason'] ?? '') ?></p>
                                     <a href="/login" class="tsp-btn tsp-btn-warning tsp-btn-sm w-100">
                                         लॉगिन करके दस्तावेज़ पुनः अपलोड करें
                                     </a>

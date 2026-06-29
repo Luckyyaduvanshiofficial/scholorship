@@ -3338,6 +3338,9 @@ a {
 .tsp-color-purple { color: #6d28d9 !important; }
 .tsp-bg-purple { background-color: #faf5ff !important; color: #7c3aed !important; }
 
+.bg-orange { background-color: #fd7e14 !important; color: #fff !important; }
+.bg-purple { background-color: #6f42c1 !important; color: #fff !important; }
+
 /* Quick Actions Button Grid */
 .tsp-quick-action-card {
   background: #ffffff;

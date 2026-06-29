@@ -6,19 +6,27 @@ use App\Core\Helpers;
 $applications = $applications ?? [];
 $statusBadgeClass = function(string $statusName): string {
     return match($statusName) {
-        'Approved' => 'bg-success-subtle text-success border border-success-subtle',
-        'Rejected' => 'bg-danger-subtle text-danger border border-danger-subtle',
-        'Disputed' => 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
-        default    => 'bg-secondary-subtle text-secondary border border-secondary-subtle',
+        'Draft'              => 'bg-secondary text-white',
+        'Submitted'          => 'bg-primary text-white',
+        'Under Review'       => 'bg-warning text-dark',
+        'Approved'           => 'bg-success text-white',
+        'Rejected'           => 'bg-danger text-white',
+        'Pending Correction' => 'bg-orange',
+        'Resubmitted'        => 'bg-purple',
+        default              => 'bg-secondary text-white',
     };
 };
 
 $statusTranslate = function(string $statusName): string {
     return match($statusName) {
-        'Approved' => 'स्वीकृत (Approved)',
-        'Rejected' => 'अस्वीकृत (Rejected)',
-        'Disputed' => 'त्रुटि/विवाद (Action Required)',
-        default    => 'लंबित (Pending)',
+        'Draft'              => 'ड्राफ्ट (Draft)',
+        'Submitted'        => 'जमा किया गया (Submitted)',
+        'Under Review'     => 'समीक्षाधीन (Under Review)',
+        'Approved'         => 'स्वीकृत (Approved)',
+        'Rejected'         => 'अस्वीकृत (Rejected)',
+        'Pending Correction' => 'सुधार लंबित (Pending Correction)',
+        'Resubmitted'      => 'पुनः जमा (Resubmitted)',
+        default            => $statusName,
     };
 };
 
@@ -108,13 +116,13 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                         </div>
                                     </div>
 
-                                    <!-- Dispute Warning Message Box -->
-                                    <?php if (($app['status_name'] ?? '') === 'Disputed' && !empty($app['dispute_message'])): ?>
+                                    <!-- Correction Warning Message Box -->
+                                    <?php if (in_array($app['status_name'] ?? '', ['Rejected', 'Pending Correction'], true) && !empty($app['rejection_reason'])): ?>
                                         <div class="mt-3 p-3 bg-warning-subtle text-warning-emphasis rounded border border-warning-subtle d-flex align-items-start gap-2 small">
                                             <i class="bi bi-exclamation-triangle-fill fs-5 mt-0.5 flex-shrink-0"></i>
                                             <div>
                                                 <strong>संशोधन की आवश्यकता: </strong>
-                                                <?= Helpers::esc($app['dispute_message']) ?>
+                                                <?= Helpers::esc($app['rejection_reason']) ?>
                                             </div>
                                         </div>
                                     <?php endif; ?>

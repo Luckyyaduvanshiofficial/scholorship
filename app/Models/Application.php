@@ -10,156 +10,127 @@ class Application
 {
     private PDO $db;
 
+    /** Columns in the parent `applications` table */
+    private const PARENT_COLS = [
+        'student_id', 'session_id', 'application_type_id', 'status_id',
+        'application_no',
+        'self_declared', 'self_declared_at', 'self_declared_ip',
+        'submitted_at', 'submitted_ip', 'resubmitted_at',
+        'correction_count', 'correction_deadline',
+        'reviewed_by', 'rejection_reason', 'admin_remarks',
+        'created_by', 'updated_by',
+    ];
+
+    /** Columns in `scholarship_details` child table */
+    private const SCHOLARSHIP_COLS = [
+        'family_income', 'bank_name', 'account_number', 'ifsc_code', 'account_holder_name',
+        'family_occupation', 'family_members_count', 'earning_members_count',
+        'current_class', 'current_college', 'career_goal', 'prev_scholarship_received',
+    ];
+
+    /** Columns in `pratibha_details` child table */
+    private const PRATIBHA_COLS = [
+        'achievement_title', 'achievement_category', 'achievement_level', 'rank_position',
+    ];
+
     public function __construct()
     {
         $this->db = Database::getInstance();
     }
 
-    /**
-     * Create a new application (scholarship or pratibha).
-     */
+    // ──────────────────────────────────────────────
+    //  CREATE
+    // ──────────────────────────────────────────────
+
     public function create(array $data): int|false
     {
-        // Shared params
-        $params = [
-            ':student_id'          => $data['student_id'],
-            ':session_id'          => $data['session_id'],
-            ':application_type_id' => $data['application_type_id'],
-            ':reviewed_by'         => $data['reviewed_by'] ?? null,
-            ':dispute_message'     => $data['dispute_message'] ?? null,
-            ':submitted_at'        => $data['submitted_at'] ?? null,
-            ':type'                => $data['type'] ?? 'scholarship',
-            ':family_income'       => $data['family_income'] ?? null,
-            ':bank_name'           => $data['bank_name'] ?? null,
-            ':account_number'      => $data['account_number'] ?? null,
-            ':ifsc_code'           => $data['ifsc_code'] ?? null,
-            ':achievement_title'   => $data['achievement_title'] ?? null,
-            ':achievement_category'=> $data['achievement_category'] ?? null,
-            ':achievement_level'   => $data['achievement_level'] ?? null,
-            ':rank_position'       => $data['rank_position'] ?? null,
-            ':family_occupation'         => $data['family_occupation'] ?? null,
-            ':family_members_count'      => isset($data['family_members_count']) ? (int)$data['family_members_count'] : null,
-            ':earning_members_count'     => isset($data['earning_members_count']) ? (int)$data['earning_members_count'] : null,
-            ':current_class'             => $data['current_class'] ?? null,
-            ':current_college'           => $data['current_college'] ?? null,
-            ':prev_scholarship_received' => $data['prev_scholarship_received'] ?? null,
-            ':scholarship_amt_2023_24'   => $data['scholarship_amt_2023_24'] ?? null,
-            ':scholarship_amt_2024_25'   => $data['scholarship_amt_2024_25'] ?? null,
-            ':scholarship_amt_2025_26'   => $data['scholarship_amt_2025_26'] ?? null,
-            ':account_holder_name'       => $data['account_holder_name'] ?? null,
-            ':career_goal'               => $data['career_goal'] ?? null,
-        ];
+        $this->db->beginTransaction();
+        try {
+            $appId = $this->insertParent($data);
+            if ($appId === false) {
+                $this->db->rollBack();
+                return false;
+            }
 
-        $commonCols = "student_id, session_id, application_type_id, reviewed_by,
-                       dispute_message, submitted_at, type,
-                       family_income, bank_name, account_number, ifsc_code,
-                       achievement_title, achievement_category, achievement_level, rank_position,
-                       family_occupation, family_members_count, earning_members_count,
-                       current_class, current_college, prev_scholarship_received,
-                       scholarship_amt_2023_24, scholarship_amt_2024_25, scholarship_amt_2025_26,
-                       account_holder_name, career_goal, created_at";
+            $typeId = (int) ($data['application_type_id'] ?? 0);
 
-        $commonVals = ":student_id, :session_id, :application_type_id, :reviewed_by,
-                       :dispute_message, :submitted_at, :type,
-                       :family_income, :bank_name, :account_number, :ifsc_code,
-                       :achievement_title, :achievement_category, :achievement_level, :rank_position,
-                       :family_occupation, :family_members_count, :earning_members_count,
-                       :current_class, :current_college, :prev_scholarship_received,
-                       :scholarship_amt_2023_24, :scholarship_amt_2024_25, :scholarship_amt_2025_26,
-                       :account_holder_name, :career_goal, NOW()";
+            if ($typeId === 1) {
+                $this->upsertScholarship($appId, $data);
+            } elseif ($typeId === 2) {
+                $this->upsertPratibha($appId, $data);
+            }
 
-        // Try old schema (status_id) first, fall back to new schema (status)
-        $sqlVariants = [
-            "INSERT INTO applications ({$commonCols}, status_id)
-             VALUES ({$commonVals}, :status_id)",
-            "INSERT INTO applications ({$commonCols}, status)
-             VALUES ({$commonVals}, :status)",
-        ];
+            $this->upsertAcademics((int) $data['student_id'], (int) $data['session_id'], $data);
 
-        $result = false;
-        foreach ($sqlVariants as $sql) {
-            try {
-                $stmt = $this->db->prepare($sql);
-                if (str_contains($sql, ':status_id')) {
-                    $params[':status_id'] = $data['status_id'] ?? 1;
-                } else {
-                    $params[':status'] = $data['status'] ?? 'draft';
-                }
-                $result = $stmt->execute($params);
-                break;
-            } catch (\PDOException $e) {
-                if ($e->getCode() === '42S22' || str_contains($e->getMessage(), 'Unknown column')) {
-                    if (str_contains($sql, ':status_id')) {
-                        // status_id column doesn't exist, try status column variant
-                        unset($params[':status_id']);
-                        continue;
-                    }
-                    // status column also doesn't exist — auto-migrate and retry
-                    $this->autoMigrateSchema();
-                    $stmt = $this->db->prepare($sql);
-                    $result = $stmt->execute($params);
-                    break;
-                }
-                throw $e;
+            $this->syncScholarshipHistory((int) $appId, $data);
+
+            $this->db->commit();
+            return $appId;
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    private function insertParent(array $data): int|false
+    {
+        $params = [];
+        $cols = [];
+        foreach (self::PARENT_COLS as $col) {
+            if (array_key_exists($col, $data)) {
+                $cols[] = "`$col`";
+                $params[":$col"] = $data[$col];
             }
         }
+        $cols[] = 'created_at';
+        $colList = implode(', ', $cols);
+        $valList = implode(', ', array_map(fn($c) => str_replace('`', ':', $c), $cols));
 
-        return $result ? (int) $this->db->lastInsertId() : false;
+        $sql = "INSERT INTO applications ({$colList}) VALUES ({$valList}, NOW())";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params) ? (int) $this->db->lastInsertId() : false;
     }
+
+    // ──────────────────────────────────────────────
+    //  READ
+    // ──────────────────────────────────────────────
 
     public function find(int $id): array|false
     {
-        // The application_status table and status_id column may have been
-        // dropped by database/update_schema.php. Try the new-schema query
-        // first (uses a.status VARCHAR column), fall back to the old
-        // join-based query if the status column doesn't exist yet.
-        $queries = [
-            // New schema (VARCHAR status column, no status_id / application_status)
-            "SELECT a.*, 
-                    s.first_name, s.last_name, s.student_code, s.father_name, s.mother_name, 
-                    s.dob, s.gender, s.mobile, s.email, s.address, s.city, s.district, s.state, s.pincode, s.profile_photo,
-                    sa.class_year, sa.course_name, sa.college_name, sa.board_university, sa.marks_obtained, sa.max_marks, sa.percentage,
-                    ac.session_name, atp.name AS app_type_name, a.status AS status_name
-             FROM applications a
-             LEFT JOIN students s ON a.student_id = s.id
-             LEFT JOIN academic_sessions ac ON a.session_id = ac.id
-             LEFT JOIN application_types atp ON a.application_type_id = atp.id
-             LEFT JOIN student_academics sa ON a.student_id = sa.student_id AND a.session_id = sa.session_id
-             WHERE a.id = ?",
+        $sql = "SELECT a.*,
+                       s.first_name, s.last_name, s.student_code, s.father_name, s.mother_name,
+                       s.dob, s.gender, s.mobile, s.email, s.address, s.city, s.district, s.state, s.pincode, s.profile_photo,
+                       sa.class_year, sa.course_name, sa.college_name, sa.board_university,
+                       sa.marks_obtained, sa.max_marks, sa.percentage,
+                       ac.session_name, atp.name AS app_type_name, ast.name AS status_name,
+                       sd.family_income, sd.bank_name, sd.account_number, sd.ifsc_code, sd.account_holder_name,
+                       sd.family_occupation, sd.family_members_count, sd.earning_members_count,
+                       sd.current_class, sd.current_college, sd.career_goal, sd.prev_scholarship_received,
+                       pd.achievement_title, pd.achievement_category, pd.achievement_level, pd.rank_position,
+                       CASE WHEN a.application_type_id = 1 THEN 'scholarship' ELSE 'pratibha' END AS `type`
+                FROM applications a
+                LEFT JOIN students s ON a.student_id = s.id
+                LEFT JOIN student_academics sa ON a.student_id = sa.student_id AND a.session_id = sa.session_id
+                LEFT JOIN academic_sessions ac ON a.session_id = ac.id
+                LEFT JOIN application_types atp ON a.application_type_id = atp.id
+                LEFT JOIN application_status ast ON a.status_id = ast.id
+                LEFT JOIN scholarship_details sd ON a.id = sd.application_id
+                LEFT JOIN pratibha_details pd ON a.id = pd.application_id
+                WHERE a.id = ?";
 
-            // Old schema (status_id FK + application_status lookup table)
-            "SELECT a.*, 
-                    s.first_name, s.last_name, s.student_code, s.father_name, s.mother_name, 
-                    s.dob, s.gender, s.mobile, s.email, s.address, s.city, s.district, s.state, s.pincode, s.profile_photo,
-                    sa.class_year, sa.course_name, sa.college_name, sa.board_university, sa.marks_obtained, sa.max_marks, sa.percentage,
-                    ac.session_name, atp.name AS app_type_name, ast.name AS status_name
-             FROM applications a
-             LEFT JOIN students s ON a.student_id = s.id
-             LEFT JOIN academic_sessions ac ON a.session_id = ac.id
-             LEFT JOIN application_types atp ON a.application_type_id = atp.id
-             LEFT JOIN application_status ast ON a.status_id = ast.id
-             LEFT JOIN student_academics sa ON a.student_id = sa.student_id AND a.session_id = sa.session_id
-             WHERE a.id = ?",
-        ];
-
-        $application = false;
-        foreach ($queries as $sql) {
-            try {
-                $stmt = $this->db->prepare($sql);
-                $stmt->execute([$id]);
-                $application = $stmt->fetch(PDO::FETCH_ASSOC);
-                if ($application !== false) {
-                    break;
-                }
-            } catch (\PDOException $e) {
-                // Query failed — try the next schema variant
-                continue;
-            }
-        }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id]);
+        $application = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($application) {
             $application['documents'] = $this->documents((int) $application['id']);
             $application['history'] = $this->history((int) $application['id']);
+
+            $scholarshipHistory = $this->getScholarshipHistory((int) $application['id']);
+            foreach ($scholarshipHistory as $sh) {
+                $yearKey = 'scholarship_amt_' . str_replace('-', '_', $sh['session_year']);
+                $application[$yearKey] = $sh['amount'];
+            }
         }
 
         return $application;
@@ -180,141 +151,96 @@ class Application
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // ──────────────────────────────────────────────
+    //  LIST QUERIES
+    // ──────────────────────────────────────────────
+
+    private function listQuery(string $where = '', array $params = []): array
+    {
+        $sql = "SELECT a.id, a.application_no, a.application_type_id, a.status_id,
+                       a.submitted_at, a.created_at, a.rejection_reason, a.correction_count, a.correction_deadline,
+                       CONCAT(s.first_name, ' ', s.last_name) AS student_name,
+                       s.student_code, ac.session_name,
+                       atp.name AS app_type_name, ast.name AS status_name,
+                       CASE WHEN a.application_type_id = 1 THEN 'scholarship' ELSE 'pratibha' END AS `type`
+                FROM applications a
+                LEFT JOIN students s ON a.student_id = s.id
+                LEFT JOIN academic_sessions ac ON a.session_id = ac.id
+                LEFT JOIN application_types atp ON a.application_type_id = atp.id
+                LEFT JOIN application_status ast ON a.status_id = ast.id";
+
+        if ($where) {
+            $sql .= " WHERE {$where}";
+        }
+
+        $sql .= " ORDER BY a.created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function all(): array
     {
-        $stmt = $this->db->query(
-            "SELECT a.*, CONCAT(s.first_name, ' ', s.last_name) AS student_name,
-                    s.student_code, ac.session_name,
-                    atp.name AS app_type_name, ast.name AS status_name
-             FROM applications a
-             LEFT JOIN students s ON a.student_id = s.id
-             LEFT JOIN academic_sessions ac ON a.session_id = ac.id
-             LEFT JOIN application_types atp ON a.application_type_id = atp.id
-             LEFT JOIN application_status ast ON a.status_id = ast.id
-             ORDER BY a.created_at DESC"
-        );
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->listQuery();
     }
 
     public function allBySession(int $sessionId): array
     {
-        $stmt = $this->db->prepare(
-            "SELECT a.*, CONCAT(s.first_name, ' ', s.last_name) AS student_name,
-                    s.student_code,
-                    atp.name AS app_type_name, ast.name AS status_name
-             FROM applications a
-             LEFT JOIN students s ON a.student_id = s.id
-             LEFT JOIN application_types atp ON a.application_type_id = atp.id
-             LEFT JOIN application_status ast ON a.status_id = ast.id
-             WHERE a.session_id = ?
-             ORDER BY a.created_at DESC"
-        );
-        $stmt->execute([$sessionId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->listQuery('a.session_id = ?', [$sessionId]);
     }
 
     public function allByStudent(int $studentId): array
     {
-        $stmt = $this->db->prepare(
-            "SELECT a.*, ac.session_name, atp.name AS app_type_name, ast.name AS status_name
-             FROM applications a
-             LEFT JOIN academic_sessions ac ON a.session_id = ac.id
-             LEFT JOIN application_types atp ON a.application_type_id = atp.id
-             LEFT JOIN application_status ast ON a.status_id = ast.id
-             WHERE a.student_id = ?
-             ORDER BY a.created_at DESC"
-        );
-        $stmt->execute([$studentId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->listQuery('a.student_id = ?', [$studentId]);
     }
 
     public function allByStatus(int $statusId): array
     {
-        $stmt = $this->db->prepare(
-            "SELECT a.*, CONCAT(s.first_name, ' ', s.last_name) AS student_name,
-                    s.student_code, ac.session_name,
-                    atp.name AS app_type_name, ast.name AS status_name
-             FROM applications a
-             LEFT JOIN students s ON a.student_id = s.id
-             LEFT JOIN academic_sessions ac ON a.session_id = ac.id
-             LEFT JOIN application_types atp ON a.application_type_id = atp.id
-             LEFT JOIN application_status ast ON a.status_id = ast.id
-             WHERE a.status_id = ?
-             ORDER BY a.created_at DESC"
-        );
-        $stmt->execute([$statusId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->listQuery('a.status_id = ?', [$statusId]);
     }
 
-    public function allByType(string $type): array
-    {
-        $stmt = $this->db->prepare(
-            "SELECT a.*, CONCAT(s.first_name, ' ', s.last_name) AS student_name,
-                    s.student_code, ac.session_name,
-                    ast.name AS status_name
-             FROM applications a
-             LEFT JOIN students s ON a.student_id = s.id
-             LEFT JOIN academic_sessions ac ON a.session_id = ac.id
-             LEFT JOIN application_status ast ON a.status_id = ast.id
-             WHERE a.type = ?
-             ORDER BY a.created_at DESC"
-        );
-        $stmt->execute([$type]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function allPending(): array
-    {
-        return $this->allByStatus(1);
-    }
-
-    public function allApproved(): array
-    {
-        return $this->allByStatus(2);
-    }
+    // ──────────────────────────────────────────────
+    //  UPDATE
+    // ──────────────────────────────────────────────
 
     public function update(int $id, array $data): bool
     {
-        $sets = [];
-        $values = [];
-
-        $whitelist = [
-            'student_id', 'session_id', 'application_type_id', 'status_id',
-            'reviewed_by', 'dispute_message', 'submitted_at', 'type',
-            'family_income', 'bank_name', 'account_number', 'ifsc_code',
-            'achievement_title', 'achievement_category', 'achievement_level', 'rank_position',
-            'family_occupation', 'family_members_count', 'earning_members_count',
-            'current_class', 'current_college', 'prev_scholarship_received',
-            'scholarship_amt_2023_24', 'scholarship_amt_2024_25', 'scholarship_amt_2025_26',
-            'account_holder_name', 'career_goal',
-            'self_declared', 'self_declared_at', 'self_declared_ip',
-            'correction_count', 'correction_deadline', 'submitted_ip', 'resubmitted_at', 'application_no',
-            'status'
-        ];
-
-        foreach ($data as $key => $value) {
-            if (!in_array($key, $whitelist, true)) {
-                throw new \InvalidArgumentException("Invalid column update requested: {$key}");
-            }
-            $sets[] = "`$key` = ?";
-            $values[] = $value;
-        }
-
-        $values[] = $id;
-        $sql = "UPDATE applications SET " . implode(', ', $sets) . " WHERE id = ?";
-
-        try {
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute($values);
-        } catch (\PDOException $e) {
-            if ($e->getCode() === '42S22' || str_contains($e->getMessage(), 'Unknown column')) {
-                $this->autoMigrateSchema();
-                $stmt = $this->db->prepare($sql);
-                return $stmt->execute($values);
-            } else {
-                throw $e;
+        $parentData = $this->filterData($data, self::PARENT_COLS);
+        if (!empty($parentData)) {
+            $parentData['updated_at'] = date('Y-m-d H:i:s');
+            if (!$this->updateParent($id, $parentData)) {
+                return false;
             }
         }
+
+        $app = $this->find($id);
+        if (!$app) {
+            return false;
+        }
+
+        $typeId = (int) $app['application_type_id'];
+
+        $schData = $this->filterData($data, self::SCHOLARSHIP_COLS);
+        if (!empty($schData) && $typeId === 1) {
+            $this->upsertScholarship($id, $schData);
+        }
+
+        $pratData = $this->filterData($data, self::PRATIBHA_COLS);
+        if (!empty($pratData) && $typeId === 2) {
+            $this->upsertPratibha($id, $pratData);
+        }
+
+        $acadCols = ['course_name', 'class_year', 'college_name', 'board_university',
+                      'marks_obtained', 'max_marks', 'percentage'];
+        $acadData = $this->filterData($data, $acadCols);
+        if (!empty($acadData)) {
+            $this->upsertAcademics((int) $app['student_id'], (int) $app['session_id'], $acadData);
+        }
+
+        $this->syncScholarshipHistory($id, $data);
+
+        return true;
     }
 
     public function updateStatus(int $id, int $statusId, ?int $reviewedBy = null): bool
@@ -332,63 +258,66 @@ class Application
         return $stmt->execute([$statusId, $id]);
     }
 
+    // ──────────────────────────────────────────────
+    //  DELETE / SOFT DELETE
+    // ──────────────────────────────────────────────
+
     public function delete(int $id): bool
     {
-        $stmt = $this->db->prepare("DELETE FROM applications WHERE id = ?");
+        $stmt = $this->db->prepare("UPDATE applications SET deleted_at = NOW() WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
+    // ──────────────────────────────────────────────
+    //  COUNTS
+    // ──────────────────────────────────────────────
+
     public function count(): int
     {
-        $result = $this->db->query("SELECT COUNT(*) as count FROM applications")->fetch(PDO::FETCH_ASSOC);
-        return (int) $result['count'];
+        return (int) $this->db->query("SELECT COUNT(*) FROM applications")->fetchColumn();
     }
 
     public function countBySession(int $sessionId): int
     {
-        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM applications WHERE session_id = ?");
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM applications WHERE session_id = ?");
         $stmt->execute([$sessionId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int) $result['count'];
+        return (int) $stmt->fetchColumn();
     }
 
     public function countByStatus(int $statusId): int
     {
-        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM applications WHERE status_id = ?");
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM applications WHERE status_id = ?");
         $stmt->execute([$statusId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int) $result['count'];
+        return (int) $stmt->fetchColumn();
     }
 
-    public function countByType(string $type): int
-    {
-        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM applications WHERE type = ?");
-        $stmt->execute([$type]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int) $result['count'];
-    }
+    // ──────────────────────────────────────────────
+    //  DOCUMENTS
+    // ──────────────────────────────────────────────
 
     public function documentTypeId(string $name): ?int
     {
         $stmt = $this->db->prepare("SELECT id FROM document_types WHERE name = ? LIMIT 1");
         $stmt->execute([$name]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
         return $row ? (int) $row['id'] : null;
     }
 
     public function addDocument(int $applicationId, string $documentType, array $file, string $storedName): bool
     {
         $documentTypeId = $this->documentTypeId($documentType);
-
         if ($documentTypeId === null) {
             return false;
         }
 
+        $storagePath = 'uploads/applications/' . $applicationId . '/';
+        $uploadedBy = isset($_SESSION['auth_user_id']) ? (int) $_SESSION['auth_user_id'] : null;
+        $uploadedIp = $_SERVER['REMOTE_ADDR'] ?? null;
+
         $stmt = $this->db->prepare(
             "INSERT INTO application_documents
-             (application_id, document_type_id, original_name, stored_name, mime_type, file_size, uploaded_at)
-             VALUES (?, ?, ?, ?, ?, ?, NOW())"
+             (application_id, document_type_id, original_name, stored_name, storage_path, mime_type, file_size, uploaded_by, uploaded_ip, uploaded_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"
         );
 
         return $stmt->execute([
@@ -396,8 +325,11 @@ class Application
             $documentTypeId,
             $file['name'] ?? '',
             $storedName,
+            $storagePath,
             $file['type'] ?? null,
             $file['size'] ?? null,
+            $uploadedBy,
+            $uploadedIp,
         ]);
     }
 
@@ -411,15 +343,27 @@ class Application
              ORDER BY ad.uploaded_at ASC"
         );
         $stmt->execute([$applicationId]);
-
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getScholarshipHistory(int $applicationId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT id, session_year, amount FROM scholarship_history WHERE application_id = ? ORDER BY session_year ASC"
+        );
+        $stmt->execute([$applicationId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // ──────────────────────────────────────────────
+    //  HISTORY
+    // ──────────────────────────────────────────────
 
     public function history(int $applicationId): array
     {
         $stmt = $this->db->prepare(
             "SELECT h.*, u.username, u.email,
-                    s.first_name, s.last_name
+                    COALESCE(CONCAT(s.first_name, ' ', s.last_name), u.email) AS performer_name
              FROM application_history h
              LEFT JOIN users u ON h.performed_by = u.id
              LEFT JOIN students s ON h.performed_by = s.id
@@ -430,94 +374,268 @@ class Application
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Log a significant application action in the history table.
-     */
     public function logHistory(int $applicationId, string $action, int $performedBy, ?array $oldData = null, ?array $newData = null): bool
     {
-        $sql = "INSERT INTO application_history 
-                (application_id, action, performed_by, performed_at, ip_address, user_agent, old_data, new_data) 
+        $sql = "INSERT INTO application_history
+                (application_id, action, performed_by, performed_at, ip_address, user_agent, old_data, new_data)
                 VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)";
-        
+
         $ip = $_SERVER['REMOTE_ADDR'] ?? null;
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
-        
+
         $oldDataJson = $oldData !== null ? json_encode($oldData) : null;
         $newDataJson = $newData !== null ? json_encode($newData) : null;
-        
+
         try {
             $stmt = $this->db->prepare($sql);
-            return $stmt->execute([
-                $applicationId,
-                $action,
-                $performedBy,
-                $ip,
-                $userAgent,
-                $oldDataJson,
-                $newDataJson
-            ]);
+            return $stmt->execute([$applicationId, $action, $performedBy, $ip, $userAgent, $oldDataJson, $newDataJson]);
         } catch (\Throwable $e) {
             \App\Core\Logger::error("Failed to log history for app {$applicationId}: " . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Auto-migrate schema to add missing applications table columns on the fly.
-     */
-    private function autoMigrateSchema(): void
+    // ──────────────────────────────────────────────
+    //  PRIVATE HELPERS
+    // ──────────────────────────────────────────────
+
+    private function filterData(array $data, array $allowed): array
     {
-        try {
-            $columnsToAdd = [
-                'family_occupation'         => 'VARCHAR(150) DEFAULT NULL',
-                'family_members_count'      => 'INT DEFAULT NULL',
-                'earning_members_count'     => 'INT DEFAULT NULL',
-                'current_class'             => 'VARCHAR(50) DEFAULT NULL',
-                'current_college'           => 'VARCHAR(150) DEFAULT NULL',
-                'prev_scholarship_received' => 'VARCHAR(10) DEFAULT NULL',
-                'scholarship_amt_2023_24'   => 'DECIMAL(10, 2) DEFAULT NULL',
-                'scholarship_amt_2024_25'   => 'DECIMAL(10, 2) DEFAULT NULL',
-                'scholarship_amt_2025_26'   => 'DECIMAL(10, 2) DEFAULT NULL',
-                'account_holder_name'       => 'VARCHAR(100) DEFAULT NULL',
-                'career_goal'               => 'VARCHAR(255) DEFAULT NULL',
-                'self_declared'             => 'TINYINT(1) DEFAULT 0',
-                'self_declared_at'          => 'DATETIME DEFAULT NULL',
-                'self_declared_ip'          => 'VARCHAR(45) DEFAULT NULL',
-                'correction_count'          => 'INT DEFAULT 0',
-                'correction_deadline'       => 'DATETIME DEFAULT NULL',
-                'submitted_at'              => 'DATETIME DEFAULT NULL',
-                'submitted_ip'              => 'VARCHAR(45) DEFAULT NULL',
-                'resubmitted_at'            => 'DATETIME DEFAULT NULL',
-                'application_no'            => 'VARCHAR(50) DEFAULT NULL',
-            ];
+        $filtered = [];
+        foreach ($allowed as $col) {
+            if (array_key_exists($col, $data)) {
+                $filtered[$col] = $data[$col];
+            }
+        }
+        return $filtered;
+    }
 
-            // Describe table to check columns
-            $stmt = $this->db->query("DESCRIBE applications");
-            $existingColumns = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'Field');
+    private function updateParent(int $id, array $data): bool
+    {
+        $sets = [];
+        $values = [];
+        foreach ($data as $col => $val) {
+            $sets[] = "`$col` = ?";
+            $values[] = $val;
+        }
+        $values[] = $id;
 
-            foreach ($columnsToAdd as $columnName => $columnDefinition) {
-                if (!in_array($columnName, $existingColumns, true)) {
-                    $this->db->exec("ALTER TABLE applications ADD COLUMN `{$columnName}` {$columnDefinition}");
+        $sql = "UPDATE applications SET " . implode(', ', $sets) . " WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($values);
+    }
+
+    private function upsertScholarship(int $applicationId, array $data): void
+    {
+        $fields = $this->filterData($data, self::SCHOLARSHIP_COLS);
+        if (empty($fields)) {
+            return;
+        }
+
+        $sets = [];
+        $values = [];
+        foreach ($fields as $col => $val) {
+            $sets[] = "`$col` = ?";
+            $values[] = $val;
+        }
+        $values[] = $applicationId;
+        $values[] = $applicationId;
+
+        $sql = "INSERT INTO scholarship_details (application_id, " . implode(', ', array_map(fn($c) => "`$c`", array_keys($fields))) . ")
+                VALUES (?, " . implode(', ', array_fill(0, count($fields), '?')) . ")
+                ON DUPLICATE KEY UPDATE " . implode(', ', $sets);
+        $this->db->prepare($sql)->execute($values);
+    }
+
+    private function upsertPratibha(int $applicationId, array $data): void
+    {
+        $fields = $this->filterData($data, self::PRATIBHA_COLS);
+        if (empty($fields)) {
+            return;
+        }
+
+        $sets = [];
+        $values = [];
+        foreach ($fields as $col => $val) {
+            $sets[] = "`$col` = ?";
+            $values[] = $val;
+        }
+        $values[] = $applicationId;
+        $values[] = $applicationId;
+
+        $sql = "INSERT INTO pratibha_details (application_id, " . implode(', ', array_map(fn($c) => "`$c`", array_keys($fields))) . ")
+                VALUES (?, " . implode(', ', array_fill(0, count($fields), '?')) . ")
+                ON DUPLICATE KEY UPDATE " . implode(', ', $sets);
+        $this->db->prepare($sql)->execute($values);
+    }
+
+    private function upsertAcademics(int $studentId, int $sessionId, array $data): void
+    {
+        $allowed = ['course_name', 'class_year', 'college_name', 'board_university',
+                     'marks_obtained', 'max_marks', 'percentage'];
+        $fields = $this->filterData($data, $allowed);
+        if (empty($fields)) {
+            return;
+        }
+
+        $colNames = array_keys($fields);
+        $placeholders = [];
+        $values = [$studentId, $sessionId];
+
+        foreach ($fields as $val) {
+            $values[] = $val;
+        }
+
+        foreach ($colNames as $col) {
+            $placeholders[] = '?';
+        }
+
+        $updates = implode(', ', array_map(fn($c) => "`$c` = VALUES(`$c`)", $colNames));
+
+        $sql = "INSERT INTO student_academics (student_id, session_id, " . implode(', ', array_map(fn($c) => "`$c`", $colNames)) . ")
+                VALUES (?, ?, " . implode(', ', $placeholders) . ")
+                ON DUPLICATE KEY UPDATE {$updates}";
+
+        $this->db->prepare($sql)->execute($values);
+    }
+
+    // ──────────────────────────────────────────────
+    //  WORKFLOW METHODS
+    // ──────────────────────────────────────────────
+
+    /**
+     * Check whether an application has all required fields and documents filled.
+     * Returns true only if the application is complete enough for final submit.
+     */
+    public function isComplete(int $id): bool
+    {
+        $app = $this->find($id);
+        if (!$app) {
+            return false;
+        }
+
+        $typeId = (int) ($app['application_type_id'] ?? 0);
+
+        // Personal fields
+        $requiredPersonal = ['first_name', 'last_name', 'father_name', 'mother_name',
+                              'dob', 'gender', 'address', 'city', 'district', 'pincode',
+                              'family_occupation', 'family_members_count', 'earning_members_count', 'career_goal'];
+        foreach ($requiredPersonal as $f) {
+            if (empty($app[$f])) {
+                return false;
+            }
+        }
+
+        // Academic fields
+        $requiredAcademic = ['class_year', 'percentage'];
+        foreach ($requiredAcademic as $f) {
+            if (empty($app[$f])) {
+                return false;
+            }
+        }
+
+        // Type-specific fields
+        if ($typeId === 1) {
+            $required = ['current_class', 'current_college', 'bank_name',
+                          'account_number', 'ifsc_code', 'account_holder_name', 'family_income'];
+            foreach ($required as $f) {
+                if (empty($app[$f])) {
+                    return false;
                 }
             }
+        } else {
+            if (empty($app['achievement_title'])) {
+                return false;
+            }
+        }
 
-            // Create application_history table if missing
-            $this->db->exec("CREATE TABLE IF NOT EXISTS application_history (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                application_id INT NOT NULL,
-                action VARCHAR(50) NOT NULL,
-                performed_by INT NOT NULL,
-                performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                ip_address VARCHAR(45),
-                user_agent TEXT,
-                old_data JSON,
-                new_data JSON,
-                INDEX idx_app_id (application_id),
-                INDEX idx_action (action)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        // Required documents
+        $requiredDocs = ($typeId === 1)
+            ? ['Photo', 'Signature', 'Marksheet', 'Passbook']
+            : ['Photo', 'Signature', 'Marksheet', 'Certificate'];
 
+        $uploadedTypes = array_column($app['documents'] ?? [], 'document_type');
+        foreach ($requiredDocs as $doc) {
+            if (!in_array($doc, $uploadedTypes, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Atomically generate and set the application number using the counters table.
+     * Uses a FOR UPDATE row lock to prevent duplicates under concurrent submissions.
+     */
+    public function generateApplicationNumber(int $applicationId, int $typeId): string
+    {
+        $year = date('Y');
+
+        $this->db->beginTransaction();
+        try {
+            $stmt = $this->db->prepare(
+                "SELECT id, last_number FROM application_counters
+                 WHERE counter_year = ? AND application_type_id = ? FOR UPDATE"
+            );
+            $stmt->execute([$year, $typeId]);
+            $counter = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($counter) {
+                $newNumber = (int) $counter['last_number'] + 1;
+                $stmt = $this->db->prepare(
+                    "UPDATE application_counters SET last_number = ? WHERE id = ?"
+                );
+                $stmt->execute([$newNumber, $counter['id']]);
+            } else {
+                $newNumber = 1;
+                $stmt = $this->db->prepare(
+                    "INSERT INTO application_counters (counter_year, application_type_id, last_number) VALUES (?, ?, ?)"
+                );
+                $stmt->execute([$year, $typeId, $newNumber]);
+            }
+
+            $prefix = ($typeId === 1) ? 'TSVS' : 'TSVP';
+            $appNo = sprintf('%s-%s-%04d', $prefix, $year, $newNumber);
+
+            $stmt = $this->db->prepare("UPDATE applications SET application_no = ? WHERE id = ?");
+            $stmt->execute([$appNo, $applicationId]);
+
+            $this->db->commit();
+            return $appNo;
         } catch (\Throwable $e) {
-            \App\Core\Logger::error('Auto-migration failed: ' . $e->getMessage());
+            $this->db->rollBack();
+            \App\Core\Logger::error("Atomic app number generation failed for app {$applicationId}: " . $e->getMessage());
+            return \App\Core\ApplicationNumberGenerator::format($applicationId, $year);
+        }
+    }
+
+    private function syncScholarshipHistory(int $applicationId, array $data): void
+    {
+        $yearKeyMap = [
+            'scholarship_amt_2023_24' => '2023-24',
+            'scholarship_amt_2024_25' => '2024-25',
+            'scholarship_amt_2025_26' => '2025-26',
+            'scholarship_amt_2026_27' => '2026-27',
+        ];
+
+        foreach ($yearKeyMap as $field => $sessionYear) {
+            if (array_key_exists($field, $data)) {
+                $amount = $data[$field];
+                if ($amount !== null && $amount !== '' && (float) $amount > 0) {
+                    $stmt = $this->db->prepare(
+                        "INSERT INTO scholarship_history (application_id, session_year, amount)
+                         VALUES (?, ?, ?)
+                         ON DUPLICATE KEY UPDATE amount = VALUES(amount)"
+                    );
+                    $stmt->execute([$applicationId, $sessionYear, (float) $amount]);
+                } else {
+                    $stmt = $this->db->prepare(
+                        "DELETE FROM scholarship_history WHERE application_id = ? AND session_year = ?"
+                    );
+                    $stmt->execute([$applicationId, $sessionYear]);
+                }
+            }
         }
     }
 }

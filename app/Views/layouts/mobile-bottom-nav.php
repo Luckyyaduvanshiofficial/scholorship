@@ -17,7 +17,7 @@ if (Auth::isAdmin()) {
 }
 
 $dashHref = Auth::isAdmin()
-    ? '/admin'
+    ? admin_dashboard_url()
     : (Auth::isRepresentative() ? '/representative' : '/dashboard');
 
 $items = [];
@@ -31,10 +31,10 @@ if ($role === 'student') {
     ];
 } elseif ($role === 'admin') {
     $items = [
-        ['href' => '/admin', 'icon' => 'bi-speedometer2', 'label' => 'डैशबोर्ड', 'active' => $uri === '/admin'],
-        ['href' => '/admin/applications', 'icon' => 'bi-file-earmark-text', 'label' => 'आवेदन', 'active' => str_starts_with($uri, '/admin/applications')],
-        ['href' => '/admin/students', 'icon' => 'bi-people-fill', 'label' => 'छात्र', 'active' => str_starts_with($uri, '/admin/students')],
-        ['href' => '/admin/settings', 'icon' => 'bi-gear-fill', 'label' => 'सेटिंग', 'active' => str_starts_with($uri, '/admin/settings')],
+        ['href' => admin_path(), 'icon' => 'bi-speedometer2', 'label' => 'डैशबोर्ड', 'active' => $uri === '/' || $uri === '/admin'],
+        ['href' => admin_path('applications'), 'icon' => 'bi-file-earmark-text', 'label' => 'आवेदन', 'active' => str_contains($uri, 'applications')],
+        ['href' => admin_path('students'), 'icon' => 'bi-people-fill', 'label' => 'छात्र', 'active' => str_contains($uri, 'students')],
+        ['href' => admin_path('settings'), 'icon' => 'bi-gear-fill', 'label' => 'सेटिंग', 'active' => str_contains($uri, 'settings')],
     ];
 } else {
     // representative

@@ -518,8 +518,8 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 </div>
             </div>
 
-            <!-- Dispute Warning Notice & Countdown -->
-            <?php if (!empty($app['dispute_message']) || in_array($app['status_name'] ?? '', ['Rejected', 'Pending Correction'], true)): ?>
+            <!-- Correction Warning Notice & Countdown -->
+            <?php if (in_array($app['status_name'] ?? '', ['Rejected', 'Pending Correction'], true)): ?>
                 <div class="alert alert-warning border-0 shadow-sm mb-4 p-4 animate__animated animate__fadeIn" style="border-radius: 1.25rem; border-left: 6px solid #d97706 !important;">
                     <div class="d-flex align-items-start gap-3">
                         <div class="bg-warning text-dark rounded-circle p-2.5 d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px; flex-shrink: 0;">
@@ -527,9 +527,9 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         </div>
                         <div class="w-100">
                             <h5 class="fw-bold text-dark mb-1.5 fs-5">संशोधन की आवश्यकता (Correction Required)</h5>
-                            <?php if (!empty($app['dispute_message'])): ?>
+                            <?php if (!empty($app['rejection_reason'])): ?>
                                 <p class="mb-3 text-dark small bg-white p-3 rounded-3 border-start border-3 border-warning shadow-sm" style="line-height: 1.6;">
-                                    <strong>कारण / Reason:</strong> <?= Helpers::esc($app['dispute_message']) ?>
+                                    <strong>कारण / Reason:</strong> <?= Helpers::esc($app['rejection_reason']) ?>
                                 </p>
                             <?php endif; ?>
                             <p class="mb-3 text-dark small" style="line-height: 1.6;">

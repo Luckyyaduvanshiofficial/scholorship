@@ -156,11 +156,11 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     $statusLabel = 'अस्वीकृत (Rejected)';
                                     break;
                                 case 'Pending Correction':
-                                    $badgeClass = 'bg-warning-subtle text-warning-emphasis border border-warning';
+                                    $badgeClass = 'bg-orange';
                                     $statusLabel = 'सुधार लंबित (Pending Correction)';
                                     break;
                                 case 'Resubmitted':
-                                    $badgeClass = 'bg-info text-dark';
+                                    $badgeClass = 'bg-purple';
                                     $statusLabel = 'पुनः जमा (Resubmitted)';
                                     break;
                                 default:
@@ -217,7 +217,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                     const hours = Math.floor((t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                                                     const minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
                                                     const seconds = Math.floor((t % (1000 * 60)) / 1000);
-                                                    el.innerHTML = `⏳ ${days}d ${hours}h ${minutes}m left`;
+                                                    el.innerHTML = `⏳ ${days} days ${hours} hours left to correct`;
                                                 }
                                                 update();
                                                 setInterval(update, 1000);

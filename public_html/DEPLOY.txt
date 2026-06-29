@@ -1,0 +1,42 @@
+Tamboli Samaj — Multi-Site Hostinger Deployment
+==============================================
+
+Folder structure on Hostinger (single account, shared DB + auth):
+
+  public_html/                    ← upload entire project here
+  ├── app/                        ← shared PHP application
+  ├── vendor/
+  ├── database/
+  ├── storage/                    ← writable
+  ├── uploads/                    ← writable
+  ├── .env                        ← single config (see .env.example)
+  ├── main/                       ← tambolisamaj.online document root
+  │   ├── index.php
+  │   └── .htaccess
+  ├── portal/                     ← portal.tambolisamaj.online document root
+  │   ├── index.php
+  │   ├── .htaccess
+  │   └── (copy public/* here: assets, uploads, favicon, manifest, sw.js)
+  └── admin/                      ← admin.tambolisamaj.online document root
+      ├── index.php
+      └── .htaccess
+
+Hostinger subdomain document roots:
+  tambolisamaj.online        → public_html/main
+  portal.tambolisamaj.online → public_html/portal
+  admin.tambolisamaj.online  → public_html/admin
+
+Production .env:
+  SESSION_DOMAIN=.tambolisamaj.online
+  SESSION_SECURE=true
+  SITE_URL=https://tambolisamaj.online
+  PORTAL_URL=https://portal.tambolisamaj.online
+  ADMIN_URL=https://admin.tambolisamaj.online
+
+Shared auth: one database, one SESSION_NAME, cookie domain .tambolisamaj.online
+
+Portal deploy step (required):
+  Copy everything from /public/ into /public_html/portal/
+  (assets, uploads, favicon.png, manifest.json, sw.js, .htaccess rules for uploads)
+
+Admin panel loads CSS/JS from portal URL (PORTAL_URL/assets) automatically.

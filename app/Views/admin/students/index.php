@@ -16,7 +16,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
     <div class="d-flex flex-grow-1 position-relative">
 
         <?php
-        $activeSidebarLink = '/admin/students';
+        $activeSidebarLink = admin_path('students');
         require VIEW_PATH . '/layouts/admin-sidebar.php';
         ?>
 
@@ -35,7 +35,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 <!-- Filters & Search Card -->
                 <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
                     <div class="card-body p-4">
-                        <form method="get" action="/admin/students" class="row g-3 align-items-end">
+                        <form method="get" action="<?= admin_path('students') ?>" class="row g-3 align-items-end">
                             <div class="col-md-5">
                                 <label for="search" class="form-label fw-bold text-secondary" style="font-size: 1.2rem;">खोजें (नाम, ईमेल, मोबाइल, या कोड)</label>
                                 <div class="input-group">
@@ -56,7 +56,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                 <button type="submit" class="btn btn-success fw-bold px-4 py-2 flex-grow-1" style="font-size: 1.25rem; background-color: #10b981; border-color: #10b981;">
                                     फिल्टर लागू करें
                                 </button>
-                                <a href="/admin/students" class="btn btn-outline-secondary fw-bold px-3 py-2" style="font-size: 1.25rem;">
+                                <a href="<?= admin_path('students') ?>" class="btn btn-outline-secondary fw-bold px-3 py-2" style="font-size: 1.25rem;">
                                     रीसेट
                                 </a>
                             </div>

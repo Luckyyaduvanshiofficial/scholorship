@@ -179,6 +179,14 @@ Models are in `app/Models/` and use the `Database` singleton (PDO) from `app/Cor
 | `AcademicSession` | Session lookup/active session |
 | `ApplicationType` / `ApplicationStatus` | Lookup tables |
 
+### Workflow Methods on `Application`
+
+| Method | Purpose |
+| --- | --- |
+| `isComplete(int $id): bool` | Checks all required fields + documents are present for the application type. Used before final submit. |
+| `generateApplicationNumber(int $applicationId, int $typeId): string` | Atomically generates `TSVS-{year}-{seq}` (type=1) or `TSVP-{year}-{seq}` (type=2) using `application_counters` table with `FOR UPDATE` row lock. Falls back to `ApplicationNumberGenerator::format()` on failure. |
+| `transitionStatus(int $id, int $toStatusId, ?int $performedBy): bool` | Wraps `updateStatus()` with optional logging. |
+
 ### Conventions
 
 * Use parameterized PDO queries for all dynamic values.

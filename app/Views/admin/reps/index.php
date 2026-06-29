@@ -16,7 +16,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
     <div class="d-flex flex-grow-1 position-relative">
 
         <?php
-        $activeSidebarLink = '/admin/reps';
+        $activeSidebarLink = admin_path('reps');
         require VIEW_PATH . '/layouts/admin-sidebar.php';
         ?>
 
@@ -78,7 +78,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                 <td class="py-3 text-end" data-label="कार्रवाई">
                                                     <div class="d-inline-flex gap-2">
                                                         <!-- Toggle Status Button -->
-                                                        <form action="/admin/reps/<?= $rep['id'] ?>/toggle-status" method="post" class="m-0">
+                                                        <form action="<?= admin_path('reps/' . $rep['id'] ?>/toggle-status" method="post" class="m-0">
                                                             <?= Csrf::field() ?>
                                                             <?php if ($isSuspended): ?>
                                                                 <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-3 py-1" style="font-size: 1.15rem;">
@@ -128,7 +128,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <h5 class="modal-title fw-bold text-dark h4" id="addRepModalLabel">नया प्रतिनिधि जोड़ें</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="/admin/reps/create" method="post">
+                <form action="<?= admin_path('reps/create')) ?>" method="post">
                     <?= Csrf::field() ?>
                     <div class="modal-body py-4">
                         <div class="mb-3">

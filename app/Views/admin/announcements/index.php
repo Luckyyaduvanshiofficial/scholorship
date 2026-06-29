@@ -16,7 +16,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
     <div class="d-flex flex-grow-1 position-relative">
 
         <?php
-        $activeSidebarLink = '/admin/announcements';
+        $activeSidebarLink = admin_path('announcements');
         require VIEW_PATH . '/layouts/admin-sidebar.php';
         ?>
 
@@ -30,7 +30,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                         <h2 class="h3 fw-bold text-dark mb-1" style="font-family: 'Manrope', sans-serif;">सूचनाएं (Announcements) प्रबंधन</h2>
                         <p class="text-secondary mb-0 small fw-semibold" style="font-size: 1.3rem;">छात्रों के लिए महत्वपूर्ण सूचनाएं और घोषणाएं जारी करें।</p>
                     </div>
-                    <a href="/admin/announcements/create" class="btn btn-success fw-bold px-4 py-2" style="font-size: 1.25rem; background-color: #10b981; border-color: #10b981;">
+                    <a href="<?= admin_path('announcements/create') ?>" class="btn btn-success fw-bold px-4 py-2" style="font-size: 1.25rem; background-color: #10b981; border-color: #10b981;">
                         <i class="bi bi-plus-circle-fill me-2"></i> नई सूचना लिखें
                     </a>
                 </div>
@@ -78,7 +78,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                 <td class="py-3 text-end" data-label="कार्रवाई">
                                                     <div class="d-inline-flex gap-2">
                                                         <!-- Edit Button -->
-                                                        <a href="/admin/announcements/<?= $ann['id'] ?>/edit" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" style="font-size: 1.15rem;">
+                                                        <a href="<?= admin_path('announcements/<') ?>?= $ann['id'] ?>/edit" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" style="font-size: 1.15rem;">
                                                             <i class="bi bi-pencil"></i> एडिट
                                                         </a>
 

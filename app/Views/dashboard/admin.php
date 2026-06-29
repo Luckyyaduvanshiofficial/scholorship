@@ -56,7 +56,7 @@ $displayPratibhaApps = $pratibhaApps;
 // Split pending status counts
 $submittedCount = 0;
 $pendingCount = 0;
-$disputedCount = $statusCounts['disputed'] ?? 0;
+$disputedCount = $statusCounts['correction'] ?? 0;
 $approvedCount = $statusCounts['approved'] ?? 0;
 $rejectedCount = $statusCounts['rejected'] ?? 0;
 
@@ -126,7 +126,7 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
     <div class="d-flex flex-grow-1 position-relative">
 
         <?php
-        $activeSidebarLink = '/admin';
+        $activeSidebarLink = admin_path();
         require VIEW_PATH . '/layouts/admin-sidebar.php';
         ?>
 
@@ -165,7 +165,7 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                                 <div class="tsp-metric-title">कुल आवेदन</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayTotalApps) ?></div>
                                 <div class="tsp-metric-desc mt-2">सभी श्रेणियां</div>
-                                <a href="/admin/applications" class="tsp-metric-action tsp-color-red">विवरण देखें <i class="bi bi-arrow-right"></i></a>
+                                <a href="<?= admin_path('applications') ?>" class="tsp-metric-action tsp-color-red">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -179,7 +179,7 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                                 <div class="tsp-metric-title">पंजीकृत उपयोगकर्ता</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayTotalStudents) ?></div>
                                 <div class="tsp-metric-desc mt-2">सभी उपयोगकर्ता</div>
-                                <a href="/admin/students" class="tsp-metric-action tsp-color-blue">विवरण देखें <i class="bi bi-arrow-right"></i></a>
+                                <a href="<?= admin_path('students') ?>" class="tsp-metric-action tsp-color-blue">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -193,7 +193,7 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                                 <div class="tsp-metric-title">छात्रवृत्ति आवेदन</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayScholarshipApps) ?></div>
                                 <div class="tsp-metric-desc mt-2">छात्रवृत्ति श्रेणी</div>
-                                <a href="/admin/applications" class="tsp-metric-action tsp-color-green">विवरण देखें <i class="bi bi-arrow-right"></i></a>
+                                <a href="<?= admin_path('applications') ?>" class="tsp-metric-action tsp-color-green">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -207,7 +207,7 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                                 <div class="tsp-metric-title">प्रतिभा सम्मान आवेदन</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayPratibhaApps) ?></div>
                                 <div class="tsp-metric-desc mt-2">प्रतिभा सम्मान श्रेणी</div>
-                                <a href="/admin/applications" class="tsp-metric-action tsp-color-gold">विवरण देखें <i class="bi bi-arrow-right"></i></a>
+                                <a href="<?= admin_path('applications') ?>" class="tsp-metric-action tsp-color-gold">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -221,7 +221,7 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                                 <div class="tsp-metric-title">सक्रिय सूचनाएं</div>
                                 <div class="tsp-metric-value mb-1"><?= number_format($displayTotalAnnouncements) ?></div>
                                 <div class="tsp-metric-desc mt-2">कुल सक्रिय सूचनाएं</div>
-                                <a href="/admin/announcements" class="tsp-metric-action tsp-color-purple">विवरण देखें <i class="bi bi-arrow-right"></i></a>
+                                <a href="<?= admin_path('announcements') ?>" class="tsp-metric-action tsp-color-purple">विवरण देखें <i class="bi bi-arrow-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -242,17 +242,17 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                         </div>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <a href="/admin/reps" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
+                                <a href="<?= admin_path('reps') ?>" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
                                     <i class="bi bi-people-fill text-success"></i> प्रतिनिधि प्रबंधन
                                 </a>
                             </div>
                             <div class="col-md-4">
-                                <a href="/admin/settings" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
+                                <a href="<?= admin_path('settings') ?>" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
                                     <i class="bi bi-gear-fill text-warning"></i> सिस्टम सेटिंग्स एवं सत्र
                                 </a>
                             </div>
                             <div class="col-md-4">
-                                <a href="/admin/announcements/create" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
+                                <a href="<?= admin_path('announcements/create') ?>" class="btn btn-outline-light w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 1.25rem; border-color: rgba(255,255,255,0.2); transition: all 0.2s;">
                                     <i class="bi bi-megaphone-fill text-info"></i> नई सूचना जारी करें
                                 </a>
                             </div>
@@ -270,7 +270,7 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h3 class="h5 fw-bold text-dark mb-0 font-heading">हालिया आवेदन</h3>
-                                    <a href="/admin/applications" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold" style="font-size: 1.2rem; border-color: #fee2e2; color: #8b0000;">
+                                    <a href="<?= admin_path('applications') ?>" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold" style="font-size: 1.2rem; border-color: #fee2e2; color: #8b0000;">
                                         सभी देखें <i class="bi bi-arrow-right ms-1"></i>
                                     </a>
                                 </div>
@@ -300,7 +300,7 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                                                         </td>
                                                         <td class="text-muted py-3"><?= htmlspecialchars($app['date']) ?></td>
                                                         <td class="text-center py-3">
-                                                            <a href="/admin/applications/<?= $app['id'] ?>" class="text-secondary hover-primary" aria-label="View Application Details" style="font-size: 1.4rem;">
+                                                            <a href="<?= admin_path('applications/' . $app['id']) ?>" class="text-secondary hover-primary" aria-label="View Application Details" style="font-size: 1.4rem;">
                                                                 <i class="bi bi-eye"></i>
                                                             </a>
                                                         </td>
@@ -325,25 +325,25 @@ $wPratibha = $maxCategoryVal > 0 ? ($displayPratibhaApps / $maxCategoryVal) * 10
                                 <h3 class="h5 fw-bold text-dark mb-4 font-heading">त्वरित कार्य (Quick Actions)</h3>
                                 <div class="row g-3">
                                     <div class="col-6">
-                                        <a href="/admin/applications" class="tsp-quick-action-card">
+                                        <a href="<?= admin_path('applications') ?>" class="tsp-quick-action-card">
                                             <i class="bi bi-file-earmark-text"></i>
                                             <span>आवेदन प्रबंधन</span>
                                         </a>
                                     </div>
                                     <div class="col-6">
-                                        <a href="/admin/students" class="tsp-quick-action-card">
+                                        <a href="<?= admin_path('students') ?>" class="tsp-quick-action-card">
                                             <i class="bi bi-people"></i>
                                             <span>उपयोगकर्ता सूची</span>
                                         </a>
                                     </div>
                                     <div class="col-6">
-                                        <a href="/admin/announcements" class="tsp-quick-action-card">
+                                        <a href="<?= admin_path('announcements') ?>" class="tsp-quick-action-card">
                                             <i class="bi bi-megaphone"></i>
                                             <span>सूचनाएं सूची</span>
                                         </a>
                                     </div>
                                     <div class="col-6">
-                                        <a href="/admin/announcements/create" class="tsp-quick-action-card">
+                                        <a href="<?= admin_path('announcements/create') ?>" class="tsp-quick-action-card">
                                             <i class="bi bi-plus-circle"></i>
                                             <span>नई सूचना लिखें</span>
                                         </a>

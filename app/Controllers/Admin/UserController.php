@@ -81,7 +81,7 @@ class UserController
 
         if (!$user) {
             Flash::set('error', 'User not found.');
-            Response::redirect('/admin/students');
+            Response::redirectAdmin('students');
         }
 
         // Toggles status: 0 (Normal/Active) <-> 2 (Suspended)
@@ -101,12 +101,12 @@ class UserController
         } catch (\Throwable $e) {
             $db->rollBack();
             Flash::set('error', 'स्थिति अपडेट करने में त्रुटि: ' . $e->getMessage());
-            Response::redirect('/admin/students');
+            Response::redirectAdmin('students');
         }
 
         $statusText = ($newStatus === 0) ? 'सक्रिय' : 'निलंबित';
         Flash::set('success', "छात्र का खाता अब {$statusText} है।");
-        Response::redirect('/admin/students');
+        Response::redirectAdmin('students');
     }
 
     /**
@@ -128,7 +128,7 @@ class UserController
 
         if (!$user) {
             Flash::set('error', 'Student not found.');
-            Response::redirect('/admin/students');
+            Response::redirectAdmin('students');
         }
 
         // Delete from users table (cascades to students and applications)
@@ -136,7 +136,7 @@ class UserController
         $stmt->execute([$id]);
 
         Flash::set('success', 'छात्र का रिकॉर्ड सफलतापूर्वक हटा दिया गया है।');
-        Response::redirect('/admin/students');
+        Response::redirectAdmin('students');
     }
 
     /**
@@ -203,7 +203,7 @@ class UserController
 
         if ($v->fails()) {
             Flash::set('error', $v->first('username') ?? $v->first('email') ?? $v->first('password'));
-            Response::redirect('/admin/reps');
+            Response::redirectAdmin('reps');
         }
 
         try {
@@ -225,7 +225,7 @@ class UserController
             Flash::set('error', 'पंजीकरण में त्रुटि: ' . $e->getMessage());
         }
 
-        Response::redirect('/admin/reps');
+        Response::redirectAdmin('reps');
     }
 
     /**
@@ -246,7 +246,7 @@ class UserController
 
         if (!$user) {
             Flash::set('error', 'Representative not found.');
-            Response::redirect('/admin/reps');
+            Response::redirectAdmin('reps');
         }
 
         $newStatus = ((int) $user['status'] === 0) ? 2 : 0;
@@ -256,7 +256,7 @@ class UserController
 
         $statusText = ($newStatus === 0) ? 'सक्रिय' : 'निलंबित';
         Flash::set('success', "प्रतिनिधि का खाता अब {$statusText} है।");
-        Response::redirect('/admin/reps');
+        Response::redirectAdmin('reps');
     }
 
     /**
@@ -278,13 +278,13 @@ class UserController
 
         if (($rolesMask & Role::MODERATOR) === 0) {
             Flash::set('error', 'User is not a representative.');
-            Response::redirect('/admin/reps');
+            Response::redirectAdmin('reps');
         }
 
         $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
         $stmt->execute([$id]);
 
         Flash::set('success', 'प्रतिनिधि सफलतापूर्वक हटा दिया गया।');
-        Response::redirect('/admin/reps');
+        Response::redirectAdmin('reps');
     }
 }

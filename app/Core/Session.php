@@ -10,6 +10,10 @@ class Session
 
     /**
      * Start the session with secure configuration.
+     *
+     * Uses database session handler for cross-subdomain authentication
+     * when APP_URL contains a production domain. Falls back to file-based
+     * sessions for local development.
      */
     public static function start(): void
     {
@@ -17,27 +21,39 @@ class Session
             return;
         }
 
-        $config    = require CONFIG_PATH . '/app.php';
-        $session   = $config['session'];
-        $lifetime  = $session['lifetime'];
-        $secure    = $session['secure'];
-        $name      = $session['name'];
-
         if (session_status() === PHP_SESSION_ACTIVE) {
             self::$started = true;
-
             return;
+        }
+
+        $config   = require CONFIG_PATH . '/app.php';
+        $session  = $config['session'];
+        $lifetime = $session['lifetime'];
+        $secure   = $session['secure'];
+        $name     = $session['name'];
+
+        // Cross-subdomain cookie domain (shared auth across site/portal/admin)
+        $cookieDomain = defined('SESSION_DOMAIN') ? SESSION_DOMAIN : '';
+
+        if ($cookieDomain === '' && str_contains((string) ($_ENV['APP_URL'] ?? ''), 'tambolisamaj.online')) {
+            $cookieDomain = '.tambolisamaj.online';
         }
 
         session_name($name);
         session_set_cookie_params([
             'lifetime' => $lifetime,
             'path'     => '/',
-            'domain'   => '',
+            'domain'   => $cookieDomain,
             'secure'   => $secure,
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
+
+        // Use database session handler for production (cross-subdomain)
+        if ($cookieDomain !== '') {
+            $handler = new SessionHandler();
+            session_set_save_handler($handler, true);
+        }
 
         session_start();
         self::$started = true;

@@ -24,11 +24,9 @@ if ($isEdit && !empty($application['documents'])) {
     }
 }
 
-ob_start();
 ?>
-            
-            <!-- Back button & session indicator -->
-            <div class="mb-4 d-flex justify-content-between align-items-center">
+<!-- Back button & session indicator -->
+<div class="mb-4 d-flex justify-content-between align-items-center no-print back-link">
                 <a href="/dashboard/applications/create" class="text-decoration-none small text-muted d-inline-flex align-items-center gap-1">
                     <i class="bi bi-arrow-left"></i>
                     <span>वापस जाएं / Back</span>
@@ -42,8 +40,8 @@ ob_start();
                 <p class="text-muted small mb-0">कृपया नीचे दिए गए चरणों का पालन करते हुए ऑनलाइन फॉर्म सावधानीपूर्वक भरें।</p>
             </div>
 
-            <!-- Form Stepper Header -->
-            <div class="tsp-stepper" id="formStepper">
+<!-- Form Stepper Header -->
+<div class="tsp-stepper stepper no-print" id="formStepper">
                 <div class="tsp-step-item <?= $step === 1 ? 'active' : ($step > 1 ? 'completed' : '') ?>" data-step="1">
                     <div class="tsp-step-circle">1</div>
                     <div class="tsp-step-label">व्यक्तिगत विवरण<br><small class="text-muted d-none d-md-inline">Profile</small></div>
@@ -137,6 +135,26 @@ ob_start();
                                     <label class="form-label small fw-semibold text-muted">पिनकोड (PIN Code) <span class="text-danger">*</span></label>
                                     <input type="text" name="pincode" id="field_pincode" class="form-control border-2 py-2" required pattern="\d{6}" inputmode="numeric" maxlength="6"
                                            value="<?= Helpers::esc($old['pincode'] ?? ($isEdit ? $application['pincode'] : $student['pincode']) ?? '') ?>">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label small fw-semibold text-muted">परिवार का व्यवसाय/आजीविका का साधन (Family Occupation) <span class="text-danger">*</span></label>
+                                    <input type="text" name="family_occupation" id="field_family_occupation" class="form-control border-2 py-2" required
+                                           value="<?= Helpers::esc($old['family_occupation'] ?? ($isEdit ? $application['family_occupation'] : $student['family_occupation']) ?? '') ?>">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label small fw-semibold text-muted">भविष्य में आप क्या बनना चाहते हैं (Career Goal) <span class="text-danger">*</span></label>
+                                    <input type="text" name="career_goal" id="field_career_goal" class="form-control border-2 py-2" required
+                                           value="<?= Helpers::esc($old['career_goal'] ?? ($isEdit ? $application['career_goal'] : $student['career_goal']) ?? '') ?>">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label small fw-semibold text-muted">परिवार में कुल सदस्य (Total Family Members) <span class="text-danger">*</span></label>
+                                    <input type="number" name="family_members_count" id="field_family_members_count" class="form-control border-2 py-2" min="1" max="30" required
+                                           value="<?= Helpers::esc($old['family_members_count'] ?? ($isEdit ? $application['family_members_count'] : $student['family_members_count']) ?? '') ?>">
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label small fw-semibold text-muted">परिवार में कमाने वाले सदस्यों की संख्या (Earning Members) <span class="text-danger">*</span></label>
+                                    <input type="number" name="earning_members_count" id="field_earning_members_count" class="form-control border-2 py-2" min="0" max="30" required
+                                           value="<?= Helpers::esc($old['earning_members_count'] ?? ($isEdit ? $application['earning_members_count'] : $student['earning_members_count']) ?? '') ?>">
                                 </div>
                             </div>
                         </div>
@@ -319,8 +337,6 @@ ob_start();
                                     <div class="p-3 border rounded shadow-sm doc-card" id="card_signature" data-type="Signature" data-field="signature" data-uploaded="<?= $signatureDoc ? 'true' : '' ?>">
                                         <label class="form-label small fw-semibold text-muted d-block mb-2">विद्यार्थी के हस्ताक्षर (Student Signature) <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                    <label class="form-label small fw-semibold text-muted">विद्यार्थी के हस्ताक्षर (Student Signature) <span class="text-danger">*</span></label>
-                                    <div class="input-group">
                                             <input type="file" id="file_signature" class="form-control file-input-field" accept=".jpg,.jpeg,.png">
                                             <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1 btn-upload-doc d-none" onclick="uploadDocAjax('Signature', 'file_signature');">
                                                 <i class="bi bi-cloud-arrow-up-fill"></i> अपलोड / Upload
@@ -427,6 +443,26 @@ ob_start();
                                         <span class="print-field-value" id="preview_email"></span>
                                     </div>
 
+                                    <div class="print-field-row mb-3">
+                                        <span class="print-field-label">परिवार का व्यवसाय/आजीविका का साधन (Family Occupation):</span>
+                                        <span class="print-field-value" id="preview_family_occupation"></span>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-sm-6">
+                                            <div class="print-field-row">
+                                                <span class="print-field-label">परिवार में कुल सदस्य (Total Family Members):</span>
+                                                <span class="print-field-value" id="preview_family_members_count"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="print-field-row">
+                                                <span class="print-field-label">परिवार में कमाने वाले सदस्यों की संख्या (Earning Members):</span>
+                                                <span class="print-field-value" id="preview_earning_members_count"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Section 2 Header with Edit Link -->
                                     <div class="d-flex justify-content-between align-items-center bg-light p-2 mb-3 border mt-4 no-print">
                                         <span class="mb-0 text-dark fw-bold" style="font-size: 14px;"><i class="bi bi-book-half text-muted me-1"></i> 2. शैक्षणिक एवं उपलब्धि विवरण / Academic & Achievement Details</span>
@@ -461,6 +497,11 @@ ob_start();
                                     <div class="print-field-row mb-3">
                                         <span class="print-field-label">बोर्ड / विश्वविद्यालय (Board/University):</span>
                                         <span class="print-field-value" id="preview_board"></span>
+                                    </div>
+
+                                    <div class="print-field-row mb-3">
+                                        <span class="print-field-label">भविष्य में आप क्या बनना चाहते हैं (Career Goal):</span>
+                                        <span class="print-field-value" id="preview_career_goal"></span>
                                     </div>
 
                                     <div class="print-section-heading mt-4">उपलब्धि विवरण (Achievement Details)</div>
@@ -532,7 +573,7 @@ ob_start();
 
                         <?php if ($step === 4): ?>
                         <!-- Declaration Checkbox -->
-                        <div class="form-check mt-4 p-3 border rounded bg-light" id="declarationBox">
+                        <div class="form-check mt-4 p-3 border rounded bg-light no-print" id="declarationBox">
                             <input class="form-check-input" type="checkbox" name="self_declared" id="declarationCheckbox" value="1" onchange="toggleSubmitBtn();">
                             <label class="form-check-label fw-semibold small text-danger" for="declarationCheckbox">
                                 मैं घोषणा करता/करती हूं कि दी गई सभी जानकारी सही है। / I hereby declare that all information provided is true and correct to the best of my knowledge. I understand that any false information may result in rejection. <span class="text-danger">*</span>
@@ -541,9 +582,12 @@ ob_start();
                         <?php endif; ?>
 
                         <!-- Stepper Actions Navigation Footer -->
-                        <div class="d-flex gap-2 justify-content-between mt-5 pt-3 border-top" id="wizardActions">
+                        <div class="d-flex gap-2 justify-content-between mt-5 pt-3 border-top sticky-bar form-actions" id="wizardActions">
                             <input type="hidden" name="action" id="wizardAction" value="next">
                             <input type="hidden" name="application_id" value="<?= (int) ($application['id'] ?? 0) ?>">
+                            <?php if ($step === 4): $submitToken = bin2hex(random_bytes(16)); \App\Core\Session::set('submit_token', $submitToken); ?>
+                            <input type="hidden" name="submit_token" value="<?= $submitToken ?>">
+                            <?php endif; ?>
                             
                             <?php if ($step > 1): ?>
                                 <a href="?step=<?= $step - 1 ?>" class="btn btn-light rounded-pill px-4 py-2 fw-semibold" id="btnPrev">
@@ -573,6 +617,28 @@ ob_start();
                     </form>
                 </div>
             </div>
+
+<!-- Final Submit Confirmation Modal -->
+<div class="modal fade no-print" id="finalSubmitModal" tabindex="-1" aria-labelledby="finalSubmitModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="finalSubmitModalLabel">अंतिम सबमिशन की पुष्टि / Confirm Final Submit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">क्या आप सुनिश्चित हैं? सबमिशन के बाद आप इस आवेदन को संपादित नहीं कर सकते।</p>
+                <p class="text-muted small mb-0">Are you sure? You will not be able to edit this application after submission.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">रद्द करें / Cancel</button>
+                <button type="button" class="btn btn-success rounded-pill px-4" id="confirmSubmitBtn">
+                    <i class="bi bi-check-circle-fill me-1"></i> हाँ, सबमिट करें / Yes, Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Stepper Navigation & Preview Script -->
 <script>
@@ -792,6 +858,11 @@ function compileFormPreview() {
     const district = document.getElementById('field_district').value.trim();
     const pincode = document.getElementById('field_pincode').value.trim();
     
+    const familyOccupation = document.getElementById('field_family_occupation').value.trim();
+    const careerGoal = document.getElementById('field_career_goal').value.trim();
+    const familyMembersCount = document.getElementById('field_family_members_count').value.trim();
+    const earningMembersCount = document.getElementById('field_earning_members_count').value.trim();
+    
     const classYear = document.getElementById('field_class_year').value;
     const percentage = document.getElementById('field_percentage').value.trim();
     const marksObtained = document.getElementById('field_marks_obtained').value.trim();
@@ -822,6 +893,10 @@ function compileFormPreview() {
     document.getElementById('preview_mobile').textContent = mobile;
     document.getElementById('preview_email').textContent = email;
     document.getElementById('preview_address').textContent = `${address}, ${city}, ${district} - ${pincode}`;
+    document.getElementById('preview_family_occupation').textContent = familyOccupation;
+    document.getElementById('preview_career_goal').textContent = careerGoal;
+    document.getElementById('preview_family_members_count').textContent = familyMembersCount;
+    document.getElementById('preview_earning_members_count').textContent = earningMembersCount;
     
     document.getElementById('preview_class_year').textContent = classYear;
     document.getElementById('preview_percentage').textContent = `${percentage}%`;
@@ -931,14 +1006,36 @@ function confirmFinalSubmit() {
         alert('कृपया स्व-घोषणा बॉक्स को चेक करें / Please check the self-declaration box.');
         return;
     }
-    if (confirm('क्या आप सुनिश्चित हैं? सबमिशन के बाद आप संपादन नहीं कर सकते। / Are you sure? You cannot edit after submission.')) {
-        var btn = document.getElementById('btnSubmit');
-        if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> सबमिट... / Submitting...'; }
-        document.getElementById('wizardAction').value = 'final_submit';
-        const form = document.getElementById('pratibhaWizardForm');
+    const modalEl = document.getElementById('finalSubmitModal');
+    if (modalEl && typeof bootstrap !== 'undefined') {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+}
+
+function executeFinalSubmit() {
+    var btn = document.getElementById('btnSubmit');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> सबमिट... / Submitting...'; }
+    document.getElementById('wizardAction').value = 'final_submit';
+    const form = document.getElementById('pratibhaWizardForm');
+    if (form) {
+        form.removeEventListener('submit', function(){});
         form.submit();
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmBtn = document.getElementById('confirmSubmitBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+            const modalEl = document.getElementById('finalSubmitModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                bootstrap.Modal.getInstance(modalEl)?.hide();
+            }
+            executeFinalSubmit();
+        });
+    }
+});
 
 // ─── Disable Required Fields for Inactive Steps & Initialize ───
 document.addEventListener('DOMContentLoaded', function() {
@@ -1041,8 +1138,3 @@ document.addEventListener('DOMContentLoaded', function() {
     restoreFormDraft();
 })();
 </script>
-
-<?php
-$content = ob_get_clean();
-require VIEW_PATH . '/layouts/FormLayout.php';
-?>
