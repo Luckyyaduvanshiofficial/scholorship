@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /representative/
+Disallow: /storage/
+Disallow: /uploads/
+Allow: /$
+Allow: /home
+Allow: /assets/

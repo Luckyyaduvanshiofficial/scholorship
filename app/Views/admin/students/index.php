@@ -115,7 +115,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                 <td class="py-3 text-end" data-label="कार्रवाई">
                                                     <div class="d-inline-flex gap-2">
                                                         <!-- Toggle Status Button -->
-                                                        <form action="/admin/students/<?= $student['id'] ?>/toggle-status" method="post" class="m-0">
+                                                        <form action="<?= admin_path('students/' . $student['id'] . '/toggle-status') ?>" method="post" class="m-0">
                                                             <?= Csrf::field() ?>
                                                             <?php if ($isSuspended): ?>
                                                                 <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-3 py-1" style="font-size: 1.15rem;">
@@ -129,7 +129,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                         </form>
 
                                                         <!-- Delete Button -->
-                                                        <form action="/admin/students/<?= $student['id'] ?>/delete" method="post" class="m-0" 
+                                                        <form action="<?= admin_path('students/' . $student['id'] . '/delete') ?>" method="post" class="m-0" 
                                                               onsubmit="return confirm('क्या आप वाकई इस छात्र को हटाना चाहते हैं? छात्र से जुड़े सभी आवेदन और दस्तावेज भी हमेशा के लिए हट जाएंगे।');">
                                                             <?= Csrf::field() ?>
                                                             <button type="submit" class="btn btn-sm btn-danger fw-bold px-3 py-1 text-white" style="font-size: 1.15rem;">

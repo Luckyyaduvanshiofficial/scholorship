@@ -92,7 +92,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                         </form>
 
                                                         <!-- Delete Button -->
-                                                        <form action="/admin/reps/<?= $rep['id'] ?>/delete" method="post" class="m-0" 
+                                                        <form action="<?= admin_path('reps/' . $rep['id'] . '/delete') ?>" method="post" class="m-0" 
                                                               onsubmit="return confirm('क्या आप वाकई इस प्रतिनिधि को हटाना चाहते हैं? यह कार्रवाई अपरिवर्तनीय है।');">
                                                             <?= Csrf::field() ?>
                                                             <button type="submit" class="btn btn-sm btn-danger fw-bold px-3 py-1 text-white" style="font-size: 1.15rem;">
@@ -128,7 +128,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <h5 class="modal-title fw-bold text-dark h4" id="addRepModalLabel">नया प्रतिनिधि जोड़ें</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="<?= admin_path('reps/create')) ?>" method="post">
+                <form action="<?= admin_path('reps/create') ?>" method="post">
                     <?= Csrf::field() ?>
                     <div class="modal-body py-4">
                         <div class="mb-3">

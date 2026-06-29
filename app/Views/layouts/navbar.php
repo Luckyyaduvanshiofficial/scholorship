@@ -13,7 +13,7 @@ $uri = $_SERVER['REQUEST_URI'] ?? '/';
     <div class="container position-relative">
         <!-- Centered logo + titles -->
         <div class="text-center">
-            <img src="/assets/images/logo/logo-placeholder.svg"
+            <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>"
                  alt="Tamboli Samaj Logo"
                  class="tsp-top-header-logo">
             <div class="tsp-top-header-title-hi">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</div>

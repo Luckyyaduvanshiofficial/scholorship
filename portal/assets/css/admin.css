@@ -1,0 +1,28 @@
+/* Tamboli Samaj Portal — Admin Styles */
+/* Admin-specific overrides */
+
+/* Dashboard KPI Cards */
+.card-kpi {
+    border-left: 4px solid var(--tsp-green);
+}
+
+.card-kpi .card-kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Table in admin */
+.admin-table th {
+    background: #f8f9fa;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Filter bar */
+.filter-bar {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}

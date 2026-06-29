@@ -78,12 +78,12 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                 <td class="py-3 text-end" data-label="कार्रवाई">
                                                     <div class="d-inline-flex gap-2">
                                                         <!-- Edit Button -->
-                                                        <a href="<?= admin_path('announcements/<') ?>?= $ann['id'] ?>/edit" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" style="font-size: 1.15rem;">
+                                                        <a href="<?= admin_path('announcements/' . $ann['id'] . '/edit') ?>" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" style="font-size: 1.15rem;">
                                                             <i class="bi bi-pencil"></i> एडिट
                                                         </a>
 
                                                         <!-- Delete Button -->
-                                                        <form action="/admin/announcements/<?= $ann['id'] ?>/delete" method="post" class="m-0" 
+                                                        <form action="<?= admin_path('announcements/' . $ann['id'] . '/delete') ?>" method="post" class="m-0" 
                                                               onsubmit="return confirm('क्या आप वाकई इस सूचना को हटाना चाहते हैं?');">
                                                             <?= Csrf::field() ?>
                                                             <button type="submit" class="btn btn-sm btn-danger fw-bold px-3 py-1 text-white" style="font-size: 1.15rem;">

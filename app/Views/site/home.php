@@ -7,6 +7,7 @@
 declare(strict_types=1);
 
 use App\Core\Helpers;
+use App\Core\Url;
 ?>
 
 <!-- Hero Section -->
@@ -16,7 +17,7 @@ use App\Core\Helpers;
         <p class="mb-0">Tamboli Samaj — Community, Education & Culture</p>
         <?php if (!$isLoggedIn): ?>
             <div class="mt-3">
-                <a href="/register" class="btn btn-light btn-lg me-2">Join Our Community</a>
+                <a href="<?= Url::portal('/register') ?>" class="btn btn-light btn-lg me-2">Join Our Community</a>
                 <a href="/events" class="btn btn-outline-light btn-lg">View Events</a>
             </div>
         <?php endif; ?>
@@ -131,7 +132,7 @@ use App\Core\Helpers;
                 </a>
             </div>
             <div class="col-md-3 col-6">
-                <a href="/dashboard" class="text-decoration-none">
+                <a href="<?= Url::portal('/dashboard') ?>" class="text-decoration-none">
                     <div class="p-4 bg-white rounded-3 shadow-sm">
                         <i class="bi bi-person-badge text-success" style="font-size:2.5rem;"></i>
                         <h6 class="mt-2 text-dark">Portal</h6>

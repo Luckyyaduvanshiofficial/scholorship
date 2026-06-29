@@ -14,16 +14,7 @@ $errorMessage = $errorMessage ?? 'The page you are looking for does not exist.';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <title><?= $errorCode ?> - पृष्ठ नहीं मिला / Page Not Found</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <!-- Bootstrap CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Self-hosted Google Fonts -->
-    <link href="/assets/fonts/fonts.css" rel="stylesheet">
-    <!-- Portal Design System Custom CSS -->
-    <link href="/assets/css/style.css?v=2.1.0" rel="stylesheet">
+<?php require __DIR__ . '/_head.php'; ?>
 </head>
 <body class="bg-light">
 
@@ -33,7 +24,7 @@ $errorMessage = $errorMessage ?? 'The page you are looking for does not exist.';
             <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
                 <div class="text-center mb-4">
                     <div class="tsp-auth-logo-wrapper mb-3">
-                        <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
+                        <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="logo">
                     </div>
                     <h1 class="h3 fw-bold mb-1" style="color:var(--accent);">तम्बोली समाज विकास संस्था</h1>
                     <p class="small text-muted mb-0">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</p>
@@ -50,7 +41,7 @@ $errorMessage = $errorMessage ?? 'The page you are looking for does not exist.';
                         <p class="text-muted mb-4" style="font-size: 1.4rem; line-height: 1.6;">क्षमा करें, जिस पृष्ठ की आप तलाश कर रहे हैं वह उपलब्ध नहीं है या उसे हटा दिया गया है।</p>
                         <p class="text-muted mb-4 small" style="font-size: 1.2rem; font-style: italic;"><?= \App\Core\Helpers::esc($errorMessage) ?></p>
 
-                        <a href="/" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center text-white" style="background:var(--nav-red); border-color:var(--nav-red); display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.6rem; border-radius: 5rem; font-size: 1.4rem; font-weight: 600;">
+                        <a href="<?= \App\Core\Url::home() ?>" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center text-white" style="background:var(--nav-red); border-color:var(--nav-red); display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.6rem; border-radius: 5rem; font-size: 1.4rem; font-weight: 600;">
                             <i class="bi bi-house-door-fill"></i>
                             <span>मुख्य पृष्ठ पर जाएं / Back to Home</span>
                         </a>

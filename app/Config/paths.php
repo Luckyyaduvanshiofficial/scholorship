@@ -13,15 +13,13 @@ define('UPLOAD_PATH', APP_ROOT . '/uploads');
 define('STORAGE_PATH', APP_ROOT . '/storage');
 define('LOG_PATH', STORAGE_PATH . '/logs');
 
-// Document root per host (local dev uses public/ for portal)
+// Document root per host (main / portal / admin at project root)
 $publicPath = match (APP_HOST) {
-    'site'   => APP_ROOT . '/public_html/main',
-    'admin'  => APP_ROOT . '/public_html/admin',
-    'portal' => is_dir(APP_ROOT . '/public_html/portal') && is_file(APP_ROOT . '/public_html/portal/index.php')
-        ? APP_ROOT . '/public_html/portal'
-        : APP_ROOT . '/public',
-    default  => APP_ROOT . '/public',
+    'site'   => APP_ROOT . '/main',
+    'admin'  => APP_ROOT . '/admin',
+    'portal' => APP_ROOT . '/portal',
+    default  => APP_ROOT . '/portal',
 };
 
 define('PUBLIC_PATH', $publicPath);
-define('ASSET_PATH', APP_ROOT . '/public/assets');
+define('ASSET_PATH', APP_ROOT . '/portal/assets');

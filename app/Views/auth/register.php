@@ -17,7 +17,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
             <div class="col-11 col-sm-9 col-md-8 col-lg-7 col-xl-6">
                 <div class="text-center mb-4">
                     <div class="tsp-auth-logo-wrapper mb-3">
-                        <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
+                        <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="logo">
                     </div>
                     <h1 class="h3 fw-bold mb-1" style="color:var(--nav-red);">छात्र पंजीकरण / Student Registration</h1>
                     <p class="small text-muted mb-0">पोर्टल पर अपना खाता बनाएं / Create account to apply</p>

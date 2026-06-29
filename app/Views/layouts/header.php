@@ -18,9 +18,9 @@
     <title><?= \App\Core\Helpers::esc($title ?? 'Tamboli Samaj Portal') ?></title>
 
     <!-- Favicon / PWA -->
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="apple-touch-icon" href="/assets/images/icons/icon-192x192.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="<?= \App\Core\Url::portal('/favicon.png') ?>">
+    <link rel="apple-touch-icon" href="<?= \App\Core\Url::asset('images/icons/icon-192x192.png') ?>">
+    <link rel="manifest" href="<?= \App\Core\Url::portal('/manifest.json') ?>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Tamboli Portal">
@@ -33,14 +33,14 @@
     <meta property="og:url" content="<?= APP_URL . $requestUri ?>">
     <meta property="og:title" content="<?= \App\Core\Helpers::esc($title ?? 'Tamboli Samaj Portal') ?>">
     <meta property="og:description" content="तम्बोली समाज विकास संस्था — प्रतिभा सम्मान एवं छात्रवृत्ति आवेदन पोर्टल">
-    <meta property="og:image" content="<?= APP_URL ?>/assets/images/share_banner.png">
+    <meta property="og:image" content="<?= \App\Core\Url::asset('images/share_banner.png') ?>">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="<?= APP_URL . $requestUri ?>">
     <meta name="twitter:title" content="<?= \App\Core\Helpers::esc($title ?? 'Tamboli Samaj Portal') ?>">
     <meta name="twitter:description" content="तम्बोली समाज विकास संस्था — प्रतिभा सम्मान एवं छात्रवृत्ति आवेदन पोर्टल">
-    <meta name="twitter:image" content="<?= APP_URL ?>/assets/images/share_banner.png">
+    <meta name="twitter:image" content="<?= \App\Core\Url::asset('images/share_banner.png') ?>">
 
     <!-- Preconnect to CDNs -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -65,7 +65,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
+                navigator.serviceWorker.register('<?= \App\Core\Url::portal('/sw.js') ?>').catch(() => {});
             });
         }
     </script>

@@ -432,9 +432,17 @@ class AuthController
                 Response::redirect(Url::adminSite());
             }
         } elseif (Auth::isRepresentative()) {
-            Response::redirect('/representative');
+            if (APP_HOST === 'portal' || APP_HOST === 'site') {
+                Response::redirect('/representative');
+            } else {
+                Response::redirect(Url::portal('/representative'));
+            }
         } else {
-            Response::redirect('/dashboard');
+            if (APP_HOST === 'portal' || APP_HOST === 'site') {
+                Response::redirect('/dashboard');
+            } else {
+                Response::redirect(Url::portal('/dashboard'));
+            }
         }
     }
 }

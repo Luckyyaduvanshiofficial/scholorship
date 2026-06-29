@@ -16,7 +16,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
             <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
                 <div class="text-center mb-4">
                     <div class="tsp-auth-logo-wrapper mb-3">
-                        <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
+                        <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="logo">
                     </div>
                     <h1 class="h3 fw-bold mb-1" style="color:var(--nav-red);">तम्बोली समाज विकास संस्था</h1>
                     <p class="small text-muted mb-0">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</p>

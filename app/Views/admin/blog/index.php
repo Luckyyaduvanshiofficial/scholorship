@@ -58,10 +58,10 @@ use App\Core\Helpers;
                                     <?= $post['published_at'] ? date('d M Y', strtotime($post['published_at'])) : '—' ?>
                                 </td>
                                 <td>
-                                    <a href="<?= admin_path('blog/' . $post['id'] ?>/edit" class="btn btn-sm btn-outline-primary me-1">
+                                    <a href="<?= admin_path('blog/' . $post['id'] . '/edit') ?>" class="btn btn-sm btn-outline-primary me-1">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form method="POST" action="<?= admin_path('blog/' . $post['id'] ?>/delete" class="d-inline" onsubmit="return confirm('Delete this post?');">
+                                    <form method="POST" action="<?= admin_path('blog/' . $post['id'] . '/delete') ?>" class="d-inline" onsubmit="return confirm('Delete this post?');">
                                         <?= Csrf::field() ?>
                                         <button type="submit" class="btn btn-sm btn-outline-danger">
                                             <i class="bi bi-trash"></i>
@@ -80,7 +80,7 @@ use App\Core\Helpers;
             <nav class="mt-3">
                 <ul class="pagination justify-content-center">
                     <?php for ($i = 1; $i <= $pagination['last_page']; $i++): ?>
-                        <li class="page-item <?= $i === $pagination['current_page'] ? 'active' : '')) ?>">
+                        <li class="page-item <?= $i === $pagination['current_page'] ? 'active' : '' ?>">
                             <a class="page-link" href="<?= admin_path('blog?page=' . $i) ?>"><?= $i ?></a>
                         </li>
                     <?php endfor; ?>

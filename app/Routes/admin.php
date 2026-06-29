@@ -9,6 +9,9 @@ declare(strict_types=1);
  * @var \App\Core\Router $router
  */
 
+// ─── Secure uploads (application documents) ───────────────
+$router->get('/uploads/applications/{id}/{file}', 'UploadController@applicationDocument');
+
 // ─── Admin Dashboard ──────────────────────────────────────
 $router->get('/', 'Admin\DashboardController@index');
 

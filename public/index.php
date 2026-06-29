@@ -13,7 +13,7 @@ declare(strict_types=1);
 define('ROOT_PATH', dirname(__DIR__));
 
 // ─── Host Identifier ──────────────────────────────────────
-// Local dev entry — portal host (production uses public_html/portal/index.php)
+// Legacy entry — use portal/ document root (see Laragon vhost or composer start)
 if (!defined('APP_HOST')) {
     define('APP_HOST', 'portal');
 }

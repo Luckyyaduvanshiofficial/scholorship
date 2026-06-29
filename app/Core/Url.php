@@ -87,7 +87,15 @@ class Url
         $path = ltrim($path, '/');
 
         if (APP_HOST === 'portal') {
-            return '/' . ($path !== '' ? $path : 'assets');
+            if ($path === '') {
+                return '/assets';
+            }
+
+            if (str_starts_with($path, 'assets/')) {
+                return '/' . $path;
+            }
+
+            return '/assets/' . $path;
         }
 
         $base = rtrim(PORTAL_URL, '/');
@@ -101,6 +109,33 @@ class Url
         }
 
         return $base . '/assets/' . $path;
+    }
+
+    /**
+     * URL for user-uploaded files (profiles in portal docroot, application docs via route).
+     */
+    public static function upload(string $path = ''): string
+    {
+        $path = ltrim($path, '/');
+
+        if (APP_HOST === 'portal' || APP_HOST === 'site') {
+            return '/' . ($path !== '' ? $path : 'uploads');
+        }
+
+        return self::join(PORTAL_URL, $path === '' ? 'uploads' : $path);
+    }
+
+    /**
+     * Home URL for the current host (used by error pages).
+     */
+    public static function home(): string
+    {
+        return match (APP_HOST) {
+            'site'   => SITE_URL,
+            'admin'  => ADMIN_URL,
+            'portal' => PORTAL_URL,
+            default  => APP_URL,
+        };
     }
 
     private static function join(string $base, string $path): string

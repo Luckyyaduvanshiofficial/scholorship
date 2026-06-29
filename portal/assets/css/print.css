@@ -1,0 +1,91 @@
+@media print {
+    .no-print, .btn, .stepper, .tsp-stepper, .modal, .navbar, .sidebar,
+    .form-actions, .sticky-bar, #wizardActions, footer, .back-link,
+    .tsp-form-back-link, header nav, .alert, .breadcrumb {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+        font-size: 12pt !important;
+        color: black !important;
+        line-height: 1.5 !important;
+    }
+
+    .form-card, .card, .tsp-form-page-container {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        break-inside: avoid;
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        background: white !important;
+    }
+
+    input, select, textarea, .form-control, .form-select {
+        border: 1px solid #000 !important;
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+
+    a {
+        text-decoration: none !important;
+        color: black !important;
+    }
+
+    .container, .container-fluid, .content-wrapper, main, .main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    h1, h2, h3, h4, h5 {
+        page-break-after: avoid;
+        color: black !important;
+    }
+
+    table, .table {
+        page-break-inside: avoid;
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+
+    .table th, .table td {
+        border: 1px solid #dee2e6 !important;
+        padding: 8px !important;
+        font-size: 10pt !important;
+    }
+
+    .table th {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+
+    .timeline, .step-tracker {
+        display: none !important;
+    }
+
+    .tsp-form-step {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        margin-bottom: 2rem !important;
+        page-break-inside: avoid;
+    }
+
+    a[href]::after {
+        content: "" !important;
+    }
+
+    .page-break {
+        page-break-before: always;
+    }
+
+    @page {
+        size: A4;
+        margin: 1.5cm;
+    }
+}

@@ -1,0 +1,42 @@
+Tamboli Samaj — Multi-Site Hostinger Deployment
+==============================================
+
+Upload this entire project into Hostinger public_html:
+
+  public_html/                    ← project root on server
+  ├── app/                        ← shared PHP application
+  ├── vendor/
+  ├── database/
+  ├── storage/                    ← writable (755/775)
+  ├── uploads/                    ← writable (755/775)
+  ├── .env                        ← single config (see .env.example)
+  ├── bootstrap.php
+  ├── main/                       ← tambolisamaj.online document root
+  │   ├── index.php
+  │   └── .htaccess
+  ├── portal/                     ← portal.tambolisamaj.online document root
+  │   ├── index.php
+  │   ├── .htaccess
+  │   └── assets/, uploads/, favicon, manifest, sw.js
+  └── admin/                      ← admin.tambolisamaj.online document root
+      ├── index.php
+      └── .htaccess
+
+Hostinger subdomain document roots:
+  tambolisamaj.online        → public_html/main
+  portal.tambolisamaj.online → public_html/portal
+  admin.tambolisamaj.online  → public_html/admin
+
+Production .env:
+  SESSION_DOMAIN=.tambolisamaj.online
+  SESSION_SECURE=true
+  SITE_URL=https://tambolisamaj.online
+  PORTAL_URL=https://portal.tambolisamaj.online
+  ADMIN_URL=https://admin.tambolisamaj.online
+
+Shared auth: one database, one SESSION_NAME, cookie domain .tambolisamaj.online
+
+Local Laragon (already configured):
+  http://tamoli-main.test          → main/
+  http://tamoli-prathibha-samman.test → portal/
+  http://tamoli-admin.test         → admin/

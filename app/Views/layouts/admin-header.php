@@ -9,7 +9,9 @@
  *
  * Requires Bootstrap 5 JS (loaded in footer or inline) for dropdown.
  */
+use App\Core\Auth;
 use App\Core\Csrf;
+use App\Core\Url;
 
 $dashRole   = $dashRole   ?? 'admin';
 $adminName  = $adminName  ?? (\App\Core\Auth::userName() ?: 'Admin');
@@ -28,7 +30,7 @@ $adminEmail = $adminEmail ?? '';
 
     <!-- Center: Logo + bilingual title -->
     <div class="tsp-adm-header-center">
-        <img src="/assets/images/logo/logo-placeholder.svg"
+        <img src="<?= Url::asset('images/logo/logo-placeholder.svg') ?>"
              alt="Tamboli Samaj Logo"
              class="tsp-top-header-logo"
              style="width: 48px; height: 48px; margin-bottom: 2px; padding: 2px;">
@@ -47,9 +49,12 @@ $adminEmail = $adminEmail ?? '';
                  aria-label="User profile menu">
                 <div class="tsp-adm-avatar" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
                     <?php 
-                    $headerPhoto = \App\Core\Auth::profilePhoto();
+                    $headerPhoto = Auth::profilePhoto();
+                    if ($headerPhoto && !str_starts_with($headerPhoto, 'http') && APP_HOST !== 'portal' && APP_HOST !== 'site') {
+                        $headerPhoto = Url::upload(ltrim($headerPhoto, '/'));
+                    }
                     if ($headerPhoto): ?>
-                        <img src="<?= $headerPhoto ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="<?= htmlspecialchars($headerPhoto) ?>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
                     <?php else: ?>
                         <i class="bi bi-person-fill"></i>
                     <?php endif; ?>
@@ -65,7 +70,7 @@ $adminEmail = $adminEmail ?? '';
 
             <ul class="dropdown-menu dropdown-menu-end tsp-adm-dropdown shadow border-0">
                 <li>
-                    <a class="dropdown-item tsp-adm-dropdown-item" href="/dashboard/profile">
+                    <a class="dropdown-item tsp-adm-dropdown-item" href="<?= (APP_HOST === 'admin' && Auth::isAdmin()) ? admin_path('settings') : (APP_HOST === 'portal' || APP_HOST === 'site' ? '/dashboard/profile' : Url::portal('/dashboard/profile')) ?>">
                         <i class="bi bi-person"></i>
                         <span>प्रोफाइल (Profile)</span>
                     </a>

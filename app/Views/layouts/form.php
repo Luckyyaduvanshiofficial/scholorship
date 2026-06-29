@@ -11,12 +11,12 @@ declare(strict_types=1);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <title><?= \App\Core\Helpers::esc($title ?? 'Application Form — Tamboli Samaj Portal') ?></title>
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="<?= \App\Core\Url::portal('/favicon.png') ?>">
+    <link href="<?= \App\Core\Url::asset('css/bootstrap.min.css') ?>" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="/assets/fonts/fonts.css" rel="stylesheet">
-    <link href="/assets/css/style.css?v=2.1.0" rel="stylesheet">
-    <link href="/assets/css/print.css?v=1.1.0" rel="stylesheet" media="print">
+    <link href="<?= \App\Core\Url::asset('fonts/fonts.css') ?>" rel="stylesheet">
+    <link href="<?= \App\Core\Url::asset('css/style.css?v=2.1.0') ?>" rel="stylesheet">
+    <link href="<?= \App\Core\Url::asset('css/print.css?v=1.1.0') ?>" rel="stylesheet" media="print">
     <style>
         body {
             background-color: #f5f6f8;
@@ -135,7 +135,7 @@ declare(strict_types=1);
     <div class="tsp-form-page-container form-card">
         <header class="tsp-form-header-bar">
             <a href="/" class="tsp-form-brand">
-                <img src="/assets/images/logo/logo-placeholder.svg" alt="Logo" class="tsp-form-logo">
+                <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="Logo" class="tsp-form-logo">
                 <div class="tsp-form-brand-text">
                     <span class="tsp-form-brand-title">तम्बोली समाज विकास संस्था, राजस्थान</span>
                     <span class="tsp-form-brand-sub"><?= \App\Core\Helpers::esc($formSubtitle ?? 'प्रतिभा सम्मान एवं छात्रवृत्ति आवेदन पोर्टल') ?></span>
@@ -158,6 +158,6 @@ declare(strict_types=1);
     &copy; <?= date('Y') ?> तम्बोली समाज विकास संस्था, राजस्थान
 </footer>
 
-<script src="/assets/js/bootstrap.bundle.min.js" defer></script>
+<script src="<?= \App\Core\Url::asset('js/bootstrap.bundle.min.js') ?>" defer></script>
 </body>
 </html>

@@ -14,7 +14,7 @@ $dashHref = Auth::isAdmin()
             <!-- Brand Column -->
             <div class="tsp-footer-col tsp-footer-brand-col">
                 <div class="tsp-footer-brand">
-                    <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj Logo" class="tsp-footer-logo">
+                    <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="Tamboli Samaj Logo" class="tsp-footer-logo">
                     <div>
                         <div class="tsp-footer-brand-hi">तम्बोली समाज विकास संस्था</div>
                         <div class="tsp-footer-brand-en">Tamboli Samaj Vikas Sanstha, Rajasthan</div>

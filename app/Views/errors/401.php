@@ -14,16 +14,7 @@ $errorMessage = $errorMessage ?? 'You need to log in to access this page.';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <title><?= $errorCode ?> - लॉगिन आवश्यक / Authentication Required</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <!-- Bootstrap CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Self-hosted Google Fonts -->
-    <link href="/assets/fonts/fonts.css" rel="stylesheet">
-    <!-- Portal Design System Custom CSS -->
-    <link href="/assets/css/style.css?v=2.1.0" rel="stylesheet">
+<?php require __DIR__ . '/_head.php'; ?>
 </head>
 <body class="bg-light">
 
@@ -33,7 +24,7 @@ $errorMessage = $errorMessage ?? 'You need to log in to access this page.';
             <div class="col-11 col-sm-8 col-md-6 col-lg-5 col-xl-4">
                 <div class="text-center mb-4">
                     <div class="tsp-auth-logo-wrapper mb-3">
-                        <img src="/assets/images/logo/logo-placeholder.svg" alt="logo">
+                        <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="logo">
                     </div>
                     <h1 class="h3 fw-bold mb-1" style="color:var(--accent);">तम्बोली समाज विकास संस्था</h1>
                     <p class="small text-muted mb-0">प्रतिभा सम्मान एवं छात्रवृत्ति पोर्टल</p>
@@ -51,11 +42,11 @@ $errorMessage = $errorMessage ?? 'You need to log in to access this page.';
                         <p class="text-muted mb-4 small" style="font-size: 1.2rem; font-style: italic;"><?= \App\Core\Helpers::esc($errorMessage) ?></p>
                         
                         <div class="d-flex flex-column gap-2 mt-2">
-                            <a href="/login" class="btn tsp-btn w-100 justify-content-center text-white" style="background:var(--nav-red); border-color:var(--nav-red); display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.6rem; border-radius: 5rem; font-size: 1.4rem; font-weight: 600;">
+                            <a href="<?= APP_HOST === 'admin' ? admin_path('login') : '/login' ?>" class="btn tsp-btn w-100 justify-content-center text-white" style="background:var(--nav-red); border-color:var(--nav-red); display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.8rem 1.6rem; border-radius: 5rem; font-size: 1.4rem; font-weight: 600;">
                                 <i class="bi bi-box-arrow-in-right"></i>
                                 <span>लॉगिन करें / Log In</span>
                             </a>
-                            <a href="/" class="btn btn-outline-secondary w-100 justify-content-center" style="border-radius: 5rem; padding: 0.8rem 1.6rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.4rem; font-weight: 600;">
+                            <a href="<?= \App\Core\Url::home() ?>" class="btn btn-outline-secondary w-100 justify-content-center" style="border-radius: 5rem; padding: 0.8rem 1.6rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.4rem; font-weight: 600;">
                                 <i class="bi bi-house-door-fill"></i>
                                 <span>मुख्य पृष्ठ / Home</span>
                             </a>
