@@ -1,5 +1,6 @@
 /vendor/
 .env
+/terminals/
 *.log
 .DS_Store
 /storage/logs/*
