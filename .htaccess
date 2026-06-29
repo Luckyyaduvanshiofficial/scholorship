@@ -1,0 +1,20 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct web access to application internals
+    RewriteRule ^(app|vendor|storage|database|uploads|\.git|\.commandcode)(/|$) - [F,L]
+
+    # Route site requests to index.php when doc root is public_html/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+Options -Indexes
+
+# Deny sensitive file types at project root
+<FilesMatch "^(\.env|\.env\.example|composer\.(json|lock)|\.gitignore)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</FilesMatch>

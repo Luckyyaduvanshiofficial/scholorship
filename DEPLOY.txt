@@ -22,10 +22,20 @@ Upload this entire project into Hostinger public_html:
       ├── index.php
       └── .htaccess
 
-Hostinger subdomain document roots:
+Hostinger subdomain document roots (REQUIRED — fixes 403 Forbidden):
   tambolisamaj.online        → public_html/main
   portal.tambolisamaj.online → public_html/portal
   admin.tambolisamaj.online  → public_html/admin
+
+  Hostinger: Websites → Manage → Domains → Subdomains → edit each
+  → set "Document root" to the folder above (NOT public_html alone).
+
+  If the main domain still shows 403, a fallback index.php exists at
+  public_html/index.php — but subdomain roots should still be set correctly.
+
+Cleanup on server (delete old/duplicate folders after upload):
+  pratibha/, portal2783/, admin.2745/, public/ (use portal/ for assets)
+  Optional: .git/, docs/, *.ps1, AGENTS.md (not needed in production)
 
 Production .env:
   SESSION_DOMAIN=.tambolisamaj.online
