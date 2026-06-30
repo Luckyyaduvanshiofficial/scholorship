@@ -31,6 +31,7 @@ class Application
     /** Columns in `pratibha_details` child table */
     private const PRATIBHA_COLS = [
         'achievement_title', 'achievement_category', 'achievement_level', 'rank_position',
+        'family_occupation', 'family_members_count', 'earning_members_count', 'career_goal',
     ];
 
     public function __construct()
@@ -104,8 +105,11 @@ class Application
                        sa.marks_obtained, sa.max_marks, sa.percentage,
                        ac.session_name, atp.name AS app_type_name, ast.name AS status_name,
                        sd.family_income, sd.bank_name, sd.account_number, sd.ifsc_code, sd.account_holder_name,
-                       sd.family_occupation, sd.family_members_count, sd.earning_members_count,
-                       sd.current_class, sd.current_college, sd.career_goal, sd.prev_scholarship_received,
+                       COALESCE(sd.family_occupation, pd.family_occupation) AS family_occupation,
+                       COALESCE(sd.family_members_count, pd.family_members_count) AS family_members_count,
+                       COALESCE(sd.earning_members_count, pd.earning_members_count) AS earning_members_count,
+                       COALESCE(sd.career_goal, pd.career_goal) AS career_goal,
+                       sd.current_class, sd.current_college, sd.prev_scholarship_received,
                        pd.achievement_title, pd.achievement_category, pd.achievement_level, pd.rank_position,
                        CASE WHEN a.application_type_id = 1 THEN 'scholarship' ELSE 'pratibha' END AS `type`
                 FROM applications a
@@ -570,43 +574,53 @@ class Application
      */
     public function generateApplicationNumber(int $applicationId, int $typeId): string
     {
-        $year = date('Y');
+        $year = (int) date('Y');
+        $typeKey = ($typeId === 1) ? 'scholarship' : 'pratibha';
 
-        $this->db->beginTransaction();
+        $ownsTransaction = !$this->db->inTransaction();
+        if ($ownsTransaction) {
+            $this->db->beginTransaction();
+        }
+
         try {
             $stmt = $this->db->prepare(
-                "SELECT id, last_number FROM application_counters
-                 WHERE counter_year = ? AND application_type_id = ? FOR UPDATE"
+                "SELECT counter FROM application_counters
+                 WHERE year = ? AND type = ? FOR UPDATE"
             );
-            $stmt->execute([$year, $typeId]);
+            $stmt->execute([$year, $typeKey]);
             $counter = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($counter) {
-                $newNumber = (int) $counter['last_number'] + 1;
+                $newNumber = (int) $counter['counter'] + 1;
                 $stmt = $this->db->prepare(
-                    "UPDATE application_counters SET last_number = ? WHERE id = ?"
+                    "UPDATE application_counters SET counter = ? WHERE year = ? AND type = ?"
                 );
-                $stmt->execute([$newNumber, $counter['id']]);
+                $stmt->execute([$newNumber, $year, $typeKey]);
             } else {
                 $newNumber = 1;
                 $stmt = $this->db->prepare(
-                    "INSERT INTO application_counters (counter_year, application_type_id, last_number) VALUES (?, ?, ?)"
+                    "INSERT INTO application_counters (year, type, counter) VALUES (?, ?, ?)"
                 );
-                $stmt->execute([$year, $typeId, $newNumber]);
+                $stmt->execute([$year, $typeKey, $newNumber]);
             }
 
             $prefix = ($typeId === 1) ? 'TSVS' : 'TSVP';
-            $appNo = sprintf('%s-%s-%04d', $prefix, $year, $newNumber);
+            $appNo = sprintf('%s-%d-%04d', $prefix, $year, $newNumber);
 
             $stmt = $this->db->prepare("UPDATE applications SET application_no = ? WHERE id = ?");
             $stmt->execute([$appNo, $applicationId]);
 
-            $this->db->commit();
+            if ($ownsTransaction) {
+                $this->db->commit();
+            }
+
             return $appNo;
         } catch (\Throwable $e) {
-            $this->db->rollBack();
+            if ($ownsTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             \App\Core\Logger::error("Atomic app number generation failed for app {$applicationId}: " . $e->getMessage());
-            return \App\Core\ApplicationNumberGenerator::format($applicationId, $year);
+            return \App\Core\ApplicationNumberGenerator::format($applicationId, (string) $year, $typeId);
         }
     }
 

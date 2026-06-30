@@ -19,10 +19,7 @@ class ApplicationController
      */
     public function index(): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $appModel = new Application();
         $applications = $appModel->all();
@@ -38,10 +35,7 @@ class ApplicationController
      */
     public function show(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $appModel = new Application();
         $app = $appModel->find($id);
@@ -125,9 +119,7 @@ class ApplicationController
      */
     public function approve(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
@@ -209,9 +201,7 @@ class ApplicationController
      */
     public function reject(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');

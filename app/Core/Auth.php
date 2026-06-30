@@ -224,6 +224,42 @@ class Auth
     }
 
     /**
+     * Require admin access; redirect guests and non-admins to the correct host.
+     */
+    public static function guardAdmin(): void
+    {
+        if (self::guest()) {
+            Response::redirect('/login');
+        }
+
+        if (self::isStudent()) {
+            Response::redirect(Url::portal('/dashboard'));
+        }
+
+        if (!self::isAdmin()) {
+            if (self::isRepresentative()) {
+                Response::redirect(Url::portal('/representative'));
+            }
+
+            Flash::set('error', 'Access denied.');
+            Response::redirect('/login');
+        }
+    }
+
+    /**
+     * Require super-admin access after base admin guard.
+     */
+    public static function guardSuperAdmin(): void
+    {
+        self::guardAdmin();
+
+        if (!self::isSuperAdmin()) {
+            Flash::set('error', 'Access denied. Super Admin role required.');
+            Response::redirectAdmin('/');
+        }
+    }
+
+    /**
      * Check if current user is a super admin.
      */
     public static function isSuperAdmin(): bool

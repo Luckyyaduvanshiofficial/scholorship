@@ -20,10 +20,7 @@ class UserController
      */
     public function students(): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $db = Database::getInstance();
         $search = trim(Input::get('search', ''));
@@ -67,10 +64,7 @@ class UserController
      */
     public function toggleStudentStatus(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $db = Database::getInstance();
 
@@ -114,10 +108,7 @@ class UserController
      */
     public function deleteStudent(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $db = Database::getInstance();
 
@@ -144,10 +135,7 @@ class UserController
      */
     public function reps(): void
     {
-        if (!Auth::isSuperAdmin()) {
-            Flash::set('error', 'Access denied. Super Admin role required.');
-            Response::redirect('/');
-        }
+        Auth::guardSuperAdmin();
 
         $db = Database::getInstance();
         $search = trim(Input::get('search', ''));
@@ -180,10 +168,7 @@ class UserController
      */
     public function createRep(): void
     {
-        if (!Auth::isSuperAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardSuperAdmin();
 
         $username = trim(Input::post('username', ''));
         $email = trim(Input::post('email', ''));
@@ -233,10 +218,7 @@ class UserController
      */
     public function toggleRepStatus(int $id): void
     {
-        if (!Auth::isSuperAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardSuperAdmin();
 
         $db = Database::getInstance();
 
@@ -264,10 +246,7 @@ class UserController
      */
     public function deleteRep(int $id): void
     {
-        if (!Auth::isSuperAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardSuperAdmin();
 
         $db = Database::getInstance();
 

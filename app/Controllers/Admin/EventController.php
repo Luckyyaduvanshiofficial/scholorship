@@ -19,9 +19,7 @@ class EventController
      */
     public function index(): void
     {
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $model = new Event();
         $page  = max(1, (int) Input::get('page', '1'));
@@ -39,9 +37,7 @@ class EventController
      */
     public function create(): void
     {
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         Response::view('admin/events/form', [
             'title' => 'Create Event — Admin',
@@ -57,9 +53,7 @@ class EventController
     {
         Csrf::validate();
 
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $title       = trim(Input::post('title', ''));
         $description = trim(Input::post('description', ''));
@@ -114,9 +108,7 @@ class EventController
      */
     public function edit(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $model = new Event();
         $event = $model->getById($id);
@@ -139,9 +131,7 @@ class EventController
     {
         Csrf::validate();
 
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $model = new Event();
         $event = $model->getById($id);
@@ -202,9 +192,7 @@ class EventController
     {
         Csrf::validate();
 
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $model = new Event();
         $model->delete($id);

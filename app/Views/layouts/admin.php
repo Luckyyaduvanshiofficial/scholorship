@@ -23,5 +23,8 @@ if (!function_exists('admin_path')) {
             <?= $content ?? '' ?>
         </main>
     </div>
+    <?php require VIEW_PATH . '/layouts/dash-footer.php'; ?>
 </div>
 <?php require VIEW_PATH . '/layouts/admin-sidebar-script.php'; ?>
+</body>
+</html>

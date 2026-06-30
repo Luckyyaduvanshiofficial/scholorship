@@ -78,7 +78,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                                 <td class="py-3 text-end" data-label="कार्रवाई">
                                                     <div class="d-inline-flex gap-2">
                                                         <!-- Toggle Status Button -->
-                                                        <form action="<?= admin_path('reps/' . $rep['id'] ?>/toggle-status" method="post" class="m-0">
+                                                        <form action="<?= admin_path('reps/' . $rep['id'] . '/toggle-status') ?>" method="post" class="m-0">
                                                             <?= Csrf::field() ?>
                                                             <?php if ($isSuspended): ?>
                                                                 <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-3 py-1" style="font-size: 1.15rem;">

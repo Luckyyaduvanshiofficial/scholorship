@@ -15,10 +15,7 @@ class DashboardController
      */
     public function index(): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $db = \App\Core\Database::getInstance();
 

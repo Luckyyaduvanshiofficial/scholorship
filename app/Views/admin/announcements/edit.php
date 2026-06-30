@@ -36,13 +36,13 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 <!-- Edit Form Card -->
                 <div class="card border-0 shadow-sm" style="border-radius: 16px;">
                     <div class="card-body p-4">
-                        <form action="<?= admin_path('announcements/' . $announcement['id'] ?>/edit" method="post">
+                        <form action="<?= admin_path('announcements/' . $announcement['id'] . '/edit') ?>" method="post">
                             <?= Csrf::field() ?>
 
                             <div class="mb-4">
                                 <label for="title" class="form-label fw-bold text-secondary" style="font-size: 1.25rem;">सूचना का शीर्षक (Title)</label>
                                 <input type="text" class="form-control" id="title" name="title" required 
-                                       value="<?= htmlspecialchars($announcement['title'])) ?>" 
+                                       value="<?= htmlspecialchars($announcement['title']) ?>" 
                                        placeholder="उदा. छात्रवृत्ति आवेदन की अंतिम तिथि बढ़ाई गई" style="border-color: #cbd5e1; font-size: 1.3rem; height: 50px;">
                             </div>
 

@@ -19,9 +19,7 @@ class BlogController
      */
     public function index(): void
     {
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $model = new BlogPost();
         $page  = max(1, (int) Input::get('page', '1'));
@@ -39,9 +37,7 @@ class BlogController
      */
     public function create(): void
     {
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         Response::view('admin/blog/form', [
             'title' => 'Create Blog Post — Admin',
@@ -57,9 +53,7 @@ class BlogController
     {
         Csrf::validate();
 
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $title      = trim(Input::post('title', ''));
         $content    = trim(Input::post('content', ''));
@@ -112,9 +106,7 @@ class BlogController
      */
     public function edit(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $model = new BlogPost();
         $post  = $model->getById($id);
@@ -137,9 +129,7 @@ class BlogController
     {
         Csrf::validate();
 
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $model = new BlogPost();
         $post  = $model->getById($id);
@@ -198,9 +188,7 @@ class BlogController
     {
         Csrf::validate();
 
-        if (!Auth::isAdmin()) {
-            Response::redirect('/login');
-        }
+        Auth::guardAdmin();
 
         $model = new BlogPost();
         $model->delete($id);

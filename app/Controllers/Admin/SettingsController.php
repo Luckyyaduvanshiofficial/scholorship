@@ -21,10 +21,7 @@ class SettingsController
      */
     public function index(): void
     {
-        if (!Auth::isSuperAdmin()) {
-            Flash::set('error', 'Access denied. Super Admin role required.');
-            Response::redirect('/');
-        }
+        Auth::guardSuperAdmin();
 
         $db = Database::getInstance();
 
@@ -52,10 +49,7 @@ class SettingsController
      */
     public function update(): void
     {
-        if (!Auth::isSuperAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardSuperAdmin();
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
@@ -102,10 +96,7 @@ class SettingsController
      */
     public function createSession(): void
     {
-        if (!Auth::isSuperAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardSuperAdmin();
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');
@@ -147,10 +138,7 @@ class SettingsController
      */
     public function activateSession(int $id): void
     {
-        if (!Auth::isSuperAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardSuperAdmin();
 
         if (!Csrf::validate()) {
             Flash::set('error', 'Invalid security token.');

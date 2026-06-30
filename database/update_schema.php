@@ -335,7 +335,23 @@ try {
         echo "✅ deleted_at column added to applications.\n";
     }
 
-    // 2h. Add unique constraint on (student_id, session_id, application_type_id) if missing
+    // 2h. Add family/career columns to pratibha_details (shared with scholarship step 1)
+    $pratCols = $describe('pratibha_details');
+    $pratibhaFamilyCols = [
+        'family_occupation'     => 'VARCHAR(150) DEFAULT NULL',
+        'family_members_count'  => 'INT DEFAULT NULL',
+        'earning_members_count' => 'INT DEFAULT NULL',
+        'career_goal'           => 'VARCHAR(255) DEFAULT NULL',
+    ];
+    foreach ($pratibhaFamilyCols as $col => $def) {
+        if (!in_array($col, $pratCols, true)) {
+            echo "➕ Adding {$col} to pratibha_details...\n";
+            $pdo->exec("ALTER TABLE pratibha_details ADD COLUMN `{$col}` {$def}");
+            echo "✅ {$col} added to pratibha_details.\n";
+        }
+    }
+
+    // 2i. Add unique constraint on (student_id, session_id, application_type_id) if missing
     try {
         $pdo->exec("ALTER TABLE applications ADD UNIQUE INDEX unique_student_session_type (student_id, session_id, application_type_id)");
         echo "✅ Unique index added for student+session+type.\n";

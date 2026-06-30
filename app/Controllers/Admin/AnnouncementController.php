@@ -20,10 +20,7 @@ class AnnouncementController
      */
     public function index(): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $db = Database::getInstance();
         $stmt = $db->query("SELECT a.*, u.username as creator_name FROM announcements a LEFT JOIN users u ON a.created_by = u.id ORDER BY a.created_at DESC");
@@ -40,10 +37,7 @@ class AnnouncementController
      */
     public function create(): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         Response::view('admin/announcements/create', [
             'title' => 'Create Announcement — Admin Dashboard',
@@ -55,10 +49,7 @@ class AnnouncementController
      */
     public function store(): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $title = trim(Input::post('title', ''));
         $content = trim(Input::post('content', ''));
@@ -111,10 +102,7 @@ class AnnouncementController
      */
     public function edit(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $db = Database::getInstance();
         $stmt = $db->prepare("SELECT * FROM announcements WHERE id = ? LIMIT 1");
@@ -137,10 +125,7 @@ class AnnouncementController
      */
     public function update(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $title = trim(Input::post('title', ''));
         $content = trim(Input::post('content', ''));
@@ -193,10 +178,7 @@ class AnnouncementController
      */
     public function delete(int $id): void
     {
-        if (!Auth::isAdmin()) {
-            Flash::set('error', 'Access denied.');
-            Response::redirect('/');
-        }
+        Auth::guardAdmin();
 
         $db = Database::getInstance();
         $stmt = $db->prepare("DELETE FROM announcements WHERE id = ?");
