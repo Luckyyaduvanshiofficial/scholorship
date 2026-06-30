@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * Fallback entry when the domain document root is public_html/ (not main/).
- * Hostinger: prefer pointing tambolisamaj.online → public_html/main
+ * Unified entry point — use when ALL domains point to public_html/ (Mode B).
+ *
+ * Detects site / portal / admin from HTTP_HOST + .env URLs.
+ * Mode A (recommended): point each subdomain to main/, portal/, admin/ instead.
  */
-
-define('APP_HOST', 'site');
 
 require __DIR__ . '/bootstrap.php';

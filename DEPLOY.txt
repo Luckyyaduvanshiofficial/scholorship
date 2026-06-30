@@ -1,52 +1,68 @@
-Tamboli Samaj — Multi-Site Hostinger Deployment
-==============================================
+Tamboli Samaj — Hostinger Deployment Guide
+==========================================
 
-Upload this entire project into Hostinger public_html:
+STEP 1 — Upload to public_html
+------------------------------
+Upload the FULL GitHub repo into Hostinger public_html (not inside a subfolder).
 
-  public_html/                    ← project root on server
-  ├── app/                        ← shared PHP application
-  ├── vendor/
-  ├── database/
-  ├── storage/                    ← writable (755/775)
-  ├── uploads/                    ← writable (755/775)
-  ├── .env                        ← single config (see .env.example)
-  ├── bootstrap.php
-  ├── main/                       ← tambolisamaj.online document root
-  │   ├── index.php
-  │   └── .htaccess
-  ├── portal/                     ← portal.tambolisamaj.online document root
-  │   ├── index.php
-  │   ├── .htaccess
-  │   └── assets/, uploads/, favicon, manifest, sw.js
-  └── admin/                      ← admin.tambolisamaj.online document root
-      ├── index.php
-      └── .htaccess
+Required at public_html/:
+  app/  vendor/  database/  storage/  uploads/
+  bootstrap.php  index.php  .htaccess  .env
+  main/  portal/  admin/
 
-Hostinger subdomain document roots (REQUIRED — fixes 403 Forbidden):
+Delete old/duplicate folders on server:
+  pratibha/  portal2783/  admin.2745/  public/
+
+STEP 2 — Choose deploy mode
+---------------------------
+
+MODE A — Recommended (3 document roots)
+  Hostinger → Websites → Manage → Domains → Subdomains
+
   tambolisamaj.online        → public_html/main
   portal.tambolisamaj.online → public_html/portal
   admin.tambolisamaj.online  → public_html/admin
 
-  Hostinger: Websites → Manage → Domains → Subdomains → edit each
-  → set "Document root" to the folder above (NOT public_html alone).
+  Each folder has its own index.php + .htaccess (DirectoryIndex set).
 
-  If the main domain still shows 403, a fallback index.php exists at
-  public_html/index.php — but subdomain roots should still be set correctly.
+MODE B — Fallback (1 document root)
+  Point ALL domains to public_html/
 
-Cleanup on server (delete old/duplicate folders after upload):
-  pratibha/, portal2783/, admin.2745/, public/ (use portal/ for assets)
-  Optional: .git/, docs/, *.ps1, AGENTS.md (not needed in production)
+  Root index.php auto-detects site/portal/admin from HTTP_HOST.
+  Assets load via /portal/assets/ (handled by root .htaccess).
 
-Production .env:
+STEP 3 — Production .env
+------------------------
   SESSION_DOMAIN=.tambolisamaj.online
   SESSION_SECURE=true
   SITE_URL=https://tambolisamaj.online
   PORTAL_URL=https://portal.tambolisamaj.online
   ADMIN_URL=https://admin.tambolisamaj.online
+  DB_HOST=localhost
+  DB_NAME=your_database
+  DB_USER=your_user
+  DB_PASS=your_password
 
-Shared auth: one database, one SESSION_NAME, cookie domain .tambolisamaj.online
+STEP 4 — Permissions
+--------------------
+  storage/  → 755 or 775 (writable)
+  uploads/  → 755 or 775 (writable)
+  portal/uploads/  → 755 or 775 (writable)
 
-Local Laragon (already configured):
-  http://tamoli-main.test          → main/
-  http://tamoli-prathibha-samman.test → portal/
-  http://tamoli-admin.test         → admin/
+STEP 5 — Verify
+---------------
+  Visit https://tambolisamaj.online/diagnose.php
+  Fix any red ✘ items, then DELETE diagnose.php.
+
+STEP 6 — Linux case sensitivity
+-------------------------------
+  Folders MUST be capitalized exactly:
+  app/Config  app/Core  app/Controllers  app/Views
+  Wrong: app/config  app/core  → 500 error on Linux
+
+Troubleshooting
+---------------
+  403 Forbidden → wrong document root OR missing index.php (fixed in repo)
+  500 error     → check storage/logs/ or enable APP_DEBUG briefly
+  No CSS        → portal/assets/ must exist; portal doc root = public_html/portal
+  DB error      → check .env DB_* on Hostinger (DB_HOST is usually localhost)

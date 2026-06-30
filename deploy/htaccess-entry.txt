@@ -1,3 +1,6 @@
+# Copy this content into main/.htaccess, portal/.htaccess, and admin/.htaccess
+# (Already applied in the repo — use this if you need to restore on Hostinger.)
+
 DirectoryIndex index.php
 Options -Indexes +FollowSymLinks
 

@@ -1,5 +1,9 @@
+DirectoryIndex index.php
+Options -Indexes +FollowSymLinks
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /
 
     # Redirect trailing slashes (except root)
     RewriteCond %{REQUEST_URI} (.+)/$

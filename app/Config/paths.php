@@ -23,3 +23,5 @@ $publicPath = match (APP_HOST) {
 
 define('PUBLIC_PATH', $publicPath);
 define('ASSET_PATH', APP_ROOT . '/portal/assets');
+define('DOC_ROOT_ENTRY', \App\Core\Host::docRootEntry());
+define('PORTAL_WEB_PREFIX', \App\Core\Host::portalWebPrefix());

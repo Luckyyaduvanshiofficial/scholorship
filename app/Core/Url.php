@@ -87,15 +87,17 @@ class Url
         $path = ltrim($path, '/');
 
         if (APP_HOST === 'portal') {
+            $base = rtrim(Host::portalWebPrefix() . '/assets', '/');
+
             if ($path === '') {
-                return '/assets';
+                return $base;
             }
 
             if (str_starts_with($path, 'assets/')) {
-                return '/' . $path;
+                return Host::portalWebPrefix() . '/' . $path;
             }
 
-            return '/assets/' . $path;
+            return $base . '/' . $path;
         }
 
         $base = rtrim(PORTAL_URL, '/');
@@ -119,7 +121,10 @@ class Url
         $path = ltrim($path, '/');
 
         if (APP_HOST === 'portal' || APP_HOST === 'site') {
-            return '/' . ($path !== '' ? $path : 'uploads');
+            $prefix = Host::portalWebPrefix();
+            $prefix = $prefix === '' ? '/' : $prefix . '/';
+
+            return $prefix . ($path !== '' ? $path : 'uploads');
         }
 
         return self::join(PORTAL_URL, $path === '' ? 'uploads' : $path);

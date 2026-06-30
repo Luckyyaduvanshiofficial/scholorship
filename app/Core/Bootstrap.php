@@ -47,6 +47,11 @@ if (file_exists($envFile)) {
     }
 }
 
+// ─── Detect host (Hostinger unified doc root or subdomain) ─
+if (!defined('APP_HOST')) {
+    define('APP_HOST', \App\Core\Host::resolve());
+}
+
 // ─── Load Configuration ───────────────────────────────────
 require ROOT_PATH . '/app/Config/constants.php';
 require ROOT_PATH . '/app/Config/paths.php';
