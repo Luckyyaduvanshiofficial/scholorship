@@ -45,21 +45,6 @@ class ApplicationController
             Response::redirectAdmin('applications');
         }
 
-        // Automatic transition from Submitted or Resubmitted to Under Review
-        $statusName = $app['status_name'] ?? '';
-        if ($statusName === 'Submitted' || $statusName === 'Resubmitted') {
-            $oldStatusId = (int) ($app['status_id'] ?? 0);
-            $appModel->updateStatus($id, 3, (int) Auth::id());
-            $appModel->logHistory(
-                $id,
-                'under_review',
-                (int) Auth::id(),
-                ['status_id' => $oldStatusId],
-                ['status_id' => 3]
-            );
-            $app = $appModel->find($id);
-        }
-
         // Expose completeness check
         $isIncomplete = false;
         $missing = [];
@@ -149,9 +134,9 @@ class ApplicationController
             }
 
             $lockedStatusId = (int) ($lockedApp['status_id'] ?? 0);
-            if ($lockedStatusId !== 3) {
+            if (!in_array($lockedStatusId, [2, 3, 7], true)) {
                 $db->rollBack();
-                Flash::set('error', 'Only applications under review can be approved.');
+                Flash::set('error', 'Only submitted or under-review applications can be approved.');
                 Response::redirectAdmin('applications/' . $id);
             }
 
@@ -160,7 +145,7 @@ class ApplicationController
                 $id,
                 'approved',
                 (int) Auth::id(),
-                ['status_id' => 3],
+                ['status_id' => $lockedStatusId],
                 ['status_id' => 4]
             );
             $db->commit();
@@ -245,9 +230,9 @@ class ApplicationController
             }
 
             $lockedStatusId = (int) ($lockedApp['status_id'] ?? 0);
-            if ($lockedStatusId !== 3) {
+            if (!in_array($lockedStatusId, [2, 3, 7], true)) {
                 $db->rollBack();
-                Flash::set('error', 'Only applications under review can be rejected.');
+                Flash::set('error', 'Only submitted or under-review applications can be rejected.');
                 Response::redirectAdmin('applications/' . $id);
             }
 

@@ -9,6 +9,7 @@ use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\Input;
 use App\Core\Response;
+use App\Core\Url;
 use App\Core\Validator;
 use App\Models\Site\BlogPost;
 
@@ -51,7 +52,7 @@ class BlogController
      */
     public function store(): void
     {
-        Csrf::validate();
+        Csrf::validateOrAbort(Url::admin('blog/create'));
 
         Auth::guardAdmin();
 
@@ -127,7 +128,7 @@ class BlogController
      */
     public function update(int $id): void
     {
-        Csrf::validate();
+        Csrf::validateOrAbort(Url::admin("blog/{$id}/edit"));
 
         Auth::guardAdmin();
 
@@ -186,7 +187,7 @@ class BlogController
      */
     public function delete(int $id): void
     {
-        Csrf::validate();
+        Csrf::validateOrAbort(Url::admin('blog'));
 
         Auth::guardAdmin();
 

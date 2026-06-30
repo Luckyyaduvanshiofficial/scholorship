@@ -42,6 +42,19 @@ class UploadController
             Response::abort(403);
         }
 
+        $documents = $applicationModel->documents($applicationId);
+        $storedMatch = false;
+        foreach ($documents as $doc) {
+            if (($doc['stored_name'] ?? '') === $file) {
+                $storedMatch = true;
+                break;
+            }
+        }
+
+        if (!$storedMatch) {
+            Response::abort(404);
+        }
+
         $path = UPLOAD_PATH . '/applications/' . $applicationId . '/' . $file;
 
         if (!is_file($path)) {

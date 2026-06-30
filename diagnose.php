@@ -11,7 +11,7 @@ declare(strict_types=1);
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
-$root     = __DIR__;
+$root     = $_SERVER['DIAGNOSE_ROOT'] ?? __DIR__;
 $docRoot  = realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '(unknown)';
 $httpHost = $_SERVER['HTTP_HOST'] ?? '(unknown)';
 

@@ -120,7 +120,7 @@ class Application
                 LEFT JOIN application_status ast ON a.status_id = ast.id
                 LEFT JOIN scholarship_details sd ON a.id = sd.application_id
                 LEFT JOIN pratibha_details pd ON a.id = pd.application_id
-                WHERE a.id = ?";
+                WHERE a.id = ? AND a.deleted_at IS NULL";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
@@ -173,9 +173,11 @@ class Application
                 LEFT JOIN application_types atp ON a.application_type_id = atp.id
                 LEFT JOIN application_status ast ON a.status_id = ast.id";
 
+        $conditions = ['a.deleted_at IS NULL'];
         if ($where) {
-            $sql .= " WHERE {$where}";
+            $conditions[] = $where;
         }
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
         $sql .= " ORDER BY a.created_at DESC";
 

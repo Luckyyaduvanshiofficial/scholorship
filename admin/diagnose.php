@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * Hostinger diagnostic for portal/ document root.
- * Visit: https://portal.tambolisamaj.online/diagnose.php
+ * Hostinger diagnostic for admin/ document root.
+ * Visit: https://admin.tambolisamaj.online/diagnose.php
  * DELETE after fixing issues.
  */
 

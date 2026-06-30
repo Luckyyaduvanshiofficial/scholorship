@@ -562,6 +562,7 @@ class ApplicationController
 
                 if ($isResubmit) {
                     $updateData['resubmitted_at'] = date('Y-m-d H:i:s');
+                    $updateData['correction_count'] = (int) ($currentApp['correction_count'] ?? 0) + 1;
                 } else {
                     $updateData['submitted_at'] = date('Y-m-d H:i:s');
                     $updateData['submitted_ip'] = $ipAddress;
@@ -620,6 +621,9 @@ class ApplicationController
             Flash::set('success', 'आवेदन सफलतापूर्वक सबमिट कर दिया गया है! / Application submitted successfully!');
             Response::redirect("/dashboard/applications/{$appId}/acknowledgment");
         }
+
+        Flash::set('error', 'Invalid form action.');
+        Response::redirect($redirectUrl . '?step=' . $step);
     }
 
     private function getFirstError($v): string
@@ -729,17 +733,13 @@ class ApplicationController
                 Response::redirect('/dashboard/applications/' . $id);
             }
 
-            $newCount = $oldCount + 1;
-            $appModel->update($id, [
-                'status_id'        => 6,
-                'correction_count' => $newCount,
-            ]);
+            $appModel->update($id, ['status_id' => 6]);
             $appModel->logHistory(
                 $id,
-                'edited',
+                'correction_started',
                 (int) Auth::id(),
-                ['status_id' => 5, 'correction_count' => $oldCount],
-                ['status_id' => 6, 'correction_count' => $newCount]
+                ['status_id' => 5],
+                ['status_id' => 6]
             );
             Flash::set('info', 'You have one correction window. Please fix the issues and resubmit.');
         }
@@ -856,7 +856,7 @@ class ApplicationController
             exit;
         } catch (\Throwable $e) {
             Logger::error('AJAX Document upload error: ' . $e->getMessage());
-            echo json_encode(['success' => false, 'error' => 'Server Error: ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'error' => 'Request failed. Please try again.']);
             exit;
         }
     }
@@ -935,7 +935,7 @@ class ApplicationController
             exit;
         } catch (\Throwable $e) {
             Logger::error('AJAX Document delete error: ' . $e->getMessage());
-            echo json_encode(['success' => false, 'error' => 'Server Error: ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'error' => 'Request failed. Please try again.']);
             exit;
         }
     }

@@ -9,6 +9,7 @@ use App\Core\Csrf;
 use App\Core\Flash;
 use App\Core\Input;
 use App\Core\Response;
+use App\Core\Url;
 use App\Core\Validator;
 use App\Models\Site\Event;
 
@@ -51,7 +52,7 @@ class EventController
      */
     public function store(): void
     {
-        Csrf::validate();
+        Csrf::validateOrAbort(Url::admin('events/create'));
 
         Auth::guardAdmin();
 
@@ -129,7 +130,7 @@ class EventController
      */
     public function update(int $id): void
     {
-        Csrf::validate();
+        Csrf::validateOrAbort(Url::admin("events/{$id}/edit"));
 
         Auth::guardAdmin();
 
@@ -190,7 +191,7 @@ class EventController
      */
     public function delete(int $id): void
     {
-        Csrf::validate();
+        Csrf::validateOrAbort(Url::admin('events'));
 
         Auth::guardAdmin();
 

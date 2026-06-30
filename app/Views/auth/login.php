@@ -25,6 +25,8 @@ require VIEW_PATH . '/layouts/flash-message.php';
                     <div class="card-body p-4 p-md-5">
                         <form action="/login" method="post">
                             <?= Csrf::field() ?>
+                            <?php $isAdminHost = $isAdminHost ?? false; ?>
+                            <?php if (!$isAdminHost): ?>
                             <div class="mb-4">
                                 <label class="form-label small fw-semibold text-muted text-uppercase mb-2">लॉगिन प्रकार / Login As</label>
                                 <div class="tsp-role-selector">
@@ -35,6 +37,9 @@ require VIEW_PATH . '/layouts/flash-message.php';
                                     <label for="roleAdmin"><i class="bi bi-shield-lock"></i> एडमिन / Admin</label>
                                 </div>
                             </div>
+                            <?php else: ?>
+                            <input type="hidden" name="role" value="admin">
+                            <?php endif; ?>
                             <div class="mb-3">
                                 <label for="email" class="form-label small fw-semibold">ईमेल / Email</label>
                                 <input type="email" name="email" id="email" class="form-control tsp-input" placeholder="you@example.com" value="<?= Helpers::esc($emailVal) ?>" required autofocus autocomplete="email" inputmode="email">
@@ -42,7 +47,9 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <label for="password" class="form-label small fw-semibold mb-0">पासवर्ड / Password</label>
+                                    <?php if (!$isAdminHost): ?>
                                     <a href="/forgot-password" class="small text-decoration-none fw-semibold" style="color:var(--nav-red); font-size: 1.2rem;">पासवर्ड भूल गए? / Forgot?</a>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="tsp-password-group position-relative">
                                     <input type="password" name="password" id="password" class="form-control tsp-input tsp-input-pw" placeholder="••••••••" required autocomplete="current-password">
@@ -51,9 +58,11 @@ require VIEW_PATH . '/layouts/flash-message.php';
                             </div>
                             <button type="submit" class="btn tsp-btn w-100 mt-2 mb-2 justify-content-center" style="background:var(--nav-red); border-color:var(--nav-red);"><i class="bi bi-box-arrow-in-right me-1"></i> लॉगिन करें / Sign In</button>
                         </form>
+                        <?php if (!$isAdminHost): ?>
                         <div class="text-center mt-3">
                             <small class="text-muted">Don't have an account? <a href="/register" class="fw-semibold" style="color:var(--nav-red);">Register here</a></small>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <p class="text-center small text-muted mt-4"><i class="bi bi-shield-check me-1"></i> Secure login · Tamboli Samaj Vikas Sanstha, Rajasthan</p>

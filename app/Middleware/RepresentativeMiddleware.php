@@ -7,6 +7,7 @@ namespace App\Middleware;
 use App\Core\Auth;
 use App\Core\Flash;
 use App\Core\Response;
+use App\Core\Url;
 
 class RepresentativeMiddleware
 {
@@ -18,8 +19,16 @@ class RepresentativeMiddleware
         }
 
         if (!Auth::isRepresentative()) {
+            if (Auth::isAdmin()) {
+                Response::redirect(Url::adminSite());
+            }
+
+            if (Auth::isStudent()) {
+                Response::redirect('/dashboard');
+            }
+
             Flash::set('error', 'You do not have permission to access this area.');
-            Response::redirect('/dashboard');
+            Response::redirect('/login');
         }
     }
 }

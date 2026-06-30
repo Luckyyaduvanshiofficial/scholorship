@@ -54,7 +54,7 @@ function ackStepState(int $statusId, int $minStatus, string $statusName): string
 <div class="card border-0 shadow-sm p-4 p-md-5 bg-white form-card" style="border-radius: 1.25rem;">
     <div class="text-center mb-4 border-bottom pb-4">
         <div class="text-center mb-2">
-            <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj" width="64" height="64">
+            <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="Tamboli Samaj" width="64" height="64">
         </div>
         <h3 class="fw-bold text-dark mb-1">तम्बोली समाज विकास संस्था, राजस्थान</h3>
         <div class="text-muted small fw-semibold mb-1">पंजीकृत संख्या: 411 / 2016-17</div>

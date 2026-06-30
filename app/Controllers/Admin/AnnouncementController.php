@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Auth;
+use App\Core\Csrf;
 use App\Core\Database;
 use App\Core\Flash;
 use App\Core\Input;
 use App\Core\Logger;
 use App\Core\Response;
+use App\Core\Url;
 use App\Core\Validator;
 use PDO;
 
@@ -49,6 +51,7 @@ class AnnouncementController
      */
     public function store(): void
     {
+        Csrf::validateOrAbort(Url::admin('announcements/create'));
         Auth::guardAdmin();
 
         $title = trim(Input::post('title', ''));
@@ -125,6 +128,7 @@ class AnnouncementController
      */
     public function update(int $id): void
     {
+        Csrf::validateOrAbort(Url::admin("announcements/{$id}/edit"));
         Auth::guardAdmin();
 
         $title = trim(Input::post('title', ''));
@@ -178,6 +182,7 @@ class AnnouncementController
      */
     public function delete(int $id): void
     {
+        Csrf::validateOrAbort(Url::admin('announcements'));
         Auth::guardAdmin();
 
         $db = Database::getInstance();

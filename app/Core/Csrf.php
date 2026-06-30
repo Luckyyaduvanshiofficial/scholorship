@@ -56,4 +56,22 @@ class Csrf
 
         return true;
     }
+
+    /**
+     * Validate CSRF or abort with flash message and redirect.
+     */
+    public static function validateOrAbort(string $redirectTo = ''): void
+    {
+        if (self::validate()) {
+            return;
+        }
+
+        Flash::set('error', 'Invalid security token. Please try again.');
+
+        if ($redirectTo !== '') {
+            Response::redirect($redirectTo);
+        }
+
+        Response::back();
+    }
 }

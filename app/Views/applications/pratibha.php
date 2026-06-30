@@ -384,7 +384,7 @@ if ($isEdit && !empty($application['documents'])) {
                                 <!-- Print Header -->
                                 <div class="print-header text-center position-relative mb-4">
                                     <div class="print-logo-wrapper text-center mb-2">
-                                        <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj" class="print-logo" width="60" height="60">
+                                        <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="Tamboli Samaj" class="print-logo" width="60" height="60">
                                     </div>
                                     <h2 class="print-org-title text-center mb-1">तम्बोली समाज विकास संस्था, राजस्थान</h2>
                                     <div class="print-reg-no text-center fw-bold small mb-1">रजि.नं. 411 / 2016-17</div>

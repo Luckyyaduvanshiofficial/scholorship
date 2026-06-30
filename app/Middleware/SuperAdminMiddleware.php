@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\Core\Auth;
-use App\Core\Flash;
-use App\Core\Response;
 
-class AdminMiddleware
+class SuperAdminMiddleware
 {
     public function handle(): void
     {
-        Auth::guardAdmin();
+        Auth::guardSuperAdmin();
     }
 }

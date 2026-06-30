@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Auth;
+use App\Core\Csrf;
 use App\Core\Database;
 use App\Core\Flash;
 use App\Core\Input;
 use App\Core\Response;
+use App\Core\Url;
 use App\Core\Validator;
 use Delight\Auth\Role;
 use PDO;
@@ -64,6 +66,7 @@ class UserController
      */
     public function toggleStudentStatus(int $id): void
     {
+        Csrf::validateOrAbort(Url::admin('students'));
         Auth::guardAdmin();
 
         $db = Database::getInstance();
@@ -108,6 +111,7 @@ class UserController
      */
     public function deleteStudent(int $id): void
     {
+        Csrf::validateOrAbort(Url::admin('students'));
         Auth::guardAdmin();
 
         $db = Database::getInstance();
@@ -168,6 +172,7 @@ class UserController
      */
     public function createRep(): void
     {
+        Csrf::validateOrAbort(Url::admin('reps'));
         Auth::guardSuperAdmin();
 
         $username = trim(Input::post('username', ''));
@@ -218,6 +223,7 @@ class UserController
      */
     public function toggleRepStatus(int $id): void
     {
+        Csrf::validateOrAbort(Url::admin('reps'));
         Auth::guardSuperAdmin();
 
         $db = Database::getInstance();
@@ -246,6 +252,7 @@ class UserController
      */
     public function deleteRep(int $id): void
     {
+        Csrf::validateOrAbort(Url::admin('reps'));
         Auth::guardSuperAdmin();
 
         $db = Database::getInstance();

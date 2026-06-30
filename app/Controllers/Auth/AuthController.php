@@ -11,6 +11,7 @@ use App\Core\Helpers;
 use App\Core\Input;
 use App\Core\Logger;
 use App\Core\Response;
+use App\Core\Session;
 use App\Core\Url;
 use App\Core\Validator;
 use App\Models\Student;
@@ -28,7 +29,8 @@ class AuthController
         }
 
         Response::view('auth/login', [
-            'title' => 'Login — Tamboli Samaj Portal',
+            'title'       => 'Login — Tamboli Samaj Portal',
+            'isAdminHost' => defined('APP_HOST') && APP_HOST === 'admin',
         ]);
     }
 
@@ -44,7 +46,9 @@ class AuthController
 
         $email    = Input::post('email', '');
         $password = Input::post('password', '');
-        $role     = Input::post('role', 'student');
+        $role     = (defined('APP_HOST') && APP_HOST === 'admin')
+            ? 'admin'
+            : Input::post('role', 'student');
 
         $v = Validator::make([
             'email'    => $email,
@@ -65,12 +69,14 @@ class AuthController
         try {
             if ($role === 'admin') {
                 if (Auth::login($email, $password)) {
+                    Session::regenerate();
                     Logger::info('Admin login successful', ['email' => $email]);
                     Flash::set('success', 'Welcome back, ' . Auth::userName());
                     $this->redirectToDashboard();
                 }
             } else {
                 if (Auth::studentLogin($email, $password)) {
+                    Session::regenerate();
                     Logger::info('Student login successful', ['email' => $email]);
                     Flash::set('success', 'Welcome, ' . Auth::userName());
                     $this->redirectToDashboard();
@@ -265,7 +271,7 @@ class AuthController
 
         try {
             Auth::getAuth()->forgotPassword($email, function ($selector, $token) use ($email) {
-                $resetUrl = constant('APP_URL') . '/reset-password?selector=' . urlencode($selector) . '&token=' . urlencode($token);
+                $resetUrl = Url::current('/reset-password') . '?selector=' . urlencode($selector) . '&token=' . urlencode($token);
 
                 $subject = 'तम्बोली समाज पोर्टल — पासवर्ड रीसेट / Password Reset Request';
                 $htmlBody = "

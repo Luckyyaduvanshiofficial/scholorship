@@ -976,7 +976,7 @@ require VIEW_PATH . '/layouts/flash-message.php';
                 <!-- Print Header -->
                 <div class="print-header">
                     <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
-                        <img src="/assets/images/logo/logo-placeholder.svg" alt="Tamboli Samaj" class="print-logo" width="60" height="60">
+                        <img src="<?= \App\Core\Url::asset('images/logo/logo-placeholder.svg') ?>" alt="Tamboli Samaj" class="print-logo" width="60" height="60">
                         <div class="text-center">
                             <h2 class="print-org-title" style="font-size: 2.1rem; font-weight: 800; text-decoration: underline; margin: 0;">तम्बोली समाज विकास संस्था, राजस्थान</h2>
                             <div class="print-reg-no" style="font-size: 1.25rem; font-weight: bold; text-align: center; margin-top: 2px;">रजि.नं. 411/2016-17</div>
